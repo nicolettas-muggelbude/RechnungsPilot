@@ -132,23 +132,23 @@ Siehe [LICENSE](LICENSE) für Details.
 
 ## 🗺️ Roadmap
 
-### Q1 2025
+### Q1 2026
 - Anforderungsanalyse abschließen
 - Technologie-Stack finalisieren
 - Datenbank-Schema entwerfen
 - Projekt-Setup & CI/CD
 
-### Q2 2025
+### Q2 2026
 - MVP-Entwicklung starten
 - Kernfunktionen implementieren
 - Erste Beta-Version
 
-### Q3 2025
+### Q3 2026
 - Beta-Testing mit echten Nutzern
 - Feedback einarbeiten
 - Dokumentation erstellen
 
-### Q4 2025
+### Q4 2026
 - Version 1.0 Release
 - Desktop-Installer für Windows/Mac/Linux
 - Öffentliche Ankündigung
