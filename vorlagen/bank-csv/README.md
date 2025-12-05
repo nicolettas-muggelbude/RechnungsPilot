@@ -4,7 +4,7 @@ Dieser Ordner enthält Beispiel-CSVs verschiedener Banken für die Import-Funkti
 
 ---
 
-## 🏦 Unterstützte Banken
+## 🏦 Unterstützte Banken & Zahlungsdienste
 
 ### Geplant für MVP:
 
@@ -18,6 +18,7 @@ Dieser Ordner enthält Beispiel-CSVs verschiedener Banken für die Import-Funkti
 - [ ] **N26** - Mobile Bank
 - [ ] **Comdirect** - Online-Bank
 - [ ] **Consorsbank** - Online-Broker mit Girokonto
+- [ ] **PayPal** - Zahlungsdienstleister (wichtig für Online-Geschäft)
 
 ### Später:
 
@@ -43,6 +44,7 @@ bank-csv/
 ├── sparkasse-lzo-mt940.csv    # ✅ Sparkasse/LZO - MT940 Format
 ├── sparkasse-lzo-camt-v2.csv  # ✅ Sparkasse/LZO - CAMT V2 Format
 ├── sparkasse-lzo-camt-v8.csv  # ✅ Sparkasse/LZO - CAMT V8 Format
+├── paypal.csv                 # ✅ PayPal Aktivitätsbericht
 ├── volksbank.csv              # (noch nicht vorhanden)
 ├── dkb.csv                    # (noch nicht vorhanden)
 ├── ing.csv                    # (noch nicht vorhanden)
@@ -164,11 +166,12 @@ def test_sparkasse_import():
 
 ## 📊 Status-Übersicht
 
-| Bank | Format | CSV vorhanden | Parser implementiert | Getestet |
-|------|--------|---------------|----------------------|----------|
+| Bank/Dienst | Format | CSV vorhanden | Parser implementiert | Getestet |
+|-------------|--------|---------------|----------------------|----------|
 | Sparkasse/LZO | MT940 | ✅ | ❌ | ❌ |
 | Sparkasse/LZO | CAMT V2 | ✅ | ❌ | ❌ |
 | Sparkasse/LZO | CAMT V8 | ✅ | ❌ | ❌ |
+| PayPal | Aktivitätsbericht | ✅ | ❌ | ❌ |
 | Volksbank | - | ❌ | ❌ | ❌ |
 | DKB | - | ❌ | ❌ | ❌ |
 | ING | - | ❌ | ❌ | ❌ |
