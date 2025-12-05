@@ -40,7 +40,7 @@ Dieser Ordner enthält Beispiel-CSVs verschiedener Banken für die Import-Funkti
 bank-csv/
 ├── README.md              # Diese Datei
 ├── TEMPLATE.md            # Vorlage und Anonymisierungs-Anleitung
-├── sparkasse.csv          # (noch nicht vorhanden)
+├── sparkasse-lzo.csv      # ✅ Sparkasse/LZO (Landessparkasse zu Oldenburg)
 ├── volksbank.csv          # (noch nicht vorhanden)
 ├── dkb.csv                # (noch nicht vorhanden)
 ├── ing.csv                # (noch nicht vorhanden)
@@ -126,7 +126,7 @@ def test_sparkasse_import():
 
 | Bank | CSV vorhanden | Parser implementiert | Getestet |
 |------|---------------|----------------------|----------|
-| Sparkasse | ❌ | ❌ | ❌ |
+| Sparkasse/LZO | ✅ | ❌ | ❌ |
 | Volksbank | ❌ | ❌ | ❌ |
 | DKB | ❌ | ❌ | ❌ |
 | ING | ❌ | ❌ | ❌ |

@@ -122,9 +122,17 @@ Jede Bank-CSV, die du beiträgst, hilft:
 
 ## 📊 Status-Übersicht
 
-Aktuelle Anzahl unterstützter Banken: **0 / 10+** (noch keine Beiträge)
+Aktuelle Anzahl unterstützter Banken: **1 / 10+** 🎉
 
-Sobald die ersten CSVs eingereicht wurden, tracken wir hier den Fortschritt! 📈
+| Bank | Status |
+|------|--------|
+| ✅ Sparkasse/LZO | CSV vorhanden |
+| ⏳ Volksbank | Noch offen |
+| ⏳ DKB | Noch offen |
+| ⏳ ING | Noch offen |
+| ⏳ N26 | Noch offen |
+
+**Die erste Bank ist dabei! Wer trägt die nächste bei?** 🚀
 
 ---
 
