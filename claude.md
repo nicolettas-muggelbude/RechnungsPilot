@@ -4958,6 +4958,303 @@ def handle_gwg(rechnung):
 
 ---
 
+### **7.5.1 Anlagenverwaltung (Frage 7.3)**
+
+#### **Umfang der Anlagenverwaltung in RechnungsPilot**
+
+**RechnungsPilot bietet vollständige Anlagenverwaltung mit:**
+
+1. ✅ **GWG-Automatik** (Sofortabzug < 800 €, Poolabschreibung 800-1000 €)
+2. ✅ **AfA-Rechner** (automatische Abschreibungsberechnung)
+3. ✅ **Anlagenverzeichnis** (Übersicht aller Wirtschaftsgüter)
+4. ✅ **Monatsgenauer AfA-Berechnung** (anteilig im ersten/letzten Jahr)
+
+---
+
+#### **GWG-Grenzwerte: 800€ vs. 1000€**
+
+**Drei Schwellenwerte:**
+
+| Anschaffungskosten (netto) | Regelung | RechnungsPilot-Verhalten |
+|----------------------------|----------|--------------------------|
+| **< 800 €** | Sofortabzug Pflicht | Automatisch zu Zeile 43 (Sonstige Ausgaben) |
+| **800 € - 1.000 €** | Wahlrecht: Sofortabzug ODER Poolabschreibung | User wird gefragt (siehe Dialog unten) |
+| **> 1.000 €** | AfA-Pflicht | Anlage wird erstellt, AfA über Nutzungsdauer |
+
+**UI-Dialog bei 800-1000€:**
+
+```
+┌──────────────────────────────────────────┐
+│ GWG-Behandlung wählen                    │
+├──────────────────────────────────────────┤
+│                                          │
+│ Eingangsrechnung: Laptop HP ProBook     │
+│ Netto: 899,00 €                          │
+│                                          │
+│ Anschaffungskosten zwischen 800-1000 €   │
+│ → Wahlrecht nach § 6 Abs. 2a EStG       │
+│                                          │
+│ Optionen:                                │
+│                                          │
+│ ● Sofortabzug (empfohlen)                │
+│   Volle 899 € im Jahr 2025 abziehbar    │
+│   → EÜR Zeile 43                         │
+│                                          │
+│ ○ Poolabschreibung (5 Jahre)            │
+│   179,80 € pro Jahr (2025-2029)         │
+│   → EÜR Zeile 45 (AfA)                   │
+│                                          │
+│ 💡 Sofortabzug maximiert Steuerersparnis│
+│    in 2025. Poolabschreibung verteilt   │
+│    über 5 Jahre.                         │
+│                                          │
+│    [Abbrechen]  [ Auswählen ]            │
+└──────────────────────────────────────────┘
+```
+
+**Empfehlung:**
+
+RechnungsPilot empfiehlt **Sofortabzug** (wenn User nicht sicher ist), da:
+- ✅ Steuerersparnis früher (im Jahr der Anschaffung)
+- ✅ Weniger Verwaltungsaufwand (keine 5-Jahres-Buchführung)
+- ✅ Einfacher zu verstehen
+
+---
+
+#### **AfA-Rechner**
+
+**Funktionen:**
+
+1. **Automatische Nutzungsdauer-Vorschläge** (basierend auf amtlicher AfA-Tabelle)
+2. **Monatsgenauer AfA-Berechnung** (anteilig im ersten/letzten Jahr)
+3. **Restbuchwert-Tracking** (für Verkauf/Entnahme)
+
+**UI beim Anlagegut anlegen:**
+
+```
+┌──────────────────────────────────────────┐
+│ Anlagegut erfassen                       │
+├──────────────────────────────────────────┤
+│                                          │
+│ Bezeichnung: [Laptop Dell XPS 13_____]  │
+│                                          │
+│ Anschaffung:                             │
+│   Datum:   [15.03.2025]                  │
+│   Kosten:  [1.200,00] € (netto)         │
+│                                          │
+│ Abschreibung:                            │
+│   Kategorie: [Computer/Laptop ▼]         │
+│   Nutzungsdauer: [3] Jahre               │
+│              💡 Vorschlag aus AfA-Tabelle│
+│                                          │
+│ AfA-Berechnung (Vorschau):               │
+│   2025 (Mär-Dez): 333,33 € (10/12)      │
+│   2026-2027:      400,00 € (je Jahr)     │
+│   2028 (Jan-Feb):  66,67 € (2/12)       │
+│   ────────────────────────────────       │
+│   Gesamt:       1.200,00 €               │
+│                                          │
+│ Verknüpfung:                             │
+│   Eingangsrechnung: [RE-2025-001 ▼]     │
+│                                          │
+│    [Abbrechen]  [ Speichern ]            │
+└──────────────────────────────────────────┘
+```
+
+**AfA-Tabelle (integriert):**
+
+RechnungsPilot enthält die wichtigsten Einträge der amtlichen AfA-Tabelle:
+
+```python
+AFA_TABELLE = {
+    'Computer/Laptop': 3,
+    'Drucker': 3,
+    'Monitor': 3,
+    'Smartphone': 5,
+    'Software': 3,
+    'Büromöbel': 13,
+    'PKW': 6,
+    'Kamera (professionell)': 7,
+    'Werkzeuge': 10,
+    'Maschinen (allgemein)': 10,
+    'Gebäude (Büro)': 33,
+}
+```
+
+**User kann abweichen:**
+
+- ⚠️ Warnung wenn Nutzungsdauer < AfA-Tabelle
+- ℹ️ Hinweis: "Finanzamt erkennt ggf. nicht an"
+
+---
+
+#### **Anlagenverzeichnis**
+
+**Übersicht aller Anlagegüter:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Anlagenverzeichnis                           [+ Neu]        │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│ Filter: [Alle ▼]  Suche: [____________]                     │
+│                                                             │
+│ ┌───────────────────────────────────────────────────────┐   │
+│ │ Bezeichnung            │ Anschaffung │ Restbuchwert  │   │
+│ ├────────────────────────┼─────────────┼───────────────┤   │
+│ │ Laptop Dell XPS 13     │ 15.03.2025  │   800,00 €   │   │
+│ │   1.200,00 € (3 Jahre) │ AfA 2025: 333,33 €         │   │
+│ ├────────────────────────┼─────────────┼───────────────┤   │
+│ │ Drucker HP LaserJet    │ 02.01.2024  │   199,80 €   │   │
+│ │   Pool (5 Jahre)       │ AfA 2025: 99,90 €          │   │
+│ ├────────────────────────┼─────────────┼───────────────┤   │
+│ │ Bürostuhl Herman M.    │ 12.05.2023  │   384,62 €   │   │
+│ │   500,00 € (13 Jahre)  │ AfA 2025: 38,46 €          │   │
+│ └────────────────────────┴─────────────┴───────────────┘   │
+│                                                             │
+│ AfA 2025 gesamt: 471,69 € → EÜR Zeile 45                   │
+│                                                             │
+│ Aktionen: [AfA-Plan drucken]  [CSV exportieren]             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Funktionen:**
+
+- ✅ Sortieren nach: Bezeichnung, Anschaffungsdatum, Restbuchwert
+- ✅ Filtern nach: Aktiv, Vollständig abgeschrieben, Verkauft
+- ✅ Suche nach Bezeichnung
+- ✅ Detailansicht (mit AfA-Plan für alle Jahre)
+- ✅ Export: CSV, PDF
+
+**Detailansicht (Klick auf Anlagegut):**
+
+```
+┌──────────────────────────────────────────┐
+│ Anlagegut: Laptop Dell XPS 13            │
+├──────────────────────────────────────────┤
+│                                          │
+│ STAMMDATEN:                              │
+│   Anschaffung:  15.03.2025               │
+│   Kosten:       1.200,00 € (netto)      │
+│   Nutzungsdauer: 3 Jahre (Computer)      │
+│   Verknüpfung:  RE-2025-001              │
+│                                          │
+│ ABSCHREIBUNGSPLAN:                       │
+│ ┌──────────────────────────────────┐     │
+│ │ Jahr │ AfA      │ Restbuchwert  │     │
+│ ├──────┼──────────┼───────────────┤     │
+│ │ 2025 │  333,33  │   866,67 €   │     │
+│ │ 2026 │  400,00  │   466,67 €   │     │
+│ │ 2027 │  400,00  │    66,67 €   │     │
+│ │ 2028 │   66,67  │     0,00 €   │     │
+│ └──────┴──────────┴───────────────┘     │
+│                                          │
+│ AKTIONEN:                                │
+│ [ Bearbeiten ]  [ Verkaufen/Entnahme ]   │
+│ [ AfA-Plan drucken ]  [ Löschen ]        │
+└──────────────────────────────────────────┘
+```
+
+---
+
+#### **Verkauf/Entnahme von Anlagegütern**
+
+**Was passiert beim Verkauf?**
+
+```
+┌──────────────────────────────────────────┐
+│ Anlagegut verkaufen/entnehmen            │
+├──────────────────────────────────────────┤
+│                                          │
+│ Anlagegut: Laptop Dell XPS 13            │
+│ Restbuchwert: 466,67 € (Stand 31.12.2026)│
+│                                          │
+│ Verkaufsdatum: [15.06.2027__]            │
+│ Verkaufspreis: [300,00___] € (netto)    │
+│                                          │
+│ Berechnung:                              │
+│   AfA 2027 (Jan-Mai):  166,67 € (5/12)  │
+│   Restbuchwert danach: 300,00 €          │
+│   Verkaufspreis:       300,00 €          │
+│   ────────────────────────────────       │
+│   Gewinn/Verlust:        0,00 €          │
+│                                          │
+│ ℹ️ Kein Buchgewinn/-verlust              │
+│                                          │
+│    [Abbrechen]  [ Verkauf buchen ]       │
+└──────────────────────────────────────────┘
+```
+
+**Buchhaltung:**
+
+- ✅ AfA wird anteilig bis Verkaufsdatum berechnet
+- ✅ Buchgewinn/-verlust wird berechnet (Verkaufspreis - Restbuchwert)
+- ✅ Buchgewinn → EÜR Zeile 11 (Betriebseinnahmen)
+- ✅ Buchverlust → EÜR Zeile 43 (Sonstige Ausgaben)
+
+---
+
+#### **Einfache Erfassung vs. vollständige Abschreibungslogik**
+
+**Entscheidung:** RechnungsPilot bietet **vollständige Abschreibungslogik**.
+
+**Begründung:**
+
+| Aspekt | Einfache Erfassung | Vollständige AfA-Logik | Entscheidung |
+|--------|-------------------|------------------------|--------------|
+| **Aufwand für User** | Niedrig (nur Betrag eingeben) | Mittel (Anlagegut anlegen) | ✅ Mittel akzeptabel |
+| **Korrektheit EÜR** | Manuell fehleranfällig | Garantiert korrekt | ✅ Wichtig! |
+| **Mehrjahresplanung** | Nicht möglich | Automatisch | ✅ Sehr hilfreich |
+| **Verkauf/Entnahme** | Kompliziert manuell | Automatisch berechnet | ✅ Wichtig! |
+| **Steuerprüfung** | Anlagenverzeichnis fehlt | Vorhanden | ✅ Pflicht ab 60k € Gewinn |
+
+**Kompromiss:** Automatische GWG-Erkennung
+
+- < 800 €: Sofortabzug (User muss kein Anlagegut anlegen)
+- \> 800 €: RechnungsPilot **schlägt vor**, Anlagegut anzulegen (kann übersprungen werden)
+
+**Workflow:**
+
+```
+Eingangsrechnung erfasst: Laptop 1.200 €
+
+┌──────────────────────────────────────────┐
+│ ℹ️ Anlagegut anlegen?                    │
+├──────────────────────────────────────────┤
+│                                          │
+│ Die Rechnung "Laptop Dell XPS 13" ist    │
+│ über 800 € und könnte ein Anlagegut sein.│
+│                                          │
+│ Empfehlung: Als Anlagegut anlegen        │
+│ → AfA über 3 Jahre (Computer)            │
+│                                          │
+│ ○ Als Anlagegut anlegen (empfohlen)     │
+│   → AfA-Rechner öffnen                   │
+│                                          │
+│ ○ Als Betriebsausgabe buchen             │
+│   → Sofortabzug (nicht korrekt!)        │
+│                                          │
+│ [Überspringen]  [ Auswählen ]            │
+└──────────────────────────────────────────┘
+```
+
+**Wichtig:** User kann überspringen, aber RechnungsPilot warnt:
+
+⚠️ "Achtung: Anschaffungskosten > 1.000 € müssen lt. EStG abgeschrieben werden. Sofortabzug kann vom Finanzamt abgelehnt werden."
+
+---
+
+#### **Zusammenfassung Frage 7.3**
+
+| Aspekt | Antwort |
+|--------|---------|
+| **GWG bis 800€/1000€?** | ✅ Ja, automatische Erkennung + Wahlrecht 800-1000€ |
+| **AfA-Rechner?** | ✅ Ja, vollständiger AfA-Rechner mit Nutzungsdauer-Vorschlägen |
+| **Einfache Erfassung oder Abschreibungslogik?** | ✅ **Vollständige Abschreibungslogik** (mit GWG-Automatik < 800 €) |
+| **Anlagenverzeichnis?** | ✅ Ja, mit AfA-Plan, Restbuchwert, Verkauf/Entnahme |
+
+---
+
 ### **7.6 MVP-Implementierung (Hybrid-Ansatz)**
 
 Analog zu UStVA (Kategorie 6.1) nutzen wir einen **Hybrid-Ansatz:**
