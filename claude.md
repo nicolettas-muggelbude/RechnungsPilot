@@ -5050,11 +5050,700 @@ CREATE TABLE euer_exporte (
 
 ---
 
+## **Kategorie 8: Stammdaten-Erfassung**
+
+### **8.1 Übersicht**
+
+Stammdaten sind **grundlegende Informationen**, die wiederholt verwendet werden:
+
+**Arten von Stammdaten in RechnungsPilot:**
+
+1. **User-/Firmen-Stammdaten** (Pflicht)
+   - Eigene Firma/Freiberufler-Daten
+   - Finanzamt, Steuernummer, USt-IdNr.
+   - Bank-Verbindungen
+
+2. **Kategorien** (Pflicht)
+   - Einnahmen-Kategorien
+   - Ausgaben-Kategorien
+   - EÜR-Zuordnung
+
+3. **EU-Länder** (für EU-Handel)
+   - Ländercodes, MwSt-Sätze
+   - USt-IdNr.-Formate
+
+4. **Bankkonten** (für Bank-Integration)
+   - IBAN, BIC, Bankname
+   - CSV-Format-Zuordnung
+
+5. **Kundenstamm** (📋 **OFFEN** - Community-Entscheidung)
+   - Siehe `discussion-kundenstamm.md`
+   - Option A: Mit Kundenstamm (v1.0)
+   - Option B: Ohne Kundenstamm (v1.0)
+   - Option C: Hybrid (optional)
+
+---
+
+### **8.2 User-/Firmen-Stammdaten**
+
+**Zweck:**
+- Identifikation der Firma/Freiberufler
+- Für Rechnungsvorlagen (Absender)
+- Für DATEV/AGENDA-Export
+- Für UStVA/EÜR (eigene USt-IdNr., Finanzamt)
+
+**Felder:**
+
+#### **Basis-Informationen:**
+```python
+class UserStammdaten:
+    # Firma/Person
+    firmenname: str  # "Musterfirma GmbH" oder "Max Mustermann"
+    rechtsform: str  # "Einzelunternehmen", "GbR", "GmbH", "Freiberufler"
+    inhaber_name: str  # Bei Einzelunternehmen/Freiberufler
+
+    # Adresse
+    strasse: str
+    hausnummer: str
+    plz: str
+    ort: str
+    land: str  # ISO 3166-1 Alpha-2, default 'DE'
+
+    # Kontakt
+    telefon: str
+    email: str
+    website: str
+
+    # Steuerliche Daten
+    steuernummer: str  # "12/345/67890"
+    ust_idnr: str  # "DE123456789"
+    finanzamt_name: str  # "Finanzamt Oldenburg"
+    finanzamt_nummer: str  # "2360"
+
+    # Bank
+    iban: str
+    bic: str
+    bankname: str
+
+    # Steuerliche Einordnung
+    ist_kleinunternehmer: bool  # § 19 UStG
+    versteuerungsart: str  # 'ist' oder 'soll'
+    bezieht_transferleistungen: bool  # ALG II/Bürgergeld → Ist-Versteuerung Pflicht!
+
+    # E-Rechnung
+    leitweg_id: str  # Für Rechnungen an öffentliche Auftraggeber (optional)
+```
+
+**Validierung:**
+
+```python
+def validate_user_stammdaten():
+    """
+    Prüft Pflichtfelder und Plausibilität
+    """
+    errors = []
+
+    # 1. Pflichtfelder
+    required = ['firmenname', 'strasse', 'plz', 'ort', 'email']
+    for field in required:
+        if not getattr(user, field):
+            errors.append({
+                'field': field,
+                'message': f'{field} ist Pflichtfeld'
+            })
+
+    # 2. Steuernummer oder USt-IdNr. (mindestens eines)
+    if not user.steuernummer and not user.ust_idnr:
+        errors.append({
+            'field': 'steuernummer',
+            'message': 'Steuernummer ODER USt-IdNr. erforderlich'
+        })
+
+    # 3. USt-IdNr.-Format (wenn vorhanden)
+    if user.ust_idnr:
+        if not re.match(r'^DE[0-9]{9}$', user.ust_idnr):
+            errors.append({
+                'field': 'ust_idnr',
+                'message': 'USt-IdNr. muss Format "DE123456789" haben'
+            })
+
+    # 4. Kleinunternehmer: Keine USt-IdNr. nötig
+    if user.ist_kleinunternehmer and user.ust_idnr:
+        # Warnung, kein Fehler (kann beides haben)
+        warnings.append({
+            'field': 'ist_kleinunternehmer',
+            'message': 'Kleinunternehmer haben meist keine USt-IdNr.'
+        })
+
+    # 5. Transferleistungen → Ist-Versteuerung Pflicht
+    if user.bezieht_transferleistungen and user.versteuerungsart == 'soll':
+        errors.append({
+            'field': 'versteuerungsart',
+            'message': 'Bei Bezug von Transferleistungen ist Ist-Versteuerung Pflicht (SGBII § 11)'
+        })
+
+    # 6. IBAN-Format (wenn vorhanden)
+    if user.iban:
+        if not validate_iban(user.iban):
+            errors.append({
+                'field': 'iban',
+                'message': 'IBAN hat ungültiges Format'
+            })
+
+    return {
+        'errors': errors,
+        'valid': len(errors) == 0
+    }
+```
+
+**UI - Einrichtungs-Assistent (Setup-Wizard):**
+
+```
+┌─────────────────────────────────────────────────┐
+│ RechnungsPilot - Ersteinrichtung (Schritt 1/4) │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│ FIRMA / FREIBERUFLER                            │
+│                                                 │
+│  Firmenname:  [___________________________]    │
+│  Rechtsform:  [Freiberufler ▼]                 │
+│               □ Einzelunternehmen               │
+│               □ GbR                             │
+│               ● Freiberufler                    │
+│               □ GmbH                            │
+│                                                 │
+│  Inhaber:     [Max Mustermann____________]     │
+│                                                 │
+│ ADRESSE                                         │
+│                                                 │
+│  Straße:      [Musterstraße______________]     │
+│  Hausnummer:  [42__]                            │
+│  PLZ:         [26121]  Ort: [Oldenburg____]    │
+│  Land:        [Deutschland ▼]                   │
+│                                                 │
+│ KONTAKT                                         │
+│                                                 │
+│  E-Mail:      [max@example.com___________]     │
+│  Telefon:     [0441 12345678_____________]     │
+│  Website:     [www.example.com___________]     │
+│                                                 │
+│              [Zurück]        [Weiter →]         │
+└─────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────┐
+│ RechnungsPilot - Ersteinrichtung (Schritt 2/4) │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│ STEUERLICHE DATEN                               │
+│                                                 │
+│  Steuernummer:    [12/345/67890__________]     │
+│  USt-IdNr.:       [DE123456789___________]     │
+│                   [ Validieren ]  ✅ Gültig     │
+│                                                 │
+│  Finanzamt:       [Finanzamt Oldenburg___]     │
+│  FA-Nummer:       [2360]                        │
+│                                                 │
+│ STEUERLICHE EINORDNUNG                          │
+│                                                 │
+│  ☑ Kleinunternehmer (§ 19 UStG)                │
+│    → Keine Umsatzsteuer auf Rechnungen         │
+│    → Kein Vorsteuerabzug                        │
+│                                                 │
+│  Versteuerungsart:                              │
+│    ● Ist-Versteuerung (Zufluss-Prinzip)        │
+│    ○ Soll-Versteuerung (Rechnungsdatum)        │
+│                                                 │
+│  ⚠️  WICHTIG:                                   │
+│  ☑ Ich beziehe Transferleistungen (ALG II)     │
+│    → Ist-Versteuerung ist PFLICHT (SGBII § 11) │
+│                                                 │
+│ EU-HANDEL                                       │
+│                                                 │
+│  ☑ Ich plane EU-Geschäft                       │
+│    → USt-IdNr. erforderlich                     │
+│    → Siehe Kategorie 6.2 (EU-Handel)           │
+│                                                 │
+│              [← Zurück]      [Weiter →]         │
+└─────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────┐
+│ RechnungsPilot - Ersteinrichtung (Schritt 3/4) │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│ BANKVERBINDUNG                                  │
+│                                                 │
+│  IBAN:      [DE89370400440532013000______]     │
+│             ✅ Gültig                           │
+│  BIC:       [COBADEFFXXX_________________]     │
+│  Bankname:  [Commerzbank_________________]     │
+│                                                 │
+│  💡 Diese Daten erscheinen auf Rechnungen      │
+│                                                 │
+│              [← Zurück]      [Weiter →]         │
+└─────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────┐
+│ RechnungsPilot - Ersteinrichtung (Schritt 4/4) │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│ ZUSAMMENFASSUNG                                 │
+│                                                 │
+│ ✅ Firma:        Max Mustermann (Freiberufler) │
+│ ✅ Adresse:      Musterstraße 42, 26121 OL     │
+│ ✅ Steuernr.:    12/345/67890                   │
+│ ✅ USt-IdNr.:    DE123456789 (validiert)        │
+│ ✅ Finanzamt:    Finanzamt Oldenburg (2360)     │
+│ ✅ Bank:         DE89...3000 (Commerzbank)      │
+│                                                 │
+│ EINSTELLUNGEN:                                  │
+│ ✅ Kleinunternehmer (§ 19 UStG)                │
+│ ✅ Ist-Versteuerung (Pflicht wegen ALG II)     │
+│ ✅ EU-Geschäft geplant                         │
+│                                                 │
+│              [← Zurück]    [Abschließen]        │
+└─────────────────────────────────────────────────┘
+```
+
+---
+
+### **8.3 Kategorien (Einnahmen/Ausgaben)**
+
+**Zweck:**
+- Einnahmen/Ausgaben kategorisieren
+- Automatische EÜR-Zeilen-Zuordnung
+- DATEV-Konten-Mapping
+- Auswertungen (Kostenstellen)
+
+**Standardkategorien (vordefiniert):**
+
+#### **Einnahmen-Kategorien:**
+```python
+EINNAHMEN_KATEGORIEN = [
+    {'id': 1, 'name': 'Warenverkauf', 'euer_zeile': 11, 'datev_konto': 8400},
+    {'id': 2, 'name': 'Dienstleistungen', 'euer_zeile': 11, 'datev_konto': 8400},
+    {'id': 3, 'name': 'Provisionen', 'euer_zeile': 11, 'datev_konto': 8500},
+    {'id': 4, 'name': 'Erstattungen', 'euer_zeile': 11, 'datev_konto': 8900},
+    {'id': 5, 'name': 'Sonstige Einnahmen', 'euer_zeile': 11, 'datev_konto': 8900},
+]
+```
+
+#### **Ausgaben-Kategorien:**
+```python
+AUSGABEN_KATEGORIEN = [
+    {'id': 10, 'name': 'Wareneinkauf', 'euer_zeile': 25, 'datev_konto': 3400},
+    {'id': 11, 'name': 'Raumkosten (Miete)', 'euer_zeile': 28, 'datev_konto': 4210},
+    {'id': 12, 'name': 'Strom, Gas, Wasser', 'euer_zeile': 28, 'datev_konto': 4240},
+    {'id': 13, 'name': 'Telefon, Internet', 'euer_zeile': 28, 'datev_konto': 4910},
+    {'id': 14, 'name': 'KFZ-Kosten (Benzin)', 'euer_zeile': 32, 'datev_konto': 4530},
+    {'id': 15, 'name': 'KFZ-Versicherung', 'euer_zeile': 32, 'datev_konto': 4570},
+    {'id': 16, 'name': 'Fahrtkosten (ÖPNV)', 'euer_zeile': 32, 'datev_konto': 4670},
+    {'id': 17, 'name': 'Werbekosten', 'euer_zeile': 34, 'datev_konto': 4600},
+    {'id': 18, 'name': 'Bürobedarf', 'euer_zeile': 36, 'datev_konto': 4910},
+    {'id': 19, 'name': 'Software, Lizenzen', 'euer_zeile': 36, 'datev_konto': 4940},
+    {'id': 20, 'name': 'Fortbildung', 'euer_zeile': 40, 'datev_konto': 4945},
+    {'id': 21, 'name': 'Versicherungen (betr.)', 'euer_zeile': 41, 'datev_konto': 4360},
+    {'id': 22, 'name': 'Steuerberatung', 'euer_zeile': 43, 'datev_konto': 4970},
+    {'id': 23, 'name': 'Sonstige Ausgaben', 'euer_zeile': 43, 'datev_konto': 4980},
+]
+```
+
+**User kann eigene Kategorien hinzufügen:**
+
+```python
+class Kategorie:
+    id: int
+    name: str  # "Marketing-Flyer"
+    typ: str  # 'einnahme' oder 'ausgabe'
+    euer_zeile: int  # 34 (Werbekosten)
+    datev_konto: int  # 4600 (Werbekosten)
+    ist_standard: bool  # False (custom)
+    erstellt_am: datetime
+```
+
+**UI - Kategorien verwalten:**
+
+```
+┌──────────────────────────────────────────────┐
+│ Einstellungen → Kategorien                   │
+├──────────────────────────────────────────────┤
+│                                              │
+│ EINNAHMEN-KATEGORIEN                         │
+│                                              │
+│ ID │ Name                 │ EÜR │ DATEV     │
+│────┼──────────────────────┼─────┼──────────│
+│  1 │ Warenverkauf         │  11 │ 8400  🔒 │
+│  2 │ Dienstleistungen     │  11 │ 8400  🔒 │
+│  3 │ Provisionen          │  11 │ 8500  🔒 │
+│  4 │ Erstattungen         │  11 │ 8900  🔒 │
+│  5 │ Sonstige Einnahmen   │  11 │ 8900  🔒 │
+│────┼──────────────────────┼─────┼──────────│
+│  6 │ Online-Kurse         │  11 │ 8400  ✏️ │
+│                                              │
+│ [ + Neue Kategorie ]                         │
+│                                              │
+│ AUSGABEN-KATEGORIEN                          │
+│                                              │
+│ ID │ Name                 │ EÜR │ DATEV     │
+│────┼──────────────────────┼─────┼──────────│
+│ 10 │ Wareneinkauf         │  25 │ 3400  🔒 │
+│ 11 │ Raumkosten (Miete)   │  28 │ 4210  🔒 │
+│ 12 │ Strom, Gas, Wasser   │  28 │ 4240  🔒 │
+│ ...│ ...                  │ ... │ ...   🔒 │
+│ 23 │ Sonstige Ausgaben    │  43 │ 4980  🔒 │
+│────┼──────────────────────┼─────┼──────────│
+│ 30 │ Hosting-Kosten       │  43 │ 4980  ✏️ │
+│ 31 │ Bücher (Fachliteratur)│ 40 │ 4945  ✏️ │
+│                                              │
+│ [ + Neue Kategorie ]                         │
+│                                              │
+│ 🔒 = Standard (nicht editierbar)             │
+│ ✏️  = Custom (editierbar/löschbar)           │
+└──────────────────────────────────────────────┘
+```
+
+---
+
+### **8.4 EU-Länder-Stammdaten**
+
+**Zweck:**
+- EU-Handel (Kategorie 6.2)
+- Validierung USt-IdNr.-Format
+- MwSt-Sätze für Reverse Charge
+
+**Datenbank:**
+```sql
+CREATE TABLE eu_laender (
+    code TEXT PRIMARY KEY,  -- 'BE' (ISO 3166-1 Alpha-2)
+    name_de TEXT,  -- 'Belgien'
+    name_en TEXT,  -- 'Belgium'
+
+    -- MwSt-Sätze
+    mwst_satz_standard DECIMAL(5,2),  -- 21.0
+    mwst_satz_reduziert DECIMAL(5,2),  -- 6.0
+
+    -- USt-IdNr.-Format
+    ust_idnr_prefix TEXT,  -- 'BE'
+    ust_idnr_regex TEXT,  -- '^BE[0-9]{10}$'
+    ust_idnr_beispiel TEXT,  -- 'BE0123456789'
+
+    -- EU-Mitglied seit
+    eu_beitritt_jahr INTEGER,  -- 1957
+
+    -- Aktiv
+    ist_eu_mitglied BOOLEAN DEFAULT 1,  -- True (falls Land austritt)
+
+    -- Metadaten
+    aktualisiert_am TIMESTAMP
+);
+```
+
+**Vorbefüllung (Beispiel):**
+```python
+EU_LAENDER_INITIAL = [
+    {
+        'code': 'AT', 'name_de': 'Österreich', 'name_en': 'Austria',
+        'mwst_satz_standard': 20.0, 'mwst_satz_reduziert': 10.0,
+        'ust_idnr_prefix': 'AT', 'ust_idnr_regex': r'^ATU[0-9]{8}$',
+        'ust_idnr_beispiel': 'ATU12345678', 'eu_beitritt_jahr': 1995
+    },
+    {
+        'code': 'BE', 'name_de': 'Belgien', 'name_en': 'Belgium',
+        'mwst_satz_standard': 21.0, 'mwst_satz_reduziert': 6.0,
+        'ust_idnr_prefix': 'BE', 'ust_idnr_regex': r'^BE[0-9]{10}$',
+        'ust_idnr_beispiel': 'BE0123456789', 'eu_beitritt_jahr': 1957
+    },
+    {
+        'code': 'FR', 'name_de': 'Frankreich', 'name_en': 'France',
+        'mwst_satz_standard': 20.0, 'mwst_satz_reduziert': 5.5,
+        'ust_idnr_prefix': 'FR', 'ust_idnr_regex': r'^FR[0-9A-Z]{2}[0-9]{9}$',
+        'ust_idnr_beispiel': 'FR12345678901', 'eu_beitritt_jahr': 1957
+    },
+    # ... weitere 24 EU-Länder
+]
+```
+
+**Verwendung:**
+```python
+def validate_ust_idnr_format(ust_idnr, land_code):
+    """
+    Prüft USt-IdNr. gegen Länder-Format
+    """
+    land = get_eu_land(land_code)
+
+    if not land:
+        return False, f"Land {land_code} nicht in EU-Stammdaten"
+
+    if not re.match(land.ust_idnr_regex, ust_idnr):
+        return False, f"Format ungültig. Erwartet: {land.ust_idnr_beispiel}"
+
+    return True, "Format OK"
+
+
+def get_reverse_charge_mwst(land_code):
+    """
+    Holt MwSt-Satz des Lieferlands für Reverse Charge
+    """
+    land = get_eu_land(land_code)
+    return land.mwst_satz_standard  # Z.B. 21% für Belgien
+```
+
+---
+
+### **8.5 Bankkonten-Stammdaten**
+
+**Zweck:**
+- Bank-CSV-Import (Kategorie 5)
+- Zuordnung CSV-Format → Parser
+- Mehrere Konten verwalten
+
+**Datenbank:**
+```sql
+CREATE TABLE bankkonten (
+    id INTEGER PRIMARY KEY,
+
+    -- Kontodaten
+    kontoname TEXT NOT NULL,  -- "Geschäftskonto Commerzbank"
+    iban TEXT NOT NULL UNIQUE,
+    bic TEXT,
+    bankname TEXT,
+
+    -- CSV-Import
+    bank_typ TEXT,  -- 'commerzbank', 'sparkasse', 'dkb', 'paypal'
+    csv_format TEXT,  -- 'mt940', 'camt_v8', 'standard'
+    csv_delimiter TEXT DEFAULT ';',  -- ';', ',', '\t'
+    csv_encoding TEXT DEFAULT 'ISO-8859-1',  -- 'UTF-8', 'ISO-8859-1'
+
+    -- Status
+    ist_hauptkonto BOOLEAN DEFAULT 0,
+    ist_aktiv BOOLEAN DEFAULT 1,
+
+    -- Saldo
+    aktueller_saldo DECIMAL(10,2),
+    saldo_datum DATE,
+
+    -- Metadaten
+    erstellt_am TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+**UI - Bankkonten verwalten:**
+
+```
+┌─────────────────────────────────────────────────┐
+│ Einstellungen → Bankkonten                      │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│ GESCHÄFTSKONTEN                                 │
+│                                                 │
+│ ┌─────────────────────────────────────────────┐ │
+│ │ ⭐ Hauptkonto: Commerzbank                   │ │
+│ │                                             │ │
+│ │ IBAN:     DE89 3704 0044 0532 0130 00      │ │
+│ │ BIC:      COBADEFFXXX                       │ │
+│ │ Bank:     Commerzbank                       │ │
+│ │                                             │ │
+│ │ CSV-Import:                                 │ │
+│ │ - Format:    Commerzbank Standard           │ │
+│ │ - Delimiter: ; (Semikolon)                  │ │
+│ │ - Encoding:  ISO-8859-1                     │ │
+│ │                                             │ │
+│ │ Saldo:       8.450,23 € (Stand: 06.12.25)  │ │
+│ │                                             │ │
+│ │ [ Bearbeiten ]  [ CSV importieren ]         │ │
+│ └─────────────────────────────────────────────┘ │
+│                                                 │
+│ ┌─────────────────────────────────────────────┐ │
+│ │ PayPal Geschäftskonto                       │ │
+│ │                                             │ │
+│ │ E-Mail:   fibu@musterfirma.de               │ │
+│ │ Typ:      PayPal                            │ │
+│ │                                             │ │
+│ │ CSV-Import:                                 │ │
+│ │ - Format:    PayPal Aktivitätsbericht       │ │
+│ │ - Delimiter: , (Komma)                      │ │
+│ │ - Encoding:  UTF-8                          │ │
+│ │                                             │ │
+│ │ Saldo:       234,56 € (Stand: 06.12.25)    │ │
+│ │                                             │ │
+│ │ [ Bearbeiten ]  [ CSV importieren ]         │ │
+│ └─────────────────────────────────────────────┘ │
+│                                                 │
+│ [ + Bankkonto hinzufügen ]                      │
+└─────────────────────────────────────────────────┘
+```
+
+**Hinzufügen-Dialog:**
+
+```
+┌─────────────────────────────────────────┐
+│ Neues Bankkonto hinzufügen              │
+├─────────────────────────────────────────┤
+│                                         │
+│ Kontoname:  [Geschäftskonto_________]  │
+│                                         │
+│ IBAN:       [DE89________________]     │
+│             [ Validieren ] ✅ Gültig   │
+│ BIC:        [COBADEFFXXX_________]     │
+│ Bankname:   [Commerzbank_________]     │
+│                                         │
+│ CSV-IMPORT-EINSTELLUNGEN                │
+│                                         │
+│ Bank/Typ:   [Commerzbank ▼]            │
+│             - Commerzbank               │
+│             - Sparkasse (MT940)         │
+│             - Sparkasse (CAMT V8)       │
+│             - DKB                       │
+│             - PayPal                    │
+│             - Andere...                 │
+│                                         │
+│ Format:     [Standard ▼]               │
+│ Delimiter:  [; (Semikolon) ▼]          │
+│ Encoding:   [ISO-8859-1 ▼]             │
+│                                         │
+│ ☑ Als Hauptkonto festlegen             │
+│                                         │
+│        [Abbrechen]  [ Speichern ]      │
+└─────────────────────────────────────────┘
+```
+
+---
+
+### **8.6 Kundenstamm (OFFEN - Community-Entscheidung)**
+
+**Status:** 📋 **Ausstehende Entscheidung**
+
+**Siehe:** `discussion-kundenstamm.md`
+
+**Optionen:**
+
+#### **Option A: MIT Kundenstamm (v1.0)**
+
+**Datenbank:**
+```sql
+CREATE TABLE kunden (
+    id INTEGER PRIMARY KEY,
+
+    -- Stammdaten
+    kundennummer TEXT UNIQUE,  -- "K-001" (automatisch)
+    typ TEXT,  -- 'privat', 'firma'
+
+    -- Person
+    anrede TEXT,  -- 'Herr', 'Frau', 'Divers'
+    vorname TEXT,
+    nachname TEXT,
+
+    -- Firma (nur wenn typ='firma')
+    firmenname TEXT,
+    rechtsform TEXT,  -- "GmbH", "AG", etc.
+
+    -- Adresse
+    strasse TEXT,
+    hausnummer TEXT,
+    plz TEXT,
+    ort TEXT,
+    land TEXT DEFAULT 'DE',
+
+    -- Kontakt
+    email TEXT,
+    telefon TEXT,
+    website TEXT,
+
+    -- EU-Handel
+    ust_idnr TEXT,  -- z.B. "BE0123456789"
+    ust_idnr_validiert BOOLEAN DEFAULT 0,
+    ust_idnr_validierung_datum DATE,
+    ust_idnr_validierung_ergebnis TEXT,  -- BZSt-API Ergebnis
+
+    -- Metadaten
+    notizen TEXT,
+    erstellt_am TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    aktualisiert_am TIMESTAMP,
+
+    -- Statistiken
+    anzahl_rechnungen INTEGER DEFAULT 0,
+    umsatz_gesamt DECIMAL(10,2) DEFAULT 0.00
+);
+```
+
+**Vorteile:**
+- ✅ Weniger Tipparbeit (Kunde 1× anlegen)
+- ✅ Autocomplete
+- ✅ USt-IdNr. VORHER validiert
+- ✅ Statistiken möglich
+
+**Nachteile:**
+- ❌ +2-3 Wochen Entwicklung
+- ❌ Mehr Lernkurve
+- ❌ DSGVO-Komplex
+
+---
+
+#### **Option B: OHNE Kundenstamm (v1.0)**
+
+**Workflow:**
+- Kundendaten werden direkt in Rechnung eingegeben (LibreOffice/HTML-Template)
+- RechnungsPilot importiert PDF/XRechnung
+- Validierung erst beim Export (UStVA, ZM)
+
+**Vorteile:**
+- ✅ Schnellerer Release (2-3 Wochen gespart)
+- ✅ Einfacherer Scope
+- ✅ DSGVO einfacher
+
+**Nachteile:**
+- ❌ Wiederholte Eingabe
+- ❌ Tippfehler-Gefahr
+- ❌ Validierung erst beim Export
+
+---
+
+#### **Option C: Hybrid (Kompromiss)**
+
+**Workflow:**
+```
+Rechnung erstellen:
+┌────────────────────────────┐
+│ Kunde:                     │
+│ ○ Aus Kundenstamm:        │
+│   [Belgischer Kunde ▼]    │
+│                            │
+│ ● Manuell eingeben:       │
+│   Name: [_____________]    │
+│   Land: [Belgien ▼]       │
+│   USt-IdNr: [_________]   │
+│   ☑ Als Kunde speichern   │ ← Optional!
+└────────────────────────────┘
+```
+
+**Vorteile:**
+- ✅ Flexibel (User entscheidet)
+- ✅ Moderater Aufwand (+1 Woche)
+
+**Nachteile:**
+- ⚠️ Zwei Wege (könnte verwirren)
+
+---
+
+**Community-Umfrage läuft:** `discussion-kundenstamm.md`
+
+**Fragen:**
+1. Wie viele wiederkehrende Kunden? (< 5, 5-20, > 20)
+2. Priorität: Schneller Release vs. Komfort?
+3. EU-Geschäft-Häufigkeit?
+
+**Entscheidung ausstehend.**
+
+---
+
+**Status:** ✅ Kategorie 8 definiert (teilweise) - User-/Firmen-Stammdaten, Kategorien, EU-Länder, Bankkonten dokumentiert. **Kundenstamm-Entscheidung ausstehend** (siehe `discussion-kundenstamm.md`).
+
+---
+
 ### **Noch zu klären (siehe fragen.md):**
 
 - ✅ ~~Kategorie 6: UStVA~~ - **Geklärt** (Hybrid-Ansatz, MVP nur Zahlen)
 - ✅ ~~Kategorie 7: EÜR~~ - **Geklärt** (Hybrid-Ansatz, AfA-Verwaltung, Zufluss-/Abfluss-Prinzip)
-- Kategorie 8: Stammdaten-Erfassung
+- ⏸️ **Kategorie 8: Stammdaten-Erfassung** - **Teilweise geklärt** (User/Firma, Kategorien, EU-Länder, Bankkonten dokumentiert; **Kundenstamm: Community-Entscheidung ausstehend**)
 - Kategorie 9: Import-Schnittstellen (inkl. AGENDA-kompatibel)
 - Kategorie 10: Backup & Update
 - Kategorie 11: Steuersätze
