@@ -2700,18 +2700,28 @@ class BankCSVParser:
 
 | Kz. | Beschreibung | Quelle | Berechnung |
 |-----|--------------|--------|------------|
-| **81** | Umsätze 19% USt | Ausgangsrechnungen | Summe Netto (USt-Satz 19%) |
+| **81** | Umsätze 19% USt | Ausgangsrechnungen (Inland) | Summe Netto (USt-Satz 19%) |
 | **83** | Umsatzsteuer 19% | Auto-berechnet | Kz. 81 × 0,19 |
-| **86** | Umsätze 7% USt | Ausgangsrechnungen | Summe Netto (USt-Satz 7%) |
+| **86** | Umsätze 7% USt | Ausgangsrechnungen (Inland) | Summe Netto (USt-Satz 7%) |
 | **88** | Umsatzsteuer 7% | Auto-berechnet | Kz. 86 × 0,07 |
-| **35** | § 13b UStG (Reverse Charge) | Ausgangsrechnungen | Summe Netto (Reverse Charge) |
+| **41** | Innergemeinschaftliche Lieferungen | Ausgangsrechnungen (EU) | Summe Netto (0% USt, § 4 Nr. 1b UStG) |
+
+#### **Innergemeinschaftlicher Erwerb (EU-Einkäufe):**
+
+| Kz. | Beschreibung | Quelle | Berechnung |
+|-----|--------------|--------|------------|
+| **89** | Innergemeinschaftlicher Erwerb | Eingangsrechnungen (EU) | Summe Netto (0% von EU-Lieferant) |
+| **93** | Umsatzsteuer aus ig. Erwerb | Auto-berechnet | Kz. 89 × 0,19 (Reverse Charge) |
+| **61** | Vorsteuer aus ig. Erwerb | Auto-berechnet | = Kz. 93 (abzugsfähig) |
+
+**Wichtig:** Kz. 93 und Kz. 61 gleichen sich aus (zahlen + abziehen) → Netto-Effekt: 0 €
 
 #### **Vorsteuer (abzugsfähig):**
 
 | Kz. | Beschreibung | Quelle | Berechnung |
 |-----|--------------|--------|------------|
-| **66** | Vorsteuer | Eingangsrechnungen | Summe USt-Betrag (abzugsfähig) |
-| **61** | § 13b UStG Vorsteuer | Eingangsrechnungen | Reverse Charge USt |
+| **66** | Vorsteuer Inland | Eingangsrechnungen (DE) | Summe USt-Betrag (abzugsfähig) |
+| **61** | Vorsteuer aus ig. Erwerb | Eingangsrechnungen (EU) | = Kz. 93 (siehe oben) |
 
 #### **Zahllast/Erstattung:**
 
@@ -2719,7 +2729,381 @@ class BankCSVParser:
 |-----|--------------|------------|
 | **83** | Summe Umsatzsteuer | Kz. 83 + Kz. 88 + ... |
 | **66** | Summe Vorsteuer | Kz. 66 + Kz. 61 |
-| **Zahllast** | **Vorauszahlung (Soll)** | **Kz. 83 - Kz. 66** |
+| **Zahllast** | **Vorauszahlung (Soll)** | **Kz. 83 + Kz. 93 - Kz. 66 - Kz. 61** |
+
+---
+
+### **6.2.1 Innergemeinschaftlicher Handel (EU)** 🇪🇺
+
+**Entscheidung:** Im MVP enthalten (wichtig für EU-Geschäft)
+
+---
+
+#### **Was ist innergemeinschaftlicher Handel?**
+
+**Handel zwischen EU-Mitgliedsstaaten**, z.B.:
+- Deutschland ↔ Belgien
+- Deutschland ↔ Frankreich
+- Deutschland ↔ Niederlande
+- etc. (alle 27 EU-Länder)
+
+**Besonderheit:** Reverse-Charge-Verfahren (§ 13b UStG, § 4 Nr. 1b UStG)
+
+---
+
+#### **Szenario 1: Einkauf aus EU-Land (Innergemeinschaftlicher Erwerb)**
+
+**Beispiel: Du kaufst Ware aus Belgien (1.000 €)**
+
+```
+Belgischer Lieferant               Du (Deutschland)
+───────────────────                ────────────────
+Rechnung: 1.000 €
++ 0% MwSt (!)                      Du MUSST deutsche USt berechnen:
+= 1.000 € Brutto
+                                   Kz. 89: 1.000 € (Erwerb)
+Lieferant berechnet 0%,            Kz. 93: 190 € (19% USt darauf)
+weil du deutsche                   Kz. 61: 190 € (Vorsteuer abziehbar)
+USt-IdNr. hast
+                                   Netto-Effekt: 0 € (93 - 61 = 0)
+```
+
+**Voraussetzungen:**
+1. ✅ Du hast gültige **deutsche USt-IdNr.** (DE123456789)
+2. ✅ Lieferant hat gültige **belgische USt-IdNr.** (BE0123456789)
+3. ✅ Ware wird physisch nach Deutschland geliefert
+4. ❌ Du bist **nicht** Kleinunternehmer (§19 UStG)
+
+**Grenzwert:**
+- **Unter 12.500 € pro Jahr:** Optional (kannst auch belgische MwSt zahlen)
+- **Über 12.500 € pro Jahr:** Pflicht zum Reverse Charge
+
+**UStVA:**
+- Kz. 89: 1.000 € (Bemessungsgrundlage)
+- Kz. 93: 190 € (Steuer zahlen)
+- Kz. 61: 190 € (Vorsteuer abziehen)
+- Zahllast: +190 € - 190 € = **0 €** ✅
+
+---
+
+#### **Szenario 2: Verkauf in EU-Land (Innergemeinschaftliche Lieferung)**
+
+**Fall A: B2B - Kunde ist Unternehmer (mit USt-IdNr.)**
+
+**Beispiel: Du verkaufst an belgischen Kunden (1.000 €)**
+
+```
+Du (Deutschland)                   Belgischer Kunde (Unternehmer)
+────────────────                   ─────────────────────────────
+Rechnung: 1.000 €
++ 0% USt (!)                       Kunde MUSS belgische MwSt berechnen:
+= 1.000 € Brutto                   → 1.000 € × 21% = 210 € (BE-MwSt)
+                                   → Gleichzeitig 210 € Vorsteuer
+Steuerfreie Lieferung
+§ 4 Nr. 1b UStG                    Netto-Effekt beim Kunden: 0 €
+```
+
+**Voraussetzungen (KRITISCH!):**
+
+1. ✅ **Kunde hat gültige belgische USt-IdNr.** (BE0123456789)
+2. ✅ **USt-IdNr. validiert** über BZSt-Webservice
+3. ✅ **Ware wird physisch nach Belgien geliefert**
+4. ✅ **Gelangensbestätigung** vorhanden (Nachweis!)
+
+**OHNE gültige USt-IdNr.:**
+- ❌ Keine steuerfreie Lieferung!
+- ✅ Deutsche USt berechnen (19%)
+
+**UStVA:**
+- Kz. 41: 1.000 € (innergemeinschaftliche Lieferung)
+- Keine Umsatzsteuer (0%)
+
+**Grenzwert:**
+- ❌ **Kein Grenzwert** für B2B-Verkäufe
+- Immer 0% bei gültiger USt-IdNr.
+
+---
+
+**Fall B: B2C - Kunde ist Privatperson (ohne USt-IdNr.)**
+
+```
+Du (Deutschland)                   Belgischer Privatkunde
+────────────────                   ──────────────────────
+
+Bis 10.000 € Jahresumsatz (EU):
+→ Deutsche USt (19%)
+
+Ab 10.000 € Jahresumsatz (EU):
+→ Belgische MwSt (21%)             Du musst dich in Belgien
+→ Registrierung in BE nötig!       registrieren!
+```
+
+**Grenzwerte (B2C):**
+- **Unter 10.000 € EU-weit pro Jahr:** Deutsche USt
+- **Über 10.000 € EU-weit:** Zielland-MwSt + Registrierung
+- **Alternative:** OSS-Verfahren (One-Stop-Shop)
+
+---
+
+#### **Pflichten bei EU-Handel**
+
+**1. USt-IdNr.-Validierung (PFLICHT vor jeder Lieferung!)**
+
+```python
+def validate_ust_idnr(ust_idnr, land):
+    """
+    Validiert USt-IdNr. über BZSt-Webservice
+
+    API: https://evatr.bff-online.de/eVatR/xmlrpc/
+    """
+    # 1. Format prüfen
+    if not re.match(r'^BE[0-9]{10}$', ust_idnr):
+        return False, "Ungültiges Format"
+
+    # 2. BZSt-API anfragen
+    response = bzst_api.validate(
+        ust_idnr=ust_idnr,
+        eigene_ust_idnr='DE123456789',
+        firmenname='Musterfirma',
+        ort='Musterstadt'
+    )
+
+    # 3. Ergebnis speichern (Nachweispflicht!)
+    save_validation_result(
+        ust_idnr=ust_idnr,
+        datum=heute(),
+        ergebnis=response.gueltig,
+        fehlercode=response.fehlercode
+    )
+
+    return response.gueltig, response.fehlercode
+```
+
+**UI-Workflow:**
+```
+Ausgangsrechnung erstellen
+│
+├─ Land: [Belgien ▼]
+├─ Kunde: Belgischer Kunde GmbH
+├─ USt-IdNr: [BE0123456789]  [ Validieren ]
+│                             ↓
+│                          ✅ Gültig! (BZSt bestätigt)
+│                          → 0% USt wird berechnet
+│
+└─ Rechnung speichern
+```
+
+**WICHTIG:** Validation-Ergebnis **muss gespeichert** werden (Nachweispflicht bei Betriebsprüfung!)
+
+---
+
+**2. Gelangensbestätigung (Nachweis der Lieferung)**
+
+**Was ist das?**
+- Nachweis, dass Ware tatsächlich ins EU-Ausland geliefert wurde
+- Ohne Nachweis: Finanzamt kann 0% USt ablehnen!
+
+**Mögliche Nachweise:**
+1. Spediteur-Bescheinigung (CMR-Frachtbrief)
+2. Unterschriebener Lieferschein
+3. Tracking-Nummer (DHL, UPS, FedEx)
+4. Empfangsbestätigung des Kunden
+
+**RechnungsPilot:**
+```
+Rechnung bearbeiten
+│
+├─ Status: Versendet
+├─ Lieferdatum: 15.12.2025
+├─ Nachweis: [📎 CMR-Frachtbrief.pdf]
+│            [📎 Tracking-DHL-123456.pdf]
+│
+└─ Speichern
+```
+
+---
+
+**3. Zusammenfassende Meldung (ZM)**
+
+**Was ist das?**
+- Meldung an BZSt (Bundeszentralamt für Steuern)
+- Alle innergemeinschaftlichen Lieferungen
+- **Pflicht** bei jeder ig. Lieferung!
+
+**Fristen:**
+- **Monatlich:** Bei > 50.000 € ig. Lieferungen pro Jahr
+- **Quartalsweise:** Bei < 50.000 €
+- **Frist:** 25. des Folgemonats
+
+**Inhalt:**
+
+```xml
+<!-- ZM Januar 2026 -->
+<ZM>
+  <Meldezeitraum>2026-01</Meldezeitraum>
+  <Lieferungen>
+    <Lieferung>
+      <Land>BE</Land>
+      <UStIdNr>BE0123456789</UStIdNr>
+      <Betrag>1000.00</Betrag>  <!-- Netto -->
+    </Lieferung>
+    <Lieferung>
+      <Land>FR</Land>
+      <UStIdNr>FR12345678901</UStIdNr>
+      <Betrag>2500.00</Betrag>
+    </Lieferung>
+  </Lieferungen>
+</ZM>
+```
+
+**RechnungsPilot-Export:**
+```python
+def export_zm(zeitraum):
+    """
+    Erstellt Zusammenfassende Meldung (XML)
+    """
+    lieferungen = get_ig_lieferungen(zeitraum)
+
+    # Nach Land + USt-IdNr gruppieren
+    grouped = group_by(lieferungen, ['land', 'ust_idnr'])
+
+    xml = create_zm_xml(
+        zeitraum=zeitraum,
+        lieferungen=grouped
+    )
+
+    return xml  # Hochladen auf ELSTER-Portal
+```
+
+**UI:**
+```
+┌─────────────────────────────────────────┐
+│ Zusammenfassende Meldung (ZM)          │
+├─────────────────────────────────────────┤
+│ Zeitraum: Januar 2026                  │
+│                                         │
+│ Belgien (BE):                           │
+│ └─ BE0123456789: 1.000,00 €            │
+│                                         │
+│ Frankreich (FR):                        │
+│ └─ FR12345678901: 2.500,00 €           │
+│                                         │
+│ Gesamt: 3.500,00 €                     │
+│                                         │
+│ [ XML exportieren ]  [ An BZSt ]       │
+└─────────────────────────────────────────┘
+```
+
+---
+
+#### **Datenbank-Erweiterungen**
+
+```sql
+-- Rechnungen (erweitert für EU)
+CREATE TABLE rechnungen (
+    id INTEGER PRIMARY KEY,
+    typ TEXT,  -- 'eingangsrechnung', 'ausgangsrechnung'
+
+    -- NEU: EU-Felder
+    land TEXT DEFAULT 'DE',  -- ISO 3166-1 Alpha-2
+    ist_eu_lieferung BOOLEAN DEFAULT 0,
+    ist_eu_erwerb BOOLEAN DEFAULT 0,
+    kunde_ust_idnr TEXT,  -- z.B. BE0123456789
+
+    -- NEU: Validierung
+    ust_idnr_validiert BOOLEAN DEFAULT 0,
+    ust_idnr_validierung_datum DATE,
+    ust_idnr_validierung_ergebnis TEXT,
+
+    -- NEU: Gelangensbestätigung
+    gelangensbestaetigung_vorhanden BOOLEAN DEFAULT 0,
+    gelangensbestaetigung_datei TEXT,  -- Pfad zu PDF/Scan
+
+    netto_betrag DECIMAL,
+    umsatzsteuer_satz DECIMAL,
+    umsatzsteuer_betrag DECIMAL,
+    brutto_betrag DECIMAL
+);
+
+-- ZM-Meldungen
+CREATE TABLE zm_meldungen (
+    id INTEGER PRIMARY KEY,
+    zeitraum TEXT NOT NULL,  -- '2026-01'
+    erstellungsdatum TIMESTAMP,
+    status TEXT,  -- 'entwurf', 'gesendet', 'bestätigt'
+    xml_datei TEXT
+);
+
+-- EU-Länder-Stammdaten
+CREATE TABLE eu_laender (
+    code TEXT PRIMARY KEY,  -- 'BE'
+    name TEXT,  -- 'Belgien'
+    mwst_satz_standard DECIMAL,  -- 21.0
+    mwst_satz_reduziert DECIMAL,  -- 6.0
+    ust_idnr_format TEXT  -- '^BE[0-9]{10}$'
+);
+```
+
+---
+
+#### **Kleinunternehmer (§19 UStG) - Einschränkungen**
+
+**Problem:** Kleinunternehmer haben **keine USt-IdNr.**
+
+**Folgen:**
+
+```
+Einkauf aus EU:
+❌ Kein Reverse Charge möglich
+✅ Lieferant berechnet EU-MwSt (21% BE)
+❌ Keine Vorsteuer abziehbar
+
+Verkauf in EU:
+❌ Kein 0% USt möglich (keine USt-IdNr.)
+✅ Wie Inlandsverkauf (0% nach §19 UStG)
+⚠️ Kunde muss ggf. Import-MwSt zahlen
+```
+
+**RechnungsPilot-Verhalten:**
+- EU-Felder ausgegraut bei Kleinunternehmer
+- Warnung: "Als Kleinunternehmer kein Reverse Charge möglich"
+
+---
+
+#### **MVP-Umfang EU-Handel**
+
+**Was im MVP enthalten ist:**
+
+✅ **Rechnungen:**
+- Länder-Auswahl (27 EU-Länder)
+- USt-IdNr.-Feld für Kunden/Lieferanten
+- 0% USt bei ig. Lieferung/Erwerb
+- Reverse-Charge-Vermerk auf Rechnung
+
+✅ **USt-IdNr.-Validierung:**
+- BZSt-API-Integration
+- Validation-Ergebnis speichern
+- UI-Feedback (gültig/ungültig)
+
+✅ **UStVA:**
+- Kz. 41: Innergemeinschaftliche Lieferungen
+- Kz. 89: Innergemeinschaftlicher Erwerb
+- Kz. 93: USt aus ig. Erwerb
+- Kz. 61: Vorsteuer aus ig. Erwerb
+
+✅ **ZM-Export:**
+- XML-Generierung
+- Nach Land/USt-IdNr gruppiert
+- Export für ELSTER-Portal
+
+✅ **Gelangensbestätigung:**
+- Datei-Upload (PDF/Scan)
+- Tracking-Nummer speichern
+
+**Nicht im MVP (später):**
+- ❌ OSS-Verfahren (B2C > 10.000 €)
+- ❌ Automatische ELSTER-Übermittlung (ZM)
+- ❌ Drittlands-Handel (Schweiz, UK, etc.)
 
 ---
 
@@ -3002,7 +3386,7 @@ Einstellungen > Steuern
 
 ## **🔍 Export-Anforderungen für Steuerberater-Software**
 
-### **AGENDA (Lexware) - Export-Kompatibilität**
+### **AGENDA - Export-Kompatibilität**
 
 **Was AGENDA importieren kann (= was RechnungsPilot exportieren muss):**
 
