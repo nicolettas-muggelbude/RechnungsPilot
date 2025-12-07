@@ -2575,57 +2575,101 @@ class BankCSVParser:
 
 ---
 
-## **🔍 Marktbeobachtung & Competitor Research**
+## **🔍 Export-Anforderungen für Steuerberater-Software**
 
-### **AGENDA (Lexware)**
+### **AGENDA (Lexware) - Export-Kompatibilität**
 
-**Import-Funktionen:**
+**Was AGENDA importieren kann (= was RechnungsPilot exportieren muss):**
 
-1. **DATEV-Import**
-   - Kann DATEV-Daten importieren
-   - Kompatibilität mit DATEV-Schnittstelle
+1. **DATEV-Format**
+   - AGENDA kann DATEV-Daten importieren
+   - ✅ RechnungsPilot hat bereits DATEV-Export (Kategorie 2)
 
-2. **Beleg-Import (PDF + XML)**
-   - **Voraussetzung:** PDF und XML müssen denselben Dateinamen haben
+2. **Belegbilder-Export (PDF + XML)**
+   - **AGENDA-Anforderung:** PDF und XML müssen denselben Dateinamen haben
    - **Format:** `rechnung-123.pdf` + `rechnung-123.xml`
-   - **Bulk-Import:** Unterstützt gezippte Belegbilder
-   - **Workflow:** ZIP hochladen → AGENDA entpackt → Matcht PDF+XML → Importiert
+   - **Bulk-Export:** Gezippte Belegbilder
+   - **Workflow:** RechnungsPilot erstellt ZIP → AGENDA importiert → Matcht PDF+XML automatisch
 
-**Relevanz für RechnungsPilot:**
-- ✅ **PDF+XML-Pairing:** Sollten wir auch unterstützen (Standard bei ZUGFeRD)
-- ✅ **ZIP-Import:** Praktisch für Massen-Upload von gescannten Belegen
-- ✅ **Dateinamen-Matching:** Konvention übernehmen (benutzerfreundlich)
+**RechnungsPilot-Export für AGENDA:**
 
-**Implementierungs-Idee:**
 ```python
-def import_beleg_zip(zip_file):
+def export_belege_fuer_agenda(zeitraum):
     """
-    Importiert ZIP mit gepaarten PDF+XML-Belegen
+    Exportiert alle Belege im AGENDA-kompatiblen Format
 
-    Struktur:
-    belege.zip
-    ├── rechnung-001.pdf
-    ├── rechnung-001.xml
+    Output:
+    belege_2025-Q4.zip
+    ├── rechnung-001.pdf  (Beleg-Scan/PDF)
+    ├── rechnung-001.xml  (XRechnung-Daten)
     ├── rechnung-002.pdf
-    └── rechnung-002.xml
+    ├── rechnung-002.xml
+    └── ...
     """
-    files = extract_zip(zip_file)
+    rechnungen = get_rechnungen(zeitraum)
+    zip_file = create_zip(f"belege_{zeitraum}.zip")
 
-    # PDFs und XMLs matchen
-    pairs = match_pdf_xml_by_filename(files)
+    for rechnung in rechnungen:
+        filename_base = f"rechnung-{rechnung.id:03d}"
 
-    for pdf, xml in pairs:
-        # ZUGFeRD/XRechnung parsen
-        rechnung_data = parse_xrechnung(xml)
+        # 1. PDF-Beleg
+        pdf_path = f"{filename_base}.pdf"
+        zip_file.add(rechnung.beleg_pdf, pdf_path)
 
-        # PDF als Beleg anhängen
-        rechnung_data['beleg_pdf'] = pdf
+        # 2. XML-Daten (XRechnung/ZUGFeRD)
+        xml_data = generate_xrechnung(rechnung)
+        xml_path = f"{filename_base}.xml"
+        zip_file.add_text(xml_data, xml_path)
 
-        # In Rechnungseingangs-/Ausgangsbuch eintragen
-        create_rechnung(rechnung_data)
+    return zip_file
+
+
+def export_to_agenda(zeitraum):
+    """
+    Vollständiger AGENDA-Export
+    """
+    # 1. DATEV-CSV (Buchungsdaten)
+    datev_csv = export_datev(zeitraum)
+
+    # 2. Belegbilder (ZIP mit PDF+XML)
+    belege_zip = export_belege_fuer_agenda(zeitraum)
+
+    return {
+        'datev': datev_csv,
+        'belege': belege_zip
+    }
 ```
 
-**Status:** 📋 Für Kategorie 9 (Import-Schnittstellen) vorgemerkt
+**Export-UI:**
+
+```
+┌─────────────────────────────────────────┐
+│ Export für Steuerberater (AGENDA)      │
+├─────────────────────────────────────────┤
+│                                         │
+│  Zeitraum: [Q4 2025 ▼]                 │
+│                                         │
+│  ☑ DATEV-Buchungsdaten (CSV)           │
+│  ☑ Belegbilder (ZIP mit PDF+XML)       │
+│                                         │
+│  Dateinamen-Format:                     │
+│  ● rechnung-NNN.pdf + .xml              │
+│  ○ Rechnungsnummer als Dateiname       │
+│                                         │
+│  [ Exportieren ]                        │
+│                                         │
+│  → belege_2025-Q4.zip (12,4 MB)        │
+│  → datev_2025-Q4.csv (124 KB)          │
+└─────────────────────────────────────────┘
+```
+
+**Anforderungen:**
+- ✅ **Gleicher Dateiname:** PDF und XML müssen identisch heißen (außer Endung)
+- ✅ **ZIP-Format:** Für Massen-Export aller Belege
+- ✅ **XRechnung/ZUGFeRD:** XML muss valide sein
+- ✅ **DATEV-CSV:** Buchungsdaten parallel exportieren
+
+**Status:** 📋 Für AGENDA-Export-Funktion vorgemerkt (Erweiterung von Kategorie 2: DATEV-Export)
 
 ---
 
