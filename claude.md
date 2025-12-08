@@ -8350,12 +8350,890 @@ Ihre Daten werden NICHT an Dritte weitergegeben (außer gesetzlich verpflichtet,
 
 ---
 
-### **8.9 Produktstammdaten (für Rechnungsschreib-Modul)**
+### **8.9 Produktstammdaten ✅ GEKLÄRT**
+
+**Status:** ✅ **Entscheidung getroffen**
+
+**Entscheidung:** **Hybrid-Lösung** (wie Kundenstamm) mit Templates für verschiedene Produkttypen
+
+---
+
+#### **🎯 Implementierung: Hybrid-Lösung**
+
+**Wie beim Kundenstamm:**
+```
+┌─────────────────────────────────────────────────┐
+│ ⚙️ Einstellungen > Produktstamm                │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│ Beim Erstellen von Rechnungspositionen:       │
+│                                                 │
+│ ○ Artikel automatisch speichern               │
+│   (Alle neuen Artikel werden ohne Nachfrage    │
+│    im Produktstamm gespeichert)                │
+│                                                 │
+│ ● Auf Nachfrage speichern (Standard) ⭐        │
+│   (Du wirst gefragt, ob der Artikel gespeichert│
+│    werden soll)                                │
+│                                                 │
+│ ○ Artikel nicht speichern                      │
+│   (Artikel werden nur in der Rechnung erfasst, │
+│    kein Produktstamm)                          │
+│                                                 │
+└─────────────────────────────────────────────────┘
+```
+
+**Datenbank-Einstellung:**
+```sql
+-- In der `user` Tabelle:
+ALTER TABLE user ADD COLUMN produktstamm_modus TEXT DEFAULT 'nachfrage';
+-- Werte: 'automatisch', 'nachfrage', 'nie'
+```
+
+---
+
+#### **📊 Datenbank-Schema**
+
+**Haupttabelle `produkte`:**
+
+```sql
+CREATE TABLE produkte (
+    id INTEGER PRIMARY KEY,
+
+    -- Stammdaten
+    artikelnummer TEXT UNIQUE,  -- "ART-001" (manuell oder automatisch)
+    name TEXT NOT NULL,  -- ⭐ PFLICHT: "Beratungsstunde", "Laptop Dell XPS 13"
+    beschreibung TEXT,  -- Längerer Text für Rechnung
+
+    -- Typ
+    typ TEXT NOT NULL DEFAULT 'produkt',  -- 'produkt', 'dienstleistung'
+
+    -- ═══════════════════════════════════════════════════
+    -- STANDARD-FELDER (für beide Typen)
+    -- ═══════════════════════════════════════════════════
+
+    -- USt-Satz (PFLICHT)
+    umsatzsteuer_satz DECIMAL(5,2) NOT NULL DEFAULT 19.0,  -- ⭐ PFLICHT
+
+    -- Verkaufspreis (PFLICHT)
+    verkaufspreis_netto DECIMAL(10,2) NOT NULL,  -- ⭐ PFLICHT
+    verkaufspreis_brutto DECIMAL(10,2) GENERATED ALWAYS AS (
+        verkaufspreis_netto * (1 + umsatzsteuer_satz / 100.0)
+    ) STORED,
+
+    -- ═══════════════════════════════════════════════════
+    -- NUR FÜR PRODUKTE (typ='produkt')
+    -- ═══════════════════════════════════════════════════
+
+    -- Einkaufspreis (PFLICHT bei Produkten)
+    einkaufspreis_netto DECIMAL(10,2),  -- ⭐ PFLICHT (bei typ='produkt')
+    einkaufspreis_brutto DECIMAL(10,2) GENERATED ALWAYS AS (
+        CASE
+            WHEN einkaufspreis_netto IS NOT NULL
+            THEN einkaufspreis_netto * (1 + umsatzsteuer_satz / 100.0)
+            ELSE NULL
+        END
+    ) STORED,
+
+    -- Erweiterte Felder (Produkte)
+    lieferant_id INTEGER,  -- ⭐ Zuordnung zum Lieferanten
+    hersteller TEXT,  -- ⭐ z.B. "Dell", "Bosch", etc.
+
+    -- ⭐⭐ EAN-Code Support (WICHTIG!) ⭐⭐
+    ean_code TEXT,  -- ⭐ EAN-13 (13-stellig) oder EAN-8 (8-stellig)
+    ean_typ TEXT,  -- 'EAN-13', 'EAN-8', 'UPC', 'ISBN'
+
+    artikelcode TEXT,  -- ⭐ Interner Code / SKU
+    einheit TEXT DEFAULT 'Stück',  -- ⭐ 'Stück', 'kg', 'l', 'm', etc.
+
+    -- Lagerbestand (erweitert)
+    lagerbestand DECIMAL(10,2) DEFAULT 0.00,  -- ⭐ Aktueller Bestand
+    lagerbestand_negativ_erlaubt BOOLEAN DEFAULT 0,  -- ⭐ Negativer Bestand?
+    mindestbestand DECIMAL(10,2) DEFAULT 0.00,  -- ⭐ Warnung bei Unterschreitung
+
+    -- ═══════════════════════════════════════════════════
+    -- KATEGORIE (evt. später - optional für v1.0)
+    -- ═══════════════════════════════════════════════════
+
+    kategorie_id INTEGER,  -- Zuordnung zu Einnahmen-Kategorie (später)
+
+    -- ═══════════════════════════════════════════════════
+    -- METADATEN
+    -- ═══════════════════════════════════════════════════
+
+    ist_aktiv BOOLEAN DEFAULT 1,
+    erstellt_am TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    aktualisiert_am TIMESTAMP,
+
+    -- Foreign Keys
+    FOREIGN KEY (lieferant_id) REFERENCES lieferanten(id),
+    FOREIGN KEY (kategorie_id) REFERENCES kategorien(id)  -- Optional für später
+
+    -- Constraints
+    CHECK (typ IN ('produkt', 'dienstleistung')),
+    CHECK (
+        -- Bei Produkten: Einkaufspreis PFLICHT
+        (typ = 'produkt' AND einkaufspreis_netto IS NOT NULL) OR
+        (typ = 'dienstleistung')
+    ),
+    CHECK (
+        -- Bei Dienstleistungen: Lagerfelder NULL
+        (typ = 'produkt') OR
+        (typ = 'dienstleistung' AND lagerbestand IS NULL AND mindestbestand IS NULL)
+    )
+);
+
+-- Index für EAN-Code (WICHTIG für schnelle Suche!)
+CREATE INDEX idx_produkte_ean ON produkte(ean_code);
+CREATE INDEX idx_produkte_artikelcode ON produkte(artikelcode);
+CREATE INDEX idx_produkte_name ON produkte(name);
+CREATE INDEX idx_produkte_typ ON produkte(typ);
+```
+
+---
+
+#### **🏷️ EAN-Code Support (WICHTIG!)**
+
+**EAN-Code Typen:**
+
+| Typ | Länge | Verwendung | Beispiel |
+|-----|-------|------------|----------|
+| **EAN-13** | 13 Ziffern | Standard für Retail | `4012345678901` |
+| **EAN-8** | 8 Ziffern | Kleine Artikel | `12345670` |
+| **UPC** | 12 Ziffern | USA/Kanada | `012345678905` |
+| **ISBN** | 13 Ziffern | Bücher (seit 2007) | `978-3-16-148410-0` |
+
+**EAN-Validierung (Prüfziffer):**
+
+```python
+def validate_ean13(ean: str) -> bool:
+    """
+    Validiert EAN-13 Code (Prüfziffer)
+
+    Args:
+        ean: 13-stelliger EAN-Code
+
+    Returns:
+        True, wenn gültig
+    """
+    if not ean or len(ean) != 13 or not ean.isdigit():
+        return False
+
+    # Prüfziffer berechnen
+    checksum = 0
+    for i, digit in enumerate(ean[:12]):  # Erste 12 Ziffern
+        if i % 2 == 0:
+            checksum += int(digit)  # Ungerade Positionen (1, 3, 5, ...) → ×1
+        else:
+            checksum += int(digit) * 3  # Gerade Positionen (2, 4, 6, ...) → ×3
+
+    # Prüfziffer = (10 - (Summe mod 10)) mod 10
+    check_digit = (10 - (checksum % 10)) % 10
+
+    return int(ean[12]) == check_digit
+
+
+def validate_ean8(ean: str) -> bool:
+    """
+    Validiert EAN-8 Code (Prüfziffer)
+    """
+    if not ean or len(ean) != 8 or not ean.isdigit():
+        return False
+
+    checksum = 0
+    for i, digit in enumerate(ean[:7]):  # Erste 7 Ziffern
+        if i % 2 == 0:
+            checksum += int(digit) * 3  # Ungerade Positionen → ×3
+        else:
+            checksum += int(digit)  # Gerade Positionen → ×1
+
+    check_digit = (10 - (checksum % 10)) % 10
+    return int(ean[7]) == check_digit
+
+
+def validate_ean(ean: str, ean_typ: str = None) -> tuple[bool, str]:
+    """
+    Validiert EAN-Code (auto-detect oder spezifisch)
+
+    Args:
+        ean: EAN-Code
+        ean_typ: 'EAN-13', 'EAN-8', 'UPC', 'ISBN' (optional)
+
+    Returns:
+        (gültig, erkannter_typ)
+    """
+    if not ean:
+        return False, None
+
+    # Nur Ziffern und Bindestriche erlauben
+    ean_clean = ean.replace('-', '').replace(' ', '')
+
+    if ean_typ == 'EAN-13' or (ean_typ is None and len(ean_clean) == 13):
+        if validate_ean13(ean_clean):
+            return True, 'EAN-13'
+
+    if ean_typ == 'EAN-8' or (ean_typ is None and len(ean_clean) == 8):
+        if validate_ean8(ean_clean):
+            return True, 'EAN-8'
+
+    if ean_typ == 'UPC' or (ean_typ is None and len(ean_clean) == 12):
+        # UPC → EAN-13 (Präfix '0' hinzufügen)
+        ean13 = '0' + ean_clean
+        if validate_ean13(ean13):
+            return True, 'UPC'
+
+    if ean_typ == 'ISBN' or (ean_typ is None and (ean_clean.startswith('978') or ean_clean.startswith('979'))):
+        # ISBN-13 ist EAN-13
+        if len(ean_clean) == 13 and validate_ean13(ean_clean):
+            return True, 'ISBN'
+
+    return False, None
+```
+
+**EAN-Scanner Integration:**
+
+```python
+def import_produkt_from_ean(ean_code: str):
+    """
+    Importiert Produkt aus externer Datenbank via EAN
+
+    Quellen:
+    - OpenEAN (https://openean.kaufland.de) - Kostenlos
+    - EAN-Search.org API
+    - GS1 API (kostenpflichtig)
+    """
+    # 1. Validierung
+    valid, typ = validate_ean(ean_code)
+    if not valid:
+        raise ValueError(f"Ungültiger EAN-Code: {ean_code}")
+
+    # 2. Suche in externer Datenbank
+    produkt_info = fetch_ean_info(ean_code)  # API-Call
+
+    # 3. Produkt anlegen
+    produkt = Produkt(
+        ean_code=ean_code,
+        ean_typ=typ,
+        name=produkt_info.get('name'),
+        hersteller=produkt_info.get('brand'),
+        beschreibung=produkt_info.get('description'),
+        # Preise manuell ergänzen
+    )
+
+    return produkt
+```
+
+**UI - EAN-Scanner:**
+
+```
+┌────────────────────────────────────────────┐
+│ Neues Produkt anlegen                      │
+├────────────────────────────────────────────┤
+│                                            │
+│ ┌──────────────────────────────────────┐  │
+│ │ 📷 EAN-Scanner                        │  │
+│ ├──────────────────────────────────────┤  │
+│ │                                      │  │
+│ │ EAN-Code: [____________] [Scannen]   │  │
+│ │                                      │  │
+│ │ ℹ️ Scanne Barcode oder gib EAN ein  │  │
+│ └──────────────────────────────────────┘  │
+│                                            │
+│ ─── ODER MANUELL EINGEBEN ───              │
+│                                            │
+│ Name *: [_________________________]        │
+│ Hersteller: [____________________]         │
+│ EAN-Code: [_______________] ✅ Gültig     │
+│ Artikelcode: [_______________]             │
+│                                            │
+│ ...                                        │
+│                                            │
+│ [Abbrechen]             [Speichern]        │
+└────────────────────────────────────────────┘
+```
+
+---
+
+#### **📋 Templates für verschiedene Produkttypen**
+
+**Template-System (für v2.0):**
+
+```python
+PRODUKT_TEMPLATES = {
+    'dienstleistung_beratung': {
+        'name': 'Dienstleistung (Beratung)',
+        'beschreibung': 'Für Berater, Coaches, Freiberufler',
+        'typ': 'dienstleistung',
+        'felder': [
+            'name',  # z.B. "Beratungsstunde"
+            'beschreibung',
+            'umsatzsteuer_satz',
+            'verkaufspreis_netto',
+            'einheit'  # 'Stunde', 'Tag', 'Projekt'
+        ],
+        'pflicht': ['name', 'umsatzsteuer_satz', 'verkaufspreis_netto'],
+        'defaults': {
+            'einheit': 'Stunde',
+            'umsatzsteuer_satz': 19.0
+        },
+        'felder_ausblenden': [
+            'einkaufspreis_netto',
+            'lieferant_id',
+            'hersteller',
+            'ean_code',
+            'lagerbestand',
+            'mindestbestand'
+        ]
+    },
+
+    'dienstleistung_handwerk': {
+        'name': 'Dienstleistung (Handwerk)',
+        'beschreibung': 'Für Handwerker (Arbeitsstunden)',
+        'typ': 'dienstleistung',
+        'felder': [
+            'name',  # z.B. "Elektriker Arbeitsstunde"
+            'beschreibung',
+            'umsatzsteuer_satz',
+            'verkaufspreis_netto',
+            'einheit'
+        ],
+        'pflicht': ['name', 'umsatzsteuer_satz', 'verkaufspreis_netto'],
+        'defaults': {
+            'einheit': 'Stunde',
+            'umsatzsteuer_satz': 19.0
+        },
+        'felder_ausblenden': [
+            'einkaufspreis_netto',
+            'lieferant_id',
+            'hersteller',
+            'ean_code',
+            'lagerbestand',
+            'mindestbestand'
+        ]
+    },
+
+    'produkt_handelsware': {
+        'name': 'Produkt (Handelsware)',
+        'beschreibung': 'Für Händler (Einkauf & Verkauf)',
+        'typ': 'produkt',
+        'felder': [
+            'name',
+            'beschreibung',
+            'hersteller',
+            'ean_code',  # ⭐ WICHTIG!
+            'artikelcode',
+            'einheit',
+            'umsatzsteuer_satz',
+            'einkaufspreis_netto',  # PFLICHT
+            'verkaufspreis_netto',  # PFLICHT
+            'lieferant_id',
+            'lagerbestand',
+            'mindestbestand'
+        ],
+        'pflicht': ['name', 'umsatzsteuer_satz', 'einkaufspreis_netto', 'verkaufspreis_netto'],
+        'defaults': {
+            'einheit': 'Stück',
+            'umsatzsteuer_satz': 19.0,
+            'lagerbestand': 0.00,
+            'mindestbestand': 5.00
+        },
+        'besonderheiten': [
+            'EAN-Code empfohlen (für Barcode-Scanner)',
+            'Lieferant zuordnen für Nachbestellung',
+            'Mindestbestand für Warnung bei niedrigem Lagerstand'
+        ]
+    },
+
+    'produkt_eigenproduktion': {
+        'name': 'Produkt (Eigenproduktion)',
+        'beschreibung': 'Für selbst hergestellte Produkte',
+        'typ': 'produkt',
+        'felder': [
+            'name',
+            'beschreibung',
+            'artikelcode',
+            'einheit',
+            'umsatzsteuer_satz',
+            'einkaufspreis_netto',  # Materialkosten
+            'verkaufspreis_netto',
+            'lagerbestand',
+            'mindestbestand'
+        ],
+        'pflicht': ['name', 'umsatzsteuer_satz', 'einkaufspreis_netto', 'verkaufspreis_netto'],
+        'defaults': {
+            'einheit': 'Stück',
+            'umsatzsteuer_satz': 19.0,
+            'lagerbestand': 0.00
+        },
+        'felder_ausblenden': [
+            'ean_code',  # Keine EAN für Eigenproduktion
+            'lieferant_id'  # Kein Lieferant
+        ],
+        'besonderheiten': [
+            'Einkaufspreis = Materialkosten',
+            '⚠️ Kalkulations-Modul für v2.0 geplant! (Materialkosten + Arbeitszeit)'
+        ]
+    },
+
+    'produkt_download': {
+        'name': 'Digitales Produkt (Download)',
+        'beschreibung': 'Für E-Books, Software, etc.',
+        'typ': 'produkt',
+        'felder': [
+            'name',
+            'beschreibung',
+            'umsatzsteuer_satz',
+            'verkaufspreis_netto'
+        ],
+        'pflicht': ['name', 'umsatzsteuer_satz', 'verkaufspreis_netto'],
+        'defaults': {
+            'einheit': 'Lizenz',
+            'umsatzsteuer_satz': 19.0,
+            'einkaufspreis_netto': 0.00  # Keine Materialkosten
+        },
+        'felder_ausblenden': [
+            'ean_code',
+            'lieferant_id',
+            'hersteller',
+            'lagerbestand',  # Kein Lager bei Downloads
+            'mindestbestand'
+        ]
+    },
+
+    'standard': {
+        'name': 'Standard (Universal)',
+        'beschreibung': 'Alle Felder verfügbar',
+        'typ': None,  # User wählt
+        'felder': 'alle',
+        'pflicht': ['name', 'typ', 'umsatzsteuer_satz', 'verkaufspreis_netto'],
+        'defaults': {
+            'einheit': 'Stück',
+            'umsatzsteuer_satz': 19.0
+        }
+    }
+}
+```
+
+---
+
+#### **💰 Kalkulations-Modul (für v2.0 vorgemerkt)**
 
 **Zweck:**
-- Für späteres Modul "Ausgangsrechnungen erstellen"
-- Wiederverwendbare Produkte/Dienstleistungen
-- Schnelles Erstellen von Rechnungen
+- Automatische Berechnung von Verkaufspreisen
+- Berücksichtigung von Materialkosten, Arbeitszeit, Gemeinkosten
+- Gewinnmarge-Kalkulation
+
+**Geplante Funktionen:**
+
+```python
+# ⚠️ FÜR v2.0 GEPLANT - NICHT IN v1.0!
+
+def berechne_verkaufspreis(
+    materialkosten: Decimal,  # Einkaufspreis
+    arbeitszeit_stunden: Decimal,
+    stundensatz: Decimal,
+    gemeinkostenzuschlag: Decimal = Decimal('0.15'),  # 15%
+    gewinnmarge: Decimal = Decimal('0.20')  # 20%
+) -> Decimal:
+    """
+    Kalkuliert Verkaufspreis für selbst hergestellte Produkte
+
+    Beispiel:
+    - Materialkosten: 50,00 €
+    - Arbeitszeit: 2 Stunden
+    - Stundensatz: 40,00 €
+    - Gemeinkosten: 15%
+    - Gewinnmarge: 20%
+
+    Rechnung:
+    - Materialkosten: 50,00 €
+    - Arbeitskosten: 2h × 40 €/h = 80,00 €
+    - Herstellkosten: 130,00 €
+    - + Gemeinkosten (15%): 19,50 €
+    - Selbstkosten: 149,50 €
+    - + Gewinnmarge (20%): 29,90 €
+    - = Verkaufspreis (netto): 179,40 €
+    """
+    arbeitskosten = arbeitszeit_stunden * stundensatz
+    herstellkosten = materialkosten + arbeitskosten
+    gemeinkosten = herstellkosten * gemeinkostenzuschlag
+    selbstkosten = herstellkosten + gemeinkosten
+    gewinn = selbstkosten * gewinnmarge
+    verkaufspreis = selbstkosten + gewinn
+
+    return verkaufspreis.quantize(Decimal('0.01'))
+
+
+# Datenbank-Schema-Erweiterung für v2.0:
+"""
+ALTER TABLE produkte ADD COLUMN kalkulation_aktiv BOOLEAN DEFAULT 0;
+ALTER TABLE produkte ADD COLUMN kalkulation_arbeitszeit_stunden DECIMAL(10,2);
+ALTER TABLE produkte ADD COLUMN kalkulation_stundensatz DECIMAL(10,2);
+ALTER TABLE produkte ADD COLUMN kalkulation_gemeinkostenzuschlag DECIMAL(5,2) DEFAULT 15.0;
+ALTER TABLE produkte ADD COLUMN kalkulation_gewinnmarge DECIMAL(5,2) DEFAULT 20.0;
+"""
+```
+
+**UI - Kalkulations-Assistent (v2.0):**
+
+```
+┌───────────────────────────────────────────────┐
+│ 🧮 Kalkulations-Assistent                    │
+├───────────────────────────────────────────────┤
+│                                               │
+│ Produkt: Handgemachter Holztisch             │
+│                                               │
+│ 1️⃣ MATERIALKOSTEN:                           │
+│    Holz, Schrauben, Lack: 50,00 €            │
+│                                               │
+│ 2️⃣ ARBEITSZEIT:                               │
+│    Stunden: [__2,0__]                         │
+│    Stundensatz: [_40,00_] €/h                │
+│    → Arbeitskosten: 80,00 €                   │
+│                                               │
+│ 3️⃣ GEMEINKOSTEN:                              │
+│    Zuschlag: [_15_] %                         │
+│    → Gemeinkosten: 19,50 €                    │
+│                                               │
+│ 4️⃣ GEWINNMARGE:                               │
+│    Marge: [_20_] %                            │
+│    → Gewinn: 29,90 €                          │
+│                                               │
+│ ═══════════════════════════════════════       │
+│ VERKAUFSPREIS (netto): 179,40 €               │
+│ + USt 19%:              34,09 €               │
+│ ─────────────────────────────────             │
+│ VERKAUFSPREIS (brutto): 213,49 €              │
+│ ═══════════════════════════════════════       │
+│                                               │
+│ [Abbrechen]    [Übernehmen]                   │
+└───────────────────────────────────────────────┘
+```
+
+**Status:** 🔜 **Für v2.0 geplant**
+
+---
+
+#### **💻 Code-Implementierung**
+
+```python
+# models.py
+from dataclasses import dataclass
+from datetime import datetime
+from decimal import Decimal
+from typing import Optional
+
+@dataclass
+class Produkt:
+    id: Optional[int] = None
+
+    # Stammdaten
+    artikelnummer: Optional[str] = None
+    name: str = ''  # PFLICHT
+    beschreibung: Optional[str] = None
+    typ: str = 'produkt'  # 'produkt' | 'dienstleistung'
+
+    # USt-Satz (PFLICHT)
+    umsatzsteuer_satz: Decimal = Decimal('19.0')
+
+    # Verkaufspreis (PFLICHT)
+    verkaufspreis_netto: Decimal = Decimal('0.00')
+
+    # Einkaufspreis (PFLICHT bei Produkten)
+    einkaufspreis_netto: Optional[Decimal] = None
+
+    # Erweiterte Felder
+    lieferant_id: Optional[int] = None
+    hersteller: Optional[str] = None
+
+    # EAN-Code
+    ean_code: Optional[str] = None
+    ean_typ: Optional[str] = None  # 'EAN-13', 'EAN-8', 'UPC', 'ISBN'
+
+    artikelcode: Optional[str] = None
+    einheit: str = 'Stück'
+
+    # Lager
+    lagerbestand: Decimal = Decimal('0.00')
+    lagerbestand_negativ_erlaubt: bool = False
+    mindestbestand: Decimal = Decimal('0.00')
+
+    # Kategorie (optional)
+    kategorie_id: Optional[int] = None
+
+    # Metadaten
+    ist_aktiv: bool = True
+    erstellt_am: Optional[datetime] = None
+    aktualisiert_am: Optional[datetime] = None
+
+    @property
+    def verkaufspreis_brutto(self) -> Decimal:
+        """Berechnet Brutto-Verkaufspreis"""
+        return (self.verkaufspreis_netto * (1 + self.umsatzsteuer_satz / 100)).quantize(Decimal('0.01'))
+
+    @property
+    def einkaufspreis_brutto(self) -> Optional[Decimal]:
+        """Berechnet Brutto-Einkaufspreis"""
+        if self.einkaufspreis_netto is None:
+            return None
+        return (self.einkaufspreis_netto * (1 + self.umsatzsteuer_satz / 100)).quantize(Decimal('0.01'))
+
+    @property
+    def gewinnmarge_prozent(self) -> Optional[Decimal]:
+        """Berechnet Gewinnmarge in Prozent"""
+        if self.einkaufspreis_netto is None or self.einkaufspreis_netto == 0:
+            return None
+        gewinn = self.verkaufspreis_netto - self.einkaufspreis_netto
+        marge = (gewinn / self.einkaufspreis_netto) * 100
+        return marge.quantize(Decimal('0.01'))
+
+    @property
+    def gewinn_pro_stueck(self) -> Optional[Decimal]:
+        """Berechnet Gewinn pro Stück (netto)"""
+        if self.einkaufspreis_netto is None:
+            return None
+        return (self.verkaufspreis_netto - self.einkaufspreis_netto).quantize(Decimal('0.01'))
+
+    @property
+    def lagerbestand_kritisch(self) -> bool:
+        """Prüft, ob Lagerbestand unter Mindestbestand"""
+        return self.lagerbestand < self.mindestbestand
+
+    def validate(self) -> list[str]:
+        """Validiert Pflichtfelder"""
+        errors = []
+
+        if not self.name:
+            errors.append("Name ist Pflichtfeld")
+
+        if not self.typ or self.typ not in ['produkt', 'dienstleistung']:
+            errors.append("Typ muss 'produkt' oder 'dienstleistung' sein")
+
+        if self.umsatzsteuer_satz is None:
+            errors.append("USt-Satz ist Pflichtfeld")
+
+        if self.verkaufspreis_netto is None or self.verkaufspreis_netto <= 0:
+            errors.append("Verkaufspreis (netto) ist Pflichtfeld und muss > 0 sein")
+
+        # Bei Produkten: Einkaufspreis PFLICHT
+        if self.typ == 'produkt':
+            if self.einkaufspreis_netto is None:
+                errors.append("Einkaufspreis ist bei Produkten Pflichtfeld")
+
+        # EAN-Validierung
+        if self.ean_code:
+            valid, detected_typ = validate_ean(self.ean_code, self.ean_typ)
+            if not valid:
+                errors.append(f"EAN-Code ungültig: {self.ean_code}")
+            elif detected_typ != self.ean_typ and self.ean_typ:
+                errors.append(f"EAN-Typ stimmt nicht überein: erwartet {self.ean_typ}, erkannt {detected_typ}")
+
+        return errors
+
+
+# services/produktstamm.py
+from models import Produkt
+
+def create_produkt_from_template(template_name: str, **kwargs) -> Produkt:
+    """
+    Erstellt Produkt aus Template
+
+    Args:
+        template_name: 'dienstleistung_beratung', 'produkt_handelsware', etc.
+        **kwargs: Überschreibt Template-Defaults
+
+    Returns:
+        Produkt-Objekt mit Template-Defaults
+    """
+    template = PRODUKT_TEMPLATES.get(template_name, PRODUKT_TEMPLATES['standard'])
+
+    produkt_data = {
+        'typ': template.get('typ'),
+        **template.get('defaults', {}),
+        **kwargs
+    }
+
+    return Produkt(**produkt_data)
+```
+
+---
+
+#### **🎨 UI-Mockups**
+
+**Produktverwaltung (Übersicht):**
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ Stammdaten → Produkte / Dienstleistungen                            │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ [ + Neues Produkt ] [ + Neue Dienstleistung ]    [🔍 Suchen: ___] │
+│                                                                     │
+│ Filter: [Alle ▼] [Aktiv ▼] [Typ ▼]                                │
+│                                                                     │
+│ Art.-Nr. │ Name                  │ Typ    │ Preis (netto) │ Lager │
+│──────────┼───────────────────────┼────────┼───────────────┼───────│
+│ DL-001   │ Beratungsstunde       │ DL     │    80,00 €    │   -   │
+│ ART-001  │ Laptop Dell XPS 13    │ Prod   │ 1.000,00 €    │  15   │
+│ ART-002  │ Schrauben M8 (100St.) │ Prod   │     5,00 €    │ ⚠️ 3  │
+│ DL-002   │ Elektriker Arbeit     │ DL     │    50,00 €    │   -   │
+│                                                                     │
+│ Gesamt: 4 Artikel │ Lagerwert: 15.015,00 € │ ⚠️ 1 Artikel kritisch│
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+**Neues Produkt anlegen (Template-Auswahl):**
+
+```
+┌────────────────────────────────────────────┐
+│ Neues Produkt / Dienstleistung anlegen     │
+├────────────────────────────────────────────┤
+│                                            │
+│ Wähle eine Vorlage:                        │
+│                                            │
+│ ○ Dienstleistung (Beratung)                │
+│   Für Berater, Coaches, Freiberufler      │
+│                                            │
+│ ○ Dienstleistung (Handwerk)                │
+│   Für Handwerker (Arbeitsstunden)         │
+│                                            │
+│ ○ Produkt (Handelsware)                    │
+│   Für Händler (Einkauf & Verkauf)         │
+│                                            │
+│ ○ Produkt (Eigenproduktion)                │
+│   Für selbst hergestellte Produkte        │
+│                                            │
+│ ○ Digitales Produkt (Download)             │
+│   Für E-Books, Software, etc.             │
+│                                            │
+│ ○ Standard (Universal)                     │
+│   Alle Felder verfügbar                   │
+│                                            │
+│ [Abbrechen]                    [Weiter]    │
+└────────────────────────────────────────────┘
+```
+
+**Produkt bearbeiten (Produkt Handelsware):**
+
+```
+┌──────────────────────────────────────────────────────────┐
+│ Produkt bearbeiten: Laptop Dell XPS 13                   │
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│ STAMMDATEN:                                              │
+│                                                          │
+│ Name *:        [Laptop Dell XPS 13___________________]  │
+│ Artikelnummer: [ART-001] (automatisch)                  │
+│ Hersteller:    [Dell_______________________________]    │
+│ Beschreibung:  [13" Ultrabook, 16GB RAM, 512GB SSD]     │
+│                [________________________________]         │
+│                                                          │
+│ EAN-CODE: ⭐                                             │
+│ EAN-Code:      [4012345678901] ✅ EAN-13 gültig         │
+│ Artikelcode:   [DELL-XPS13-2024__________________]      │
+│                                                          │
+│ PREISE:                                                  │
+│                                                          │
+│ USt-Satz *:    [19,0] %                                 │
+│                                                          │
+│ Einkaufspreis *:                                         │
+│   Netto:       [1.000,00] €                             │
+│   Brutto:      1.190,00 € (berechnet)                   │
+│                                                          │
+│ Verkaufspreis *:                                         │
+│   Netto:       [1.200,00] €                             │
+│   Brutto:      1.428,00 € (berechnet)                   │
+│   Gewinnmarge: 20,00 % (200,00 € Gewinn/Stück)         │
+│                                                          │
+│ LAGER:                                                   │
+│                                                          │
+│ Einheit:       [Stück ▼]                                │
+│ Lagerbestand:  [15,00] Stück                            │
+│ Mindestbestand:[5,00] Stück (⚠️ Warnung bei <5)        │
+│ ☐ Negativer Lagerbestand erlaubt                        │
+│                                                          │
+│ ZUORDNUNG:                                               │
+│                                                          │
+│ Lieferant:     [Tech-Großhandel GmbH ▼]                │
+│ Kategorie:     [Computer & Elektronik ▼] (optional)    │
+│                                                          │
+│ ☑ Artikel ist aktiv                                     │
+│                                                          │
+│ [Löschen]   [Abbrechen]              [Speichern]        │
+└──────────────────────────────────────────────────────────┘
+```
+
+**Dienstleistung bearbeiten (Beratung):**
+
+```
+┌──────────────────────────────────────────────────────────┐
+│ Dienstleistung bearbeiten: Beratungsstunde               │
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│ STAMMDATEN:                                              │
+│                                                          │
+│ Name *:        [Beratungsstunde____________________]    │
+│ Artikelnummer: [DL-001] (automatisch)                   │
+│ Beschreibung:  [Strategieberatung für mittelständische] │
+│                [Unternehmen_________________________]   │
+│                                                          │
+│ PREISE:                                                  │
+│                                                          │
+│ USt-Satz *:    [19,0] %                                 │
+│                                                          │
+│ Verkaufspreis *:                                         │
+│   Netto:       [80,00] €                                │
+│   Brutto:      95,20 € (berechnet)                      │
+│                                                          │
+│ Einheit:       [Stunde ▼]                               │
+│                                                          │
+│ ZUORDNUNG:                                               │
+│                                                          │
+│ Kategorie:     [Beratungsleistungen ▼] (optional)      │
+│                                                          │
+│ ☑ Dienstleistung ist aktiv                              │
+│                                                          │
+│ [Löschen]   [Abbrechen]              [Speichern]        │
+└──────────────────────────────────────────────────────────┘
+```
+
+---
+
+#### **📝 Zusammenfassung**
+
+**Entscheidung:**
+- ✅ **Hybrid-Lösung** (wie Kundenstamm)
+  - Automatisch / Auf Nachfrage (Standard) / Nie
+- ✅ **Templates** für verschiedene Produkttypen
+  - Dienstleistung (Beratung, Handwerk)
+  - Produkt (Handelsware, Eigenproduktion, Digital)
+  - Standard (Universal)
+
+**Felder:**
+
+**Für ALLE Typen:**
+- Name * (Pflicht)
+- USt-Satz * (Pflicht)
+- Verkaufspreis * (Netto, Brutto berechnet) (Pflicht)
+- Beschreibung
+- Kategorie (optional, später)
+
+**Zusätzlich für PRODUKTE:**
+- Einkaufspreis * (Netto, Brutto berechnet) (Pflicht)
+- Lieferant
+- Hersteller
+- **EAN-Code** ⭐ (mit Validierung!)
+- Artikelcode
+- Einheit
+- Lagerbestand
+- Negativer Lagerbestand (erlaubt/nicht erlaubt)
+- Mindestbestand
+
+**Besondere Features:**
+- ⭐ **EAN-Code Support** mit Validierung (EAN-13, EAN-8, UPC, ISBN)
+- 📊 **Gewinnmarge-Berechnung** (Verkaufspreis - Einkaufspreis)
+- ⚠️ **Lagerbestand-Warnung** (bei Unterschreitung Mindestbestand)
+- 🧮 **Kalkulations-Modul** (für v2.0 vorgemerkt)
 
 **Status:** 📋 **Für v2.0 geplant** (NICHT in MVP v1.0)
 
@@ -8363,123 +9241,6 @@ Ihre Daten werden NICHT an Dritte weitergegeben (außer gesetzlich verpflichtet,
 - MVP v1.0: Nur Rechnungen VERWALTEN (nicht erstellen)
 - Rechnungsschreiben über LibreOffice/HTML-Vorlagen
 - Produktstamm wird erst relevant, wenn internes Rechnungsschreib-Tool kommt
-
-**Vorbereitung - Datenbank-Schema:**
-```sql
-CREATE TABLE produkte (
-    id INTEGER PRIMARY KEY,
-
-    -- Stammdaten
-    artikelnummer TEXT UNIQUE,  -- "ART-001" (manuell oder automatisch)
-    bezeichnung TEXT NOT NULL,  -- "Beratungsstunde"
-    beschreibung TEXT,  -- Längerer Text für Rechnung
-
-    -- Typ
-    typ TEXT,  -- 'dienstleistung', 'ware', 'pauschale'
-
-    -- Preis
-    einzelpreis_netto DECIMAL(10,2),
-    umsatzsteuer_satz DECIMAL(5,2) DEFAULT 19.0,
-    einzelpreis_brutto DECIMAL(10,2),
-
-    -- Einheit
-    einheit TEXT DEFAULT 'Stück',  -- 'Stunde', 'Stück', 'Pauschal', 'kg', etc.
-
-    -- Kategorie
-    kategorie_id INTEGER,  -- Zuordnung zu Einnahmen-Kategorie
-
-    -- Aktiv
-    ist_aktiv BOOLEAN DEFAULT 1,
-
-    -- Metadaten
-    erstellt_am TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (kategorie_id) REFERENCES kategorien(id)
-);
-```
-
-**Beispiel-Produkte:**
-```python
-PRODUKTE_BEISPIELE = [
-    {
-        'artikelnummer': 'DL-001',
-        'bezeichnung': 'Beratungsstunde',
-        'typ': 'dienstleistung',
-        'einzelpreis_netto': 80.00,
-        'umsatzsteuer_satz': 19.0,
-        'einzelpreis_brutto': 95.20,
-        'einheit': 'Stunde'
-    },
-    {
-        'artikelnummer': 'ART-001',
-        'bezeichnung': 'Laptop Dell XPS 13',
-        'typ': 'ware',
-        'einzelpreis_netto': 1000.00,
-        'umsatzsteuer_satz': 19.0,
-        'einzelpreis_brutto': 1190.00,
-        'einheit': 'Stück'
-    },
-    {
-        'artikelnummer': 'PAUS-001',
-        'bezeichnung': 'Website-Erstellung Pauschal',
-        'typ': 'pauschale',
-        'einzelpreis_netto': 2500.00,
-        'umsatzsteuer_satz': 19.0,
-        'einzelpreis_brutto': 2975.00,
-        'einheit': 'Pauschal'
-    }
-]
-```
-
-**UI-Konzept (für v2.0):**
-```
-┌────────────────────────────────────────────┐
-│ Stammdaten → Produkte / Dienstleistungen   │
-├────────────────────────────────────────────┤
-│                                            │
-│ [ + Neues Produkt ]          [🔍 Suchen]  │
-│                                            │
-│ Art.-Nr. │ Bezeichnung       │ Preis      │
-│──────────┼───────────────────┼───────────│
-│ DL-001   │ Beratungsstunde   │ 95,20 €   │
-│ ART-001  │ Laptop Dell XPS   │ 1.190,00 €│
-│ PAUS-001 │ Website-Erstellung│ 2.975,00 €│
-│                                            │
-│ Gesamt: 3 Produkte                         │
-└────────────────────────────────────────────┘
-```
-
-**Verwendung in v2.0 (Ausgangsrechnung erstellen):**
-```
-┌────────────────────────────────────────┐
-│ Ausgangsrechnung erstellen             │
-├────────────────────────────────────────┤
-│                                        │
-│ Kunde: [Belgischer Kunde ▼]           │
-│                                        │
-│ POSITIONEN:                            │
-│                                        │
-│ Pos │ Artikel        │ Anz │ Preis    │
-│─────┼────────────────┼─────┼─────────│
-│  1  │ [Beratung▼]    │ 10  │ 952,00 €│
-│     │ Beratungsstunde│     │          │
-│                                        │
-│ [ + Position hinzufügen ]              │
-│                                        │
-│ Gesamt netto:     800,00 €             │
-│ USt 19%:          152,00 €             │
-│ ─────────────────────────────          │
-│ Gesamt brutto:    952,00 €             │
-│                                        │
-│      [Abbrechen]  [ Speichern ]        │
-└────────────────────────────────────────┘
-```
-
-**Entscheidung für v1.0:**
-- ❌ NICHT in Setup-Wizard
-- ❌ NICHT in Stammdaten-Erfassung
-- ✅ Datenbank-Schema vorbereitet (Tabelle existiert, aber leer)
-- ✅ UI/Funktionalität für v2.0
 
 ---
 
