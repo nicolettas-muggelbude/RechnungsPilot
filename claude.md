@@ -9429,6 +9429,461 @@ class KundenService:
 
 ---
 
+### **8.10.1 Rechtliche Dokumente (B2B vs. B2C)** ⚖️ WICHTIG
+
+**Problem:** Unterschiedliche Pflichten bei Geschäftskunden (B2B) vs. Privatkunden (B2C)
+
+---
+
+#### **📋 B2B vs. B2C Anforderungen**
+
+```
+┌──────────────────────────────────────────────────┐
+│ Rechtliche Dokumente - Übersicht                │
+├──────────────────────────────────────────────────┤
+│                                                  │
+│ B2B (Geschäftskunde):                            │
+│ ✅ AGBs MÜSSEN aktiv mitgegeben werden          │
+│    (§305 Abs. 2 BGB)                             │
+│ ❌ Widerrufsbelehrung NICHT erforderlich        │
+│ ℹ️ Datenschutzerklärung auf Anfrage             │
+│                                                  │
+│ B2C (Privatkunde):                               │
+│ ✅ AGBs zur Verfügung stellen                   │
+│ ✅ Widerrufsbelehrung bei Fernabsatz (PFLICHT!) │
+│    (§312g BGB, BGB-InfoV)                        │
+│ ✅ Informationspflichten nach BGB-InfoV         │
+│ ✅ Datenschutzerklärung (DSGVO)                 │
+│                                                  │
+└──────────────────────────────────────────────────┘
+```
+
+**Wichtig:**
+- **B2B:** AGBs müssen **aktiv einbezogen** werden (z.B. als PDF-Anhang)
+- **B2C:** AGBs + Widerrufsbelehrung + Informationspflichten
+- **Erkennung:** Über `kunde.typ` ('firma' = B2B, 'privat' = B2C)
+
+---
+
+#### **📄 Welche Dokumente?**
+
+**1. AGBs (Allgemeine Geschäftsbedingungen)**
+
+**B2B:**
+- ✅ **PFLICHT:** Aktiv mitgeben (§305 Abs. 2 BGB)
+- **Wie:** PDF-Anhang an Rechnung ODER Link in Rechnung
+- **Wann:** Bei jeder Rechnung (sofern nicht bereits übermittelt)
+
+**B2C:**
+- ✅ **PFLICHT:** Zur Verfügung stellen
+- **Wie:** Link in Rechnung oder auf Website
+- **Wann:** Vor Vertragsschluss
+
+---
+
+**2. Widerrufsbelehrung**
+
+**B2B:**
+- ❌ **NICHT erforderlich** (nur für Verbraucher)
+
+**B2C:**
+- ✅ **PFLICHT bei Fernabsatzverträgen** (§312g BGB)
+- **Wie:** PDF-Anhang oder in Rechnung integriert
+- **Wann:** Bei jeder Rechnung (Fernabsatz)
+- **Frist:** 14 Tage ab Vertragsschluss
+
+**Ausnahmen (keine Widerrufsbelehrung erforderlich):**
+- Dienstleistungen vollständig erbracht
+- Individuell angefertigte Produkte
+- Verderbliche Waren
+
+---
+
+**3. Informationspflichten (BGB-InfoV)**
+
+**B2C:**
+- ✅ Identität des Unternehmers
+- ✅ Wesentliche Eigenschaften der Ware/Dienstleistung
+- ✅ Gesamtpreis inkl. USt
+- ✅ Lieferkosten
+- ✅ Zahlungsbedingungen
+- ✅ Lieferbedingungen
+
+**B2B:**
+- ℹ️ Teilweise erforderlich (je nach Vertrag)
+
+---
+
+#### **💻 Implementierung in RechnungsPilot**
+
+**Datenbank-Schema:**
+
+```sql
+-- Rechtliche Dokumente
+CREATE TABLE rechtliche_dokumente (
+    id INTEGER PRIMARY KEY,
+
+    -- Art des Dokuments
+    typ TEXT NOT NULL,  -- 'agb', 'widerruf', 'datenschutz', 'impressum'
+
+    -- Für wen gilt es?
+    gueltig_fuer TEXT NOT NULL,  -- 'b2b', 'b2c', 'beide'
+
+    -- Dokument
+    titel TEXT NOT NULL,  -- "AGBs Stand 2024"
+    datei_pfad TEXT,  -- "dokumente/agb_2024.pdf"
+    datei_hash TEXT,  -- SHA256 für Versionierung
+
+    -- Version
+    version TEXT,  -- "1.0", "2.0"
+    gueltig_ab DATE NOT NULL,
+    gueltig_bis DATE,  -- NULL = aktuell gültig
+
+    -- Metadaten
+    erstellt_am TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    erstellt_von TEXT,
+
+    -- Aktiv?
+    aktiv BOOLEAN DEFAULT 1
+);
+
+-- Zuordnung: Welche Dokumente wurden mit Rechnung versendet?
+CREATE TABLE rechnung_dokumente (
+    id INTEGER PRIMARY KEY,
+
+    rechnung_id INTEGER NOT NULL,
+    dokument_id INTEGER NOT NULL,
+
+    -- Nachweis
+    versendet_am TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    versand_methode TEXT,  -- 'pdf_anhang', 'link', 'integriert'
+
+    FOREIGN KEY (rechnung_id) REFERENCES rechnungen(id),
+    FOREIGN KEY (dokument_id) REFERENCES rechtliche_dokumente(id)
+);
+```
+
+---
+
+#### **🔄 Workflow: Rechnung erstellen**
+
+```python
+def erstelle_rechnung(kunde_id: int, positionen: list) -> Rechnung:
+    """
+    Erstellt Rechnung mit automatischer Anhängung rechtlicher Dokumente
+    """
+    kunde = db.get_kunde(kunde_id)
+    rechnung = create_rechnung(kunde, positionen)
+
+    # Rechtliche Dokumente bestimmen
+    dokumente = []
+
+    if kunde.typ == 'firma':  # B2B
+        # AGBs PFLICHT
+        agb = get_aktives_dokument('agb', 'b2b')
+        if agb:
+            dokumente.append(agb)
+        else:
+            raise ValueError("AGBs für B2B fehlen! Bitte in Einstellungen hochladen.")
+
+    elif kunde.typ == 'privat':  # B2C
+        # AGBs + Widerrufsbelehrung
+        agb = get_aktives_dokument('agb', 'b2c')
+        widerruf = get_aktives_dokument('widerruf', 'b2c')
+
+        if agb:
+            dokumente.append(agb)
+        if widerruf and ist_fernabsatz(rechnung):
+            dokumente.append(widerruf)
+
+    # Dokumente anhängen
+    for dok in dokumente:
+        haenge_dokument_an(rechnung, dok)
+
+    return rechnung
+
+
+def haenge_dokument_an(rechnung: Rechnung, dokument: RechtlichesDokument):
+    """
+    Hängt rechtliches Dokument an Rechnung an
+    """
+    # Methode 1: PDF-Anhang (Standard)
+    if dokument.datei_pfad:
+        rechnung.anhaenge.append(dokument.datei_pfad)
+        versand_methode = 'pdf_anhang'
+
+    # Methode 2: Link in Rechnung (alternativ)
+    else:
+        link = f"https://example.com/rechtliches/{dokument.typ}.pdf"
+        rechnung.fusszeile += f"\n{dokument.titel}: {link}"
+        versand_methode = 'link'
+
+    # Nachweis protokollieren
+    db.execute("""
+        INSERT INTO rechnung_dokumente (rechnung_id, dokument_id, versand_methode)
+        VALUES (?, ?, ?)
+    """, (rechnung.id, dokument.id, versand_methode))
+
+    db.commit()
+
+
+def ist_fernabsatz(rechnung: Rechnung) -> bool:
+    """
+    Prüft ob Fernabsatzvertrag (Widerrufsbelehrung erforderlich)
+
+    Fernabsatz = Vertrag ohne gleichzeitige Anwesenheit
+    (z.B. Online-Shop, E-Mail, Telefon)
+    """
+    # Vereinfachung: Immer True bei B2C
+    # Erweiterte Logik: Prüfung Vertriebsweg
+    return True
+```
+
+---
+
+#### **🖥️ UI: Rechtliche Dokumente verwalten**
+
+```
+┌──────────────────────────────────────────────────┐
+│ ⚙️ Einstellungen > Rechtliche Dokumente         │
+├──────────────────────────────────────────────────┤
+│                                                  │
+│ [ + Neues Dokument hochladen ]                   │
+│                                                  │
+│ ┌────────────────────────────────────────────┐  │
+│ │ 📄 AGBs (B2B) - Stand 2024               │  │
+│ ├────────────────────────────────────────────┤  │
+│ │ Typ: AGBs                                  │  │
+│ │ Gültig für: B2B (Geschäftskunden)          │  │
+│ │ Version: 1.0                               │  │
+│ │ Gültig ab: 01.01.2024                      │  │
+│ │ Datei: agb_b2b_2024.pdf (142 KB)           │  │
+│ │                                            │  │
+│ │ ✅ Aktiv (wird automatisch angehängt)     │  │
+│ │                                            │  │
+│ │ [Bearbeiten] [Deaktivieren] [Löschen]     │  │
+│ └────────────────────────────────────────────┘  │
+│                                                  │
+│ ┌────────────────────────────────────────────┐  │
+│ │ 📄 AGBs (B2C) - Stand 2024               │  │
+│ ├────────────────────────────────────────────┤  │
+│ │ Typ: AGBs                                  │  │
+│ │ Gültig für: B2C (Privatkunden)             │  │
+│ │ Version: 1.0                               │  │
+│ │ Gültig ab: 01.01.2024                      │  │
+│ │ Datei: agb_b2c_2024.pdf (156 KB)           │  │
+│ │                                            │  │
+│ │ ✅ Aktiv                                   │  │
+│ │                                            │  │
+│ │ [Bearbeiten] [Deaktivieren] [Löschen]     │  │
+│ └────────────────────────────────────────────┘  │
+│                                                  │
+│ ┌────────────────────────────────────────────┐  │
+│ │ 📄 Widerrufsbelehrung (B2C)              │  │
+│ ├────────────────────────────────────────────┤  │
+│ │ Typ: Widerrufsbelehrung                    │  │
+│ │ Gültig für: B2C (Privatkunden)             │  │
+│ │ Version: 1.0                               │  │
+│ │ Gültig ab: 01.01.2024                      │  │
+│ │ Datei: widerruf_2024.pdf (89 KB)           │  │
+│ │                                            │  │
+│ │ ✅ Aktiv (bei Fernabsatz)                 │  │
+│ │                                            │  │
+│ │ [Bearbeiten] [Deaktivieren] [Löschen]     │  │
+│ └────────────────────────────────────────────┘  │
+│                                                  │
+│ ⚠️ Hinweis:                                     │
+│ Bei B2B-Kunden werden AGBs automatisch als      │
+│ PDF-Anhang mitgesendet (§305 Abs. 2 BGB).       │
+│                                                  │
+│ Bei B2C-Kunden werden AGBs + Widerrufsbelehrung │
+│ mitgesendet (§312g BGB, BGB-InfoV).              │
+│                                                  │
+└──────────────────────────────────────────────────┘
+```
+
+---
+
+#### **📧 E-Mail-Versand mit Anhängen**
+
+```python
+def versende_rechnung_email(rechnung_id: int):
+    """
+    Versendet Rechnung per E-Mail mit rechtlichen Dokumenten
+    """
+    rechnung = db.get_rechnung(rechnung_id)
+    kunde = rechnung.kunde
+
+    # PDF generieren
+    rechnung_pdf = generate_rechnung_pdf(rechnung)
+
+    # Anhänge sammeln
+    anhaenge = [rechnung_pdf]
+
+    # Rechtliche Dokumente hinzufügen
+    dokumente = db.execute("""
+        SELECT d.* FROM rechnung_dokumente rd
+        JOIN rechtliche_dokumente d ON rd.dokument_id = d.id
+        WHERE rd.rechnung_id = ?
+        AND rd.versand_methode = 'pdf_anhang'
+    """, (rechnung_id,)).fetchall()
+
+    for dok in dokumente:
+        anhaenge.append(dok.datei_pfad)
+
+    # E-Mail zusammenstellen
+    betreff = f"Rechnung {rechnung.rechnungsnummer}"
+
+    if kunde.typ == 'firma':  # B2B
+        text = f"""
+        Sehr geehrte Damen und Herren,
+
+        anbei erhalten Sie die Rechnung {rechnung.rechnungsnummer}.
+
+        Im Anhang finden Sie:
+        - Rechnung {rechnung.rechnungsnummer}.pdf
+        - AGBs.pdf
+
+        Mit freundlichen Grüßen
+        """
+    else:  # B2C
+        text = f"""
+        Sehr geehrte/r {kunde.anrede} {kunde.nachname},
+
+        anbei erhalten Sie die Rechnung {rechnung.rechnungsnummer}.
+
+        Im Anhang finden Sie:
+        - Rechnung {rechnung.rechnungsnummer}.pdf
+        - AGBs.pdf
+        - Widerrufsbelehrung.pdf
+
+        Sie haben ein Widerrufsrecht von 14 Tagen ab Erhalt dieser E-Mail.
+
+        Mit freundlichen Grüßen
+        """
+
+    # E-Mail versenden
+    send_email(
+        to=kunde.email,
+        betreff=betreff,
+        text=text,
+        anhaenge=anhaenge
+    )
+```
+
+---
+
+#### **⚠️ Wichtige Hinweise**
+
+**1. Versionierung:**
+- Bei Änderung der AGBs: Neue Version anlegen
+- Alte Version bleibt aktiv für bestehende Verträge
+- Neue Rechnungen nutzen neue Version
+
+**2. Nachweis:**
+- Alle versendeten Dokumente werden in `rechnung_dokumente` protokolliert
+- Wichtig bei Streitigkeiten: Nachweis dass AGBs übermittelt wurden
+
+**3. Sprache:**
+- Bei ausländischen Kunden: AGBs in Landessprache?
+- Mindestens: Deutsche Version
+
+**4. Individueller Vertrag:**
+- Wenn individueller Vertrag existiert: AGBs optional
+- Aber: Empfohlen für Standard-Klauseln
+
+---
+
+#### **📋 Checkliste: Setup**
+
+```
+┌──────────────────────────────────────────────────┐
+│ ✅ Rechtliche Dokumente - Checkliste            │
+├──────────────────────────────────────────────────┤
+│                                                  │
+│ ☑ AGBs für B2B erstellt und hochgeladen         │
+│   → Pflicht nach §305 Abs. 2 BGB                │
+│                                                  │
+│ ☑ AGBs für B2C erstellt und hochgeladen         │
+│   → Empfohlen                                    │
+│                                                  │
+│ ☑ Widerrufsbelehrung für B2C erstellt           │
+│   → Pflicht bei Fernabsatz (§312g BGB)          │
+│                                                  │
+│ ☑ Datenschutzerklärung erstellt                 │
+│   → DSGVO-Pflicht                                │
+│                                                  │
+│ ☑ Automatische Anhängung aktiviert              │
+│   → In Einstellungen konfiguriert               │
+│                                                  │
+│ ☑ Test-Rechnung erstellt (B2B)                  │
+│   → Prüfen: AGBs angehängt?                     │
+│                                                  │
+│ ☑ Test-Rechnung erstellt (B2C)                  │
+│   → Prüfen: AGBs + Widerruf angehängt?          │
+│                                                  │
+└──────────────────────────────────────────────────┘
+```
+
+---
+
+#### **🎓 Beispiel: Musterdokumente**
+
+**AGBs (B2B) - Kurzversion:**
+
+```
+ALLGEMEINE GESCHÄFTSBEDINGUNGEN
+
+1. Geltungsbereich
+Diese AGBs gelten für alle Geschäftsbeziehungen mit Unternehmern.
+
+2. Vertragsschluss
+Der Vertrag kommt mit Annahme des Angebots zustande.
+
+3. Zahlungsbedingungen
+Zahlungsziel: 14 Tage netto.
+
+4. Gewährleistung
+Es gelten die gesetzlichen Gewährleistungsrechte.
+
+5. Haftung
+[...]
+```
+
+**Widerrufsbelehrung (B2C) - Muster:**
+
+```
+WIDERRUFSBELEHRUNG
+
+Widerrufsrecht:
+Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen
+diesen Vertrag zu widerrufen.
+
+Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag [...]
+
+Um Ihr Widerrufsrecht auszuüben, müssen Sie uns mittels einer
+eindeutigen Erklärung (z.B. per Post oder E-Mail) über Ihren
+Entschluss informieren.
+
+Kontakt für Widerruf:
+[Name]
+[Adresse]
+[E-Mail]
+```
+
+---
+
+**Status:** ✅ **B2B vs. B2C Anforderungen dokumentiert**
+
+**Wichtigste Punkte:**
+1. ✅ **B2B:** AGBs PFLICHT als Anhang (§305 Abs. 2 BGB)
+2. ✅ **B2C:** AGBs + Widerrufsbelehrung bei Fernabsatz (§312g BGB)
+3. ✅ **Automatische Erkennung** über `kunde.typ`
+4. ✅ **Nachweis** in `rechnung_dokumente` Tabelle
+5. ✅ **Versionierung** für rechtssichere Nachweisbarkeit
+
+---
+
 ### **Noch zu klären (siehe fragen.md):**
 
 - ✅ ~~Kategorie 6: UStVA~~ - **Geklärt** (Hybrid-Ansatz, MVP nur Zahlen)
