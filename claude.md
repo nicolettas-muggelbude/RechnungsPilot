@@ -7520,134 +7520,546 @@ PRODUKTE_BEISPIELE = [
 
 ---
 
-### **8.10 Kundenstamm (OFFEN - Community-Entscheidung)**
+### **8.10 Kundenstamm ✅ GEKLÄRT**
 
-**Status:** 📋 **Ausstehende Entscheidung**
+**Status:** ✅ **Entscheidung getroffen**
 
-**Siehe:** `discussion-kundenstamm.md`
+**Entscheidung:** **Hybrid-Lösung (Option C)** mit konfigurierbarem Standard-Verhalten
 
-**Optionen:**
+---
 
-#### **Option A: MIT Kundenstamm (v1.0)**
+#### **🎯 Implementierung: Hybrid mit Einstellungen**
 
-**Datenbank:**
+**User kann in Grundeinstellungen wählen:**
+
+```
+┌─────────────────────────────────────────────────┐
+│ ⚙️ Einstellungen > Kundenstamm                 │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│ Beim Erstellen von Rechnungen:                 │
+│                                                 │
+│ ○ Kunden automatisch speichern                 │
+│   (Alle neuen Kunden werden ohne Nachfrage     │
+│    im Kundenstamm gespeichert)                 │
+│                                                 │
+│ ● Auf Nachfrage speichern (Standard) ⭐        │
+│   (Du wirst gefragt, ob der Kunde gespeichert │
+│    werden soll)                                │
+│                                                 │
+│ ○ Kunden nicht speichern                       │
+│   (Kundendaten werden nur in der Rechnung      │
+│    erfasst, kein Kundenstamm)                  │
+│                                                 │
+└─────────────────────────────────────────────────┘
+```
+
+**Datenbank-Einstellung:**
+```sql
+-- In der `user` Tabelle:
+ALTER TABLE user ADD COLUMN kundenstamm_modus TEXT DEFAULT 'nachfrage';
+-- Werte: 'automatisch', 'nachfrage', 'nie'
+```
+
+---
+
+#### **📊 Datenbank-Schema**
+
 ```sql
 CREATE TABLE kunden (
     id INTEGER PRIMARY KEY,
 
     -- Stammdaten
-    kundennummer TEXT UNIQUE,  -- "K-001" (automatisch)
+    kundennummer TEXT UNIQUE,  -- "K-001" (automatisch generiert)
     typ TEXT,  -- 'privat', 'firma'
 
     -- Person
-    anrede TEXT,  -- 'Herr', 'Frau', 'Divers'
+    anrede TEXT,  -- 'Herr', 'Frau', 'Divers', NULL
     vorname TEXT,
     nachname TEXT,
 
     -- Firma (nur wenn typ='firma')
     firmenname TEXT,
-    rechtsform TEXT,  -- "GmbH", "AG", etc.
+    rechtsform TEXT,  -- "GmbH", "AG", "e.K.", etc.
+    ansprechpartner TEXT,  -- ⭐ NEU: Kontaktperson bei Firmen
 
-    -- Adresse
-    strasse TEXT,
+    -- Adresse (Pflichtfelder)
+    strasse TEXT NOT NULL,
     hausnummer TEXT,
-    plz TEXT,
-    ort TEXT,
-    land TEXT DEFAULT 'DE',
+    plz TEXT NOT NULL,
+    ort TEXT NOT NULL,
+    land TEXT DEFAULT 'DE' NOT NULL,
 
-    -- Kontakt
+    -- Automatisch abgeleitete Kategorisierung
+    land_kategorie TEXT GENERATED ALWAYS AS (
+        CASE
+            WHEN land = 'DE' THEN 'inland'
+            WHEN land IN ('AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE') THEN 'eu'
+            ELSE 'drittland'
+        END
+    ) STORED,  -- ⭐ NEU: Automatische Kategorisierung
+
+    -- Kontakt (Optional)
     email TEXT,
     telefon TEXT,
     website TEXT,
+
+    -- Geschäftsbedingungen
+    zahlungsziel INTEGER DEFAULT 14,  -- ⭐ NEU: Tage (Standard 14)
+    zahlungsziel_individuell BOOLEAN DEFAULT 0,  -- ⭐ NEU: Abweichend vom User-Standard?
 
     -- EU-Handel
     ust_idnr TEXT,  -- z.B. "BE0123456789"
     ust_idnr_validiert BOOLEAN DEFAULT 0,
     ust_idnr_validierung_datum DATE,
-    ust_idnr_validierung_ergebnis TEXT,  -- BZSt-API Ergebnis
+    ust_idnr_validierung_ergebnis TEXT,  -- BZSt-API Ergebnis (JSON)
 
     -- Metadaten
     notizen TEXT,
     erstellt_am TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     aktualisiert_am TIMESTAMP,
 
-    -- Statistiken
+    -- Statistiken (automatisch aktualisiert)
     anzahl_rechnungen INTEGER DEFAULT 0,
-    umsatz_gesamt DECIMAL(10,2) DEFAULT 0.00
+    umsatz_gesamt DECIMAL(10,2) DEFAULT 0.00,
+    letzte_rechnung_datum DATE
 );
+
+-- Index für schnelle Suche
+CREATE INDEX idx_kunden_nummer ON kunden(kundennummer);
+CREATE INDEX idx_kunden_name ON kunden(nachname, vorname, firmenname);
+CREATE INDEX idx_kunden_land_kategorie ON kunden(land_kategorie);
 ```
 
-**Vorteile:**
-- ✅ Weniger Tipparbeit (Kunde 1× anlegen)
-- ✅ Autocomplete
-- ✅ USt-IdNr. VORHER validiert
-- ✅ Statistiken möglich
-
-**Nachteile:**
-- ❌ +2-3 Wochen Entwicklung
-- ❌ Mehr Lernkurve
-- ❌ DSGVO-Komplex
-
 ---
 
-#### **Option B: OHNE Kundenstamm (v1.0)**
+#### **🖥️ UI: Rechnung erstellen (Modus "nachfrage")**
 
-**Workflow:**
-- Kundendaten werden direkt in Rechnung eingegeben (LibreOffice/HTML-Template)
-- RechnungsPilot importiert PDF/XRechnung
-- Validierung erst beim Export (UStVA, ZM)
-
-**Vorteile:**
-- ✅ Schnellerer Release (2-3 Wochen gespart)
-- ✅ Einfacherer Scope
-- ✅ DSGVO einfacher
-
-**Nachteile:**
-- ❌ Wiederholte Eingabe
-- ❌ Tippfehler-Gefahr
-- ❌ Validierung erst beim Export
-
----
-
-#### **Option C: Hybrid (Kompromiss)**
-
-**Workflow:**
 ```
-Rechnung erstellen:
-┌────────────────────────────┐
-│ Kunde:                     │
-│ ○ Aus Kundenstamm:        │
-│   [Belgischer Kunde ▼]    │
-│                            │
-│ ● Manuell eingeben:       │
-│   Name: [_____________]    │
-│   Land: [Belgien ▼]       │
-│   USt-IdNr: [_________]   │
-│   ☑ Als Kunde speichern   │ ← Optional!
-└────────────────────────────┘
+┌──────────────────────────────────────────────────┐
+│ 📄 Neue Rechnung erstellen                       │
+├──────────────────────────────────────────────────┤
+│                                                  │
+│ Kunde:                                           │
+│ ┌──────────────────────────────────────────────┐ │
+│ │ 🔍 Kunde suchen oder neu eingeben...        │ │
+│ │ [Bel________________________]               │ │
+│ └──────────────────────────────────────────────┘ │
+│                                                  │
+│ ✓ Belgischer Kunde GmbH (K-042)  ← Aus Stamm   │
+│ ✓ Beratung Belgien GmbH (K-015)                │
+│ ─────────────────────────────────               │
+│ ➕ Neuen Kunden eingeben                        │
+│                                                  │
+└──────────────────────────────────────────────────┘
+
+[User wählt "Neuen Kunden eingeben"]
+
+┌──────────────────────────────────────────────────┐
+│ ➕ Neuer Kunde                                   │
+├──────────────────────────────────────────────────┤
+│                                                  │
+│ Typ:  ● Firma  ○ Privatperson                   │
+│                                                  │
+│ Firmenname: *                                    │
+│ [Neue Firma GmbH_________________]               │
+│                                                  │
+│ Ansprechpartner:                                 │
+│ [Max Mustermann__________________]               │
+│                                                  │
+│ Straße: *          Hausnr.:                      │
+│ [Musterstraße___]  [123__]                       │
+│                                                  │
+│ PLZ: *      Ort: *                               │
+│ [12345___]  [Musterstadt__________]              │
+│                                                  │
+│ Land: *                      (→ Kategorie: EU)   │
+│ [Belgien ▼]                                      │
+│                                                  │
+│ E-Mail:                                          │
+│ [info@neue-firma.be______________]               │
+│                                                  │
+│ USt-IdNr. (für EU-Kunden):                       │
+│ [BE0123456789____]  [Validieren ✓]              │
+│ ✅ Gültig (geprüft am 08.12.2025)                │
+│                                                  │
+│ Zahlungsziel:                                    │
+│ [14__] Tage  ☑ Abweichend vom Standard (14 T.)  │
+│                                                  │
+├──────────────────────────────────────────────────┤
+│                                                  │
+│ ⚠️ Soll dieser Kunde im Kundenstamm gespeichert │
+│    werden?                                       │
+│                                                  │
+│ ✅ Vorteile:                                     │
+│ • Nächste Rechnung: Kunde einfach auswählen     │
+│ • USt-IdNr. bereits validiert                   │
+│ • Statistiken & Umsatzübersicht möglich         │
+│                                                  │
+│ [Ja, speichern]  [Nein, nur für diese Rechnung] │
+│                                                  │
+│ ☑ Immer speichern (Einstellung ändern)          │
+│ ☐ Nie mehr fragen (Einstellung ändern)          │
+│                                                  │
+└──────────────────────────────────────────────────┘
 ```
 
-**Vorteile:**
-- ✅ Flexibel (User entscheidet)
-- ✅ Moderater Aufwand (+1 Woche)
+---
 
-**Nachteile:**
-- ⚠️ Zwei Wege (könnte verwirren)
+#### **🖥️ UI: Rechnung erstellen (Modus "automatisch")**
+
+```
+[Gleiche Maske wie oben, ABER:]
+
+├──────────────────────────────────────────────────┤
+│                                                  │
+│ ℹ️ Dieser Kunde wird automatisch im Kundenstamm │
+│    gespeichert (Kundennummer: K-089).           │
+│                                                  │
+│    Einstellung ändern: ⚙️ Einstellungen > Kundenstamm
+│                                                  │
+└──────────────────────────────────────────────────┘
+```
 
 ---
 
-**Community-Umfrage läuft:** `discussion-kundenstamm.md`
+#### **🖥️ UI: Rechnung erstellen (Modus "nie")**
 
-**Fragen:**
-1. Wie viele wiederkehrende Kunden? (< 5, 5-20, > 20)
-2. Priorität: Schneller Release vs. Komfort?
-3. EU-Geschäft-Häufigkeit?
+```
+[Keine Nachfrage, kein Hinweis - Kunde wird NICHT gespeichert]
 
-**Entscheidung ausstehend.**
+[Aber: Kundenstamm-Suche trotzdem verfügbar falls manuell angelegt]
+```
 
 ---
 
-**Status:** ✅ Kategorie 8 definiert (weitgehend) - User-/Firmen-Stammdaten, Kategorien, EU-Länder, Bankkonten, Kontenrahmen (SKR03/SKR04), Geschäftsjahr, Lieferantenstamm, Produktstamm (v2.0) dokumentiert. **Kundenstamm-Entscheidung ausstehend** (siehe `discussion-kundenstamm.md`).
+#### **💻 Code-Implementierung**
+
+```python
+# models.py
+from dataclasses import dataclass
+from datetime import date, datetime
+from decimal import Decimal
+from typing import Optional
+
+@dataclass
+class Kunde:
+    id: Optional[int] = None
+
+    # Stammdaten
+    kundennummer: Optional[str] = None  # "K-001" (auto)
+    typ: str = 'privat'  # 'privat' | 'firma'
+
+    # Person
+    anrede: Optional[str] = None
+    vorname: Optional[str] = None
+    nachname: Optional[str] = None
+
+    # Firma
+    firmenname: Optional[str] = None
+    rechtsform: Optional[str] = None
+    ansprechpartner: Optional[str] = None  # ⭐ NEU
+
+    # Adresse (Pflicht)
+    strasse: str = ''
+    hausnummer: Optional[str] = None
+    plz: str = ''
+    ort: str = ''
+    land: str = 'DE'
+
+    # Kontakt
+    email: Optional[str] = None
+    telefon: Optional[str] = None
+    website: Optional[str] = None
+
+    # Geschäftsbedingungen
+    zahlungsziel: int = 14  # ⭐ NEU (Tage)
+    zahlungsziel_individuell: bool = False  # ⭐ NEU
+
+    # EU-Handel
+    ust_idnr: Optional[str] = None
+    ust_idnr_validiert: bool = False
+    ust_idnr_validierung_datum: Optional[date] = None
+    ust_idnr_validierung_ergebnis: Optional[str] = None
+
+    # Metadaten
+    notizen: Optional[str] = None
+    erstellt_am: Optional[datetime] = None
+    aktualisiert_am: Optional[datetime] = None
+
+    # Statistiken
+    anzahl_rechnungen: int = 0
+    umsatz_gesamt: Decimal = Decimal('0.00')
+    letzte_rechnung_datum: Optional[date] = None
+
+    @property
+    def land_kategorie(self) -> str:
+        """
+        Automatische Kategorisierung: inland / eu / drittland
+        """
+        if self.land == 'DE':
+            return 'inland'
+        elif self.land in EU_LAENDER:  # Liste aus Sektion 8.6
+            return 'eu'
+        else:
+            return 'drittland'
+
+    @property
+    def display_name(self) -> str:
+        """
+        Anzeigename für UI
+        """
+        if self.typ == 'firma' and self.firmenname:
+            return self.firmenname
+        elif self.vorname and self.nachname:
+            return f"{self.vorname} {self.nachname}"
+        elif self.nachname:
+            return self.nachname
+        else:
+            return "Unbenannter Kunde"
+
+    def validate(self) -> list[str]:
+        """
+        Validiert Pflichtfelder
+        """
+        errors = []
+
+        if self.typ == 'privat':
+            if not self.nachname:
+                errors.append("Nachname ist Pflichtfeld")
+        elif self.typ == 'firma':
+            if not self.firmenname:
+                errors.append("Firmenname ist Pflichtfeld")
+
+        if not self.strasse:
+            errors.append("Straße ist Pflichtfeld")
+        if not self.plz:
+            errors.append("PLZ ist Pflichtfeld")
+        if not self.ort:
+            errors.append("Ort ist Pflichtfeld")
+        if not self.land:
+            errors.append("Land ist Pflichtfeld")
+
+        # USt-IdNr. bei EU-Kunden empfohlen
+        if self.land_kategorie == 'eu' and not self.ust_idnr:
+            errors.append("Warnung: USt-IdNr. bei EU-Kunden empfohlen (für ig. Lieferung)")
+
+        return errors
+
+
+# kunde_service.py
+class KundenService:
+    def __init__(self, db, user_settings):
+        self.db = db
+        self.user_settings = user_settings
+
+    def sollte_kunde_speichern(self, kunde: Kunde, user_entscheidung: Optional[bool] = None) -> bool:
+        """
+        Bestimmt ob Kunde gespeichert werden soll basierend auf Einstellung
+
+        Args:
+            kunde: Kundendaten
+            user_entscheidung: Explizite User-Entscheidung (überschreibt Einstellung)
+
+        Returns:
+            True wenn Kunde gespeichert werden soll
+        """
+        if user_entscheidung is not None:
+            return user_entscheidung
+
+        modus = self.user_settings.kundenstamm_modus
+
+        if modus == 'automatisch':
+            return True
+        elif modus == 'nie':
+            return False
+        else:  # 'nachfrage'
+            # UI muss Dialog anzeigen
+            return None  # Signalisiert: UI-Dialog erforderlich
+
+    def generiere_kundennummer(self) -> str:
+        """
+        Generiert nächste Kundennummer: K-001, K-002, ...
+        """
+        cursor = self.db.execute(
+            "SELECT MAX(CAST(SUBSTR(kundennummer, 3) AS INTEGER)) FROM kunden WHERE kundennummer LIKE 'K-%'"
+        )
+        max_nr = cursor.fetchone()[0] or 0
+        return f"K-{max_nr + 1:03d}"
+
+    def speichere_kunde(self, kunde: Kunde) -> Kunde:
+        """
+        Speichert Kunde in Datenbank
+        """
+        # Validierung
+        errors = kunde.validate()
+        if errors:
+            raise ValueError(f"Validierungsfehler: {', '.join(errors)}")
+
+        # Kundennummer generieren
+        if not kunde.kundennummer:
+            kunde.kundennummer = self.generiere_kundennummer()
+
+        # Standard-Zahlungsziel vom User übernehmen
+        if kunde.zahlungsziel == 14 and not kunde.zahlungsziel_individuell:
+            kunde.zahlungsziel = self.user_settings.zahlungsziel_standard or 14
+
+        # USt-IdNr. validieren (falls vorhanden und EU)
+        if kunde.ust_idnr and kunde.land_kategorie == 'eu':
+            if not kunde.ust_idnr_validiert:
+                self.validiere_ust_idnr(kunde)
+
+        # Speichern
+        cursor = self.db.execute("""
+            INSERT INTO kunden (
+                kundennummer, typ,
+                anrede, vorname, nachname,
+                firmenname, rechtsform, ansprechpartner,
+                strasse, hausnummer, plz, ort, land,
+                email, telefon, website,
+                zahlungsziel, zahlungsziel_individuell,
+                ust_idnr, ust_idnr_validiert, ust_idnr_validierung_datum, ust_idnr_validierung_ergebnis,
+                notizen
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            kunde.kundennummer, kunde.typ,
+            kunde.anrede, kunde.vorname, kunde.nachname,
+            kunde.firmenname, kunde.rechtsform, kunde.ansprechpartner,
+            kunde.strasse, kunde.hausnummer, kunde.plz, kunde.ort, kunde.land,
+            kunde.email, kunde.telefon, kunde.website,
+            kunde.zahlungsziel, kunde.zahlungsziel_individuell,
+            kunde.ust_idnr, kunde.ust_idnr_validiert, kunde.ust_idnr_validierung_datum, kunde.ust_idnr_validierung_ergebnis,
+            kunde.notizen
+        ))
+
+        kunde.id = cursor.lastrowid
+        self.db.commit()
+
+        return kunde
+
+    def suche_kunden(self, suchbegriff: str, limit: int = 10) -> list[Kunde]:
+        """
+        Sucht Kunden für Autocomplete
+        """
+        cursor = self.db.execute("""
+            SELECT * FROM kunden
+            WHERE
+                firmenname LIKE ? OR
+                nachname LIKE ? OR
+                vorname LIKE ? OR
+                kundennummer LIKE ?
+            ORDER BY
+                anzahl_rechnungen DESC,  -- Häufigste zuerst
+                letzte_rechnung_datum DESC,
+                kundennummer ASC
+            LIMIT ?
+        """, (f"%{suchbegriff}%",) * 4 + (limit,))
+
+        return [self._row_to_kunde(row) for row in cursor.fetchall()]
+
+    def validiere_ust_idnr(self, kunde: Kunde) -> bool:
+        """
+        Validiert USt-IdNr. über BZSt-API (siehe Sektion 5.8)
+        """
+        from ust_idnr_service import UStIdNrService
+
+        service = UStIdNrService(
+            eigene_ust_idnr=self.user_settings.ust_idnr,
+            firmenname=self.user_settings.firmenname or f"{self.user_settings.vorname} {self.user_settings.nachname}",
+            ort=self.user_settings.ort,
+            plz=self.user_settings.plz,
+            strasse=self.user_settings.strasse
+        )
+
+        result = service.qualifizierte_abfrage(
+            partner_ust_idnr=kunde.ust_idnr,
+            partner_firmenname=kunde.firmenname or f"{kunde.vorname} {kunde.nachname}",
+            partner_ort=kunde.ort,
+            partner_plz=kunde.plz,
+            partner_strasse=kunde.strasse
+        )
+
+        kunde.ust_idnr_validiert = result['gueltig']
+        kunde.ust_idnr_validierung_datum = date.today()
+        kunde.ust_idnr_validierung_ergebnis = json.dumps(result)
+
+        return result['gueltig']
+```
+
+---
+
+#### **📝 Workflow-Beispiele**
+
+**Beispiel 1: User mit Modus "nachfrage" (Standard)**
+
+```
+1. User klickt "Neue Rechnung"
+2. UI zeigt Kundensuche + "Neuen Kunden eingeben"
+3. User gibt neuen Kunden ein (z.B. "Belgischer Kunde GmbH")
+4. User klickt "Weiter"
+5. Dialog erscheint: "Soll dieser Kunde im Kundenstamm gespeichert werden?"
+6. User wählt "Ja, speichern"
+7. Kunde wird gespeichert (K-089)
+8. Rechnung wird erstellt mit kunde_id=89
+```
+
+**Beispiel 2: User mit Modus "automatisch"**
+
+```
+1. User klickt "Neue Rechnung"
+2. UI zeigt Kundensuche + "Neuen Kunden eingeben"
+3. User gibt neuen Kunden ein
+4. User klickt "Weiter"
+5. Hinweis erscheint kurz: "Kunde wurde als K-090 gespeichert"
+6. Rechnung wird erstellt mit kunde_id=90
+```
+
+**Beispiel 3: User mit Modus "nie"**
+
+```
+1. User klickt "Neue Rechnung"
+2. UI zeigt Kundensuche (falls manuell angelegte Kunden existieren) + "Neuen Kunden eingeben"
+3. User gibt neuen Kunden ein
+4. User klickt "Weiter"
+5. Kunde wird NICHT gespeichert (kunde_id=NULL in Rechnung)
+6. Kundendaten werden in `rechnungen.kunde_json` gespeichert (Fallback)
+```
+
+---
+
+#### **✅ Vorteile der Hybrid-Lösung**
+
+1. **Maximale Flexibilität**: User entscheidet selbst (einmalig in Einstellungen)
+2. **Kein Overhead bei Einmalkunden**: Modus "nie" spart DSGVO-Aufwand
+3. **Komfort bei Stammkunden**: Modus "automatisch" spart Klicks
+4. **Lernkurve sanft**: Standard "nachfrage" erklärt Feature beim ersten Mal
+5. **Jederzeit änderbar**: User kann Modus später umschalten
+6. **Keine Datenverluste**: Auch bei Modus "nie" können Kunden manuell angelegt werden
+
+---
+
+#### **🔍 Zusätzliche Features**
+
+**Kundennummer automatisch generiert:**
+- K-001, K-002, K-003, ...
+- Fortlaufend, keine Lücken
+
+**Zahlungsziel:**
+- Standard: 14 Tage (vom User-Setting übernommen)
+- Pro Kunde individuell änderbar (Checkbox "Abweichend vom Standard")
+
+**Ansprechpartner:**
+- Für Firmen: Kontaktperson erfassen
+- Bei Rechnung wird Ansprechpartner angezeigt: "z.Hd. Max Mustermann"
+
+**Inland/EU/Drittland automatisch:**
+- Wird aus `land` abgeleitet (Generated Column in SQLite)
+- Keine manuelle Eingabe nötig
+- Wichtig für USt-Behandlung in UStVA/ZM
+
+---
+
+**Status:** ✅ **Kategorie 8.10 vollständig geklärt** - Hybrid-Lösung mit konfigurierbarem Modus (automatisch / auf Nachfrage / nie). Alle Felder spezifiziert: Kundennummer (automatisch), Ansprechpartner, Zahlungsziel, Inland/EU/Drittland-Automatik, USt-IdNr.-Validierung (BZSt-API).
 
 ---
 
@@ -7655,7 +8067,7 @@ Rechnung erstellen:
 
 - ✅ ~~Kategorie 6: UStVA~~ - **Geklärt** (Hybrid-Ansatz, MVP nur Zahlen)
 - ✅ ~~Kategorie 7: EÜR~~ - **Geklärt** (Hybrid-Ansatz, AfA-Verwaltung, Zufluss-/Abfluss-Prinzip)
-- ⏸️ **Kategorie 8: Stammdaten-Erfassung** - **Teilweise geklärt** (User/Firma, Kategorien, EU-Länder, Bankkonten dokumentiert; **Kundenstamm: Community-Entscheidung ausstehend**)
+- ✅ ~~Kategorie 8: Stammdaten-Erfassung~~ - **Geklärt** (User/Firma, Kategorien, EU-Länder, Bankkonten, Kontenrahmen, Geschäftsjahr, Kundenstamm mit Hybrid-Lösung, Lieferantenstamm, Produktstamm v2.0)
 - Kategorie 9: Import-Schnittstellen (inkl. AGENDA-kompatibel)
 - Kategorie 10: Backup & Update
 - Kategorie 11: Steuersätze
