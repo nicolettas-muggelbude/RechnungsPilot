@@ -6016,7 +6016,7 @@ class UserStammdaten:
     website: str
 
     # Steuerliche Daten
-    steuernummer: str  # "12/345/67890"
+    steuernummer: str  # "12/345/67890" (altes Format) oder "2123450678901" (neues 13-stelliges Format nach Umschlüsselung)
     ust_idnr: str  # "DE123456789"
     finanzamt_name: str  # "Finanzamt Oldenburg"
     finanzamt_nummer: str  # "2360"
@@ -6108,10 +6108,14 @@ def validate_user_stammdaten():
 │                                                 │
 │  Firmenname:  [___________________________]    │
 │  Rechtsform:  [Freiberufler ▼]                 │
-│               □ Einzelunternehmen               │
+│               □ Einzelunternehmer               │
 │               □ GbR                             │
 │               ● Freiberufler                    │
-│               □ GmbH                            │
+│                                                 │
+│  ℹ️ RechnungsPilot unterstützt nur            │
+│     EÜR-berechtigte Rechtsformen.              │
+│     Bilanzpflichtige Gesellschaften (GmbH,     │
+│     UG, OHG, KG) werden nicht unterstützt.     │
 │                                                 │
 │  Inhaber:     [Max Mustermann____________]     │
 │                                                 │
@@ -6204,6 +6208,151 @@ def validate_user_stammdaten():
 │              [← Zurück]    [Abschließen]        │
 └─────────────────────────────────────────────────┘
 ```
+
+---
+
+### **8.2.1 Unterstützte Rechtsformen**
+
+**RechnungsPilot unterstützt nur EÜR-berechtigte Rechtsformen:**
+
+✅ **Unterstützt:**
+- **Einzelunternehmer** - Gewerbetreibende ohne besondere Rechtsform
+- **Freiberufler** - § 18 EStG (Ärzte, Anwälte, IT-Berater, Künstler, etc.)
+- **GbR (Gesellschaft bürgerlichen Rechts)** - Personengesellschaft unter Grenzen (Gewinn < 60k€, Umsatz < 600k€)
+
+❌ **NICHT unterstützt (bilanzpflichtig):**
+- **GmbH** - Kapitalgesellschaft → Bilanzierung Pflicht nach HGB
+- **UG (haftungsbeschränkt)** - Kleine Kapitalgesellschaft → Bilanzierung Pflicht
+- **OHG (Offene Handelsgesellschaft)** - Personengesellschaft → Bilanzierung Pflicht
+- **KG (Kommanditgesellschaft)** - Personengesellschaft → Bilanzierung Pflicht
+
+**UI-Verhalten:**
+
+```
+Rechtsform wählen:
+
+○ Einzelunternehmer
+○ Freiberufler
+● GbR
+
+──────────────────────────────────────
+
+ℹ️ Hinweis: RechnungsPilot unterstützt nur
+   EÜR-berechtigte Rechtsformen.
+
+   Bilanzpflichtige Gesellschaften (GmbH,
+   UG, OHG, KG) können nicht verwendet
+   werden, da sie zur doppelten
+   Buchführung verpflichtet sind.
+```
+
+**Begründung:**
+
+| Rechtsform | EÜR | Bilanz | RechnungsPilot |
+|------------|-----|--------|----------------|
+| Einzelunternehmer | ✅ | ❌ | ✅ Unterstützt |
+| Freiberufler | ✅ | ❌ | ✅ Unterstützt |
+| GbR (unter Grenzen) | ✅ | ❌ | ✅ Unterstützt |
+| GbR (über Grenzen) | ❌ | ✅ | ❌ Nicht unterstützt |
+| GmbH, UG | ❌ | ✅ | ❌ Nicht unterstützt |
+| OHG, KG | ❌ | ✅ | ❌ Nicht unterstützt |
+
+**Grenzen für GbR:**
+- Gewinn < 60.000 € pro Jahr UND
+- Umsatz < 600.000 € pro Jahr
+
+⚠️ **Warnung bei Überschreitung:** RechnungsPilot warnt, wenn GbR diese Grenzen überschreitet.
+
+---
+
+### **8.2.2 Steuernummer-Formate**
+
+**Deutschland hat zwei Steuernummer-Formate:**
+
+#### **Altes Format (Bundesland-spezifisch):**
+
+**Format:** `FF/BBB/UUUUP`
+
+- **FF** = Finanzamtsnummer (2-stellig)
+- **BBB** = Bezirksnummer (3-stellig)
+- **UUUUP** = Persönliche Nummer + Prüfziffer (5-stellig)
+
+**Beispiel:** `12/345/67890`
+
+**Varianten je Bundesland:**
+- Bayern: `123/456/78901` (3/3/5)
+- NRW: `123/4567/8901` (3/4/4)
+- Baden-Württemberg: `12345/67890` (5/5)
+
+#### **Neues Format (Bundeseinheitlich nach Umschlüsselung):**
+
+**Format:** `BBFFUUUUUUUUP` (13-stellig, ohne Schrägstriche)
+
+- **BB** = Bundesland-Kennziffer (2-stellig)
+- **FF** = Finanzamtsnummer (2-stellig)
+- **UUUUUUUU** = Persönliche Nummer (8-stellig)
+- **P** = Prüfziffer (1-stellig)
+
+**Beispiel:** `2123450678901`
+
+**Bundesland-Kennziffern:**
+- 21 = Niedersachsen
+- 93 = Bayern
+- 51 = Nordrhein-Westfalen
+- 28 = Baden-Württemberg
+- etc.
+
+**RechnungsPilot unterstützt beide Formate:**
+
+```python
+def validate_steuernummer(stnr: str) -> bool:
+    """
+    Validiert Steuernummer (altes oder neues Format)
+    """
+    # Schrägstriche entfernen für Verarbeitung
+    stnr_clean = stnr.replace('/', '').replace(' ', '')
+
+    # Neues Format: 13-stellig, nur Ziffern
+    if len(stnr_clean) == 13 and stnr_clean.isdigit():
+        return validate_bundeseinheitlich(stnr_clean)
+
+    # Altes Format: 10-11 Ziffern (ohne Schrägstriche)
+    if len(stnr_clean) >= 10 and len(stnr_clean) <= 11:
+        return validate_alt(stnr, stnr_clean)
+
+    return False
+```
+
+**UI-Eingabe:**
+
+```
+┌──────────────────────────────────────────┐
+│ Steuernummer                             │
+├──────────────────────────────────────────┤
+│                                          │
+│  Format: [Auto-Erkennung ▼]              │
+│          ● Automatisch erkennen          │
+│          ○ Alt (z.B. 12/345/67890)      │
+│          ○ Neu (13-stellig)             │
+│                                          │
+│  Steuernummer: [_________________]       │
+│                                          │
+│  ✅ Gültig (neues Format erkannt)        │
+│     2123450678901                        │
+│                                          │
+│    [ Abbrechen ]  [ Speichern ]          │
+└──────────────────────────────────────────┘
+```
+
+**Automatische Erkennung:**
+- Eingabe mit Schrägstrichen (`/`) → Altes Format
+- Eingabe 13-stellig ohne Schrägstriche → Neues Format
+- Validierung nach erkanntem Format
+
+**Speicherung:**
+- Intern: Immer normalisiert (ohne Schrägstriche)
+- Anzeige: Mit ursprünglicher Formatierung
+- Export: Je nach Ziel-System (ELSTER akzeptiert beide)
 
 ---
 
