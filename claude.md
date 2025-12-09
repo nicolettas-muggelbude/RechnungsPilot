@@ -10252,7 +10252,407 @@ def create_produkt_from_template(template_name: str, **kwargs) -> Produkt:
 
 ---
 
-#### **📝 Zusammenfassung**
+#### **💰 Anschaffungskosten & Anschaffungsnebenkosten** ⚖️ **WICHTIG**
+
+**Problem:**
+- Einkaufspreis (netto) vom Lieferanten: z.B. 1.000 €
+- + Frachtkosten: 50 €
+- + Versicherung: 10 €
+- + Mautgebühren: 5 €
+- + CO2-Abgabe: 15 €
+- **= Was ist der "echte" Netto-EK?**
+
+**Frage:** Gehören Nebenkosten zum Einkaufspreis? Wie steuerlich behandeln?
+
+---
+
+##### **Rechtsgrundlage: §255 HGB - Anschaffungskosten**
+
+**§255 Abs. 1 HGB:**
+
+```
+Anschaffungskosten sind die Aufwendungen, die geleistet werden,
+um einen Vermögensgegenstand zu erwerben und ihn in einen
+betriebsbereiten Zustand zu versetzen, soweit sie dem
+Vermögensgegenstand einzeln zugeordnet werden können.
+
+Zu den Anschaffungskosten gehören auch die Nebenkosten sowie
+die nachträglichen Anschaffungskosten.
+
+Anschaffungskostenminderungen sind abzusetzen.
+```
+
+**Bedeutung:**
+- Anschaffungskosten = **Einkaufspreis + Nebenkosten - Minderungen**
+- NICHT nur der Preis auf der Lieferantenrechnung!
+
+---
+
+##### **Was gehört zu den Anschaffungskosten?**
+
+**Formel:**
+
+```
+┌────────────────────────────────────────────────────────┐
+│ ANSCHAFFUNGSKOSTEN (= "echter" Netto-EK)              │
+├────────────────────────────────────────────────────────┤
+│                                                        │
+│ + Anschaffungspreis (netto vom Lieferanten)           │
+│   Beispiel: 1.000,00 €                                │
+│                                                        │
+│ + ANSCHAFFUNGSNEBENKOSTEN:                            │
+│   ├─ Frachtkosten / Transportkosten     + 50,00 €    │
+│   ├─ Versicherung (während Transport)   + 10,00 €    │
+│   ├─ Zölle, Einfuhrabgaben               +  0,00 €    │
+│   ├─ Verpackung (nicht rückgabefähig)    +  5,00 €    │
+│   ├─ Montagekosten                       +  0,00 €    │
+│   ├─ CO2-Abgaben (beim Import)           + 15,00 €    │
+│   ├─ Mautgebühren (zuordenbar)           +  5,00 €    │
+│   └─ Lagerkosten (bis Inbetriebnahme)    +  0,00 €    │
+│                                              ─────────  │
+│                                       Summe:  85,00 €  │
+│                                                        │
+│ - ANSCHAFFUNGSPREISMINDERUNGEN:                       │
+│   ├─ Rabatte / Preisnachlässe            -  0,00 €    │
+│   ├─ Skonto (z.B. 2% bei Zahlung 10 Tg) - 20,00 €    │
+│   └─ Boni / Rückvergütungen              -  0,00 €    │
+│                                              ─────────  │
+│                                       Summe: -20,00 €  │
+│                                                        │
+│ ═══════════════════════════════════════════════════    │
+│ = ANSCHAFFUNGSKOSTEN (netto):        1.065,00 €       │
+│ ═══════════════════════════════════════════════════    │
+│                                                        │
+│ + Umsatzsteuer (19%):                    202,35 €     │
+│ ─────────────────────────────────────────────────      │
+│ = ANSCHAFFUNGSKOSTEN (brutto):       1.267,35 €       │
+└────────────────────────────────────────────────────────┘
+```
+
+---
+
+##### **Welche Nebenkosten gehören DAZU?**
+
+**✅ IMMER Anschaffungsnebenkosten:**
+
+| Nebenkosten | Zuordnung | Beispiel |
+|-------------|-----------|----------|
+| **Frachtkosten** | ✅ JA | Transport vom Lieferanten zum Lager |
+| **Transportversicherung** | ✅ JA | Versicherung während Transport |
+| **Zölle, Einfuhrabgaben** | ✅ JA | Import aus Nicht-EU |
+| **Verpackung (nicht rückgabefähig)** | ✅ JA | Einwegpaletten, Kisten |
+| **Montagekosten** | ✅ JA | Zusammenbau vor Inbetriebnahme |
+| **CO2-Abgaben** | ✅ JA | CO2-Steuer beim Import |
+| **Prüfkosten** | ✅ JA | Qualitätsprüfung vor Nutzung |
+
+**❌ KEINE Anschaffungsnebenkosten:**
+
+| Nebenkosten | Zuordnung | Begründung |
+|-------------|-----------|------------|
+| **Lagerkosten (laufend)** | ❌ NEIN | Betriebsausgabe (nicht Anschaffung) |
+| **Verwaltungskosten** | ❌ NEIN | Gemeinkosten (nicht zuordenbar) |
+| **Finanzierungskosten** | ❌ NEIN | Keine Anschaffungskosten (§255 Abs. 3 HGB) |
+| **Mautgebühren (allgemein)** | ⚠️ TEILS | Nur wenn dem Artikel zuordenbar |
+| **Verpackung (rückgabefähig)** | ❌ NEIN | Wird zurückgegeben (z.B. Europaletten) |
+
+---
+
+##### **Unterschied: Anlagevermögen vs. Umlaufvermögen**
+
+**Bei ANLAGEVERMÖGEN (Maschinen, Fahrzeuge, etc.):**
+
+```
+Beispiel: Maschine kaufen
+
+Anschaffungspreis:       10.000,00 € (netto)
++ Frachtkosten:             500,00 €
++ Montagekosten:          1.000,00 €
+─────────────────────────────────────
+= Anschaffungskosten:    11.500,00 € (netto)
+
+⚠️ PFLICHT: Nebenkosten MÜSSEN hinzugerechnet werden!
+
+Abschreibung:
+AfA linear (10 Jahre) = 11.500 € / 10 = 1.150 € pro Jahr
+```
+
+**Warum PFLICHT?**
+- §255 HGB zwingt dazu
+- Abschreibung erfolgt über **gesamte** Anschaffungskosten
+- Finanzamt akzeptiert keine separate Verbuchung
+
+---
+
+**Bei UMLAUFVERMÖGEN (Waren, Material):**
+
+```
+Beispiel: Waren kaufen (für Wiederverkauf)
+
+Einkaufspreis:            1.000,00 € (netto)
++ Frachtkosten:              50,00 €
+─────────────────────────────────────
+= Anschaffungskosten:     1.050,00 € (netto)
+
+⚠️ SOLLTE hinzugerechnet werden (§255 HGB)
+✅ ABER: Praktische Vereinfachung möglich!
+```
+
+**Praktische Vereinfachung (für Kleinunternehmer):**
+
+```
+Variante 1 (KORREKT nach §255 HGB):
+- Ware: 1.050,00 € Einkaufspreis (inkl. Fracht)
+- Lagerwert: 1.050,00 €
+- Bei Verkauf: Wareneinsatz 1.050,00 €
+
+Variante 2 (VEREINFACHT - toleriert vom Finanzamt):
+- Ware: 1.000,00 € Einkaufspreis
+- Fracht: 50,00 € Betriebsausgabe (separate Kategorie)
+- Lagerwert: 1.000,00 €
+- Bei Verkauf: Wareneinsatz 1.000,00 € + Fracht 50,00 €
+```
+
+**Wann Variante 2 erlaubt?**
+- ✅ Bei geringem Warenwert
+- ✅ Bei häufigen kleinen Bestellungen
+- ✅ Wenn Zuordnung zu einzelnem Artikel schwierig
+- ❌ NICHT bei großen Anschaffungen (z.B. Container-Import)
+
+---
+
+##### **Steuerliche Behandlung**
+
+**Umsatzsteuer:**
+
+```
+Anschaffungspreis (netto):    1.000,00 €
++ Frachtkosten (netto):          50,00 €
+─────────────────────────────────────────
+= Anschaffungskosten (netto): 1.050,00 €
++ Umsatzsteuer 19%:             199,50 €
+─────────────────────────────────────────
+= Anschaffungskosten (brutto):1.249,50 €
+
+Vorsteuerabzug: 199,50 € (wenn berechtigt)
+```
+
+**Wichtig:**
+- Fracht, Spesen etc. unterliegen der Umsatzsteuer (meist 19%)
+- Vorsteuerabzug möglich (wenn nicht Kleinunternehmer §19 UStG)
+
+---
+
+**Einkommensteuer / Körperschaftsteuer:**
+
+**Anlagevermögen:**
+- Anschaffungskosten werden über Nutzungsdauer abgeschrieben
+- Abschreibung = Betriebsausgabe (steuermindernd)
+
+**Umlaufvermögen:**
+- Wareneinsatz = Betriebsausgabe (steuermindernd)
+- Berechnung: Anfangsbestand + Einkäufe - Endbestand
+
+---
+
+##### **Implementierung in RechnungsPilot**
+
+**Erweiterung Datenbank-Schema (Produktstammdaten):**
+
+```sql
+ALTER TABLE produkte ADD COLUMN einkaufspreis_anschaffungskosten DECIMAL(10,2);
+ALTER TABLE produkte ADD COLUMN einkaufspreis_nebenkosten DECIMAL(10,2) DEFAULT 0.00;
+ALTER TABLE produkte ADD COLUMN einkaufspreis_minderungen DECIMAL(10,2) DEFAULT 0.00;
+
+-- Berechnung der Anschaffungskosten
+ALTER TABLE produkte ADD COLUMN einkaufspreis_gesamt DECIMAL(10,2) GENERATED ALWAYS AS (
+    einkaufspreis_netto + einkaufspreis_nebenkosten - einkaufspreis_minderungen
+) STORED;
+```
+
+**Detaillierte Nebenkosten-Erfassung:**
+
+```sql
+CREATE TABLE produkt_anschaffungsnebenkosten (
+    id INTEGER PRIMARY KEY,
+    produkt_id INTEGER NOT NULL,
+    typ TEXT NOT NULL,  -- 'fracht', 'versicherung', 'zoll', 'montage', 'co2', 'maut', etc.
+    bezeichnung TEXT,
+    betrag_netto DECIMAL(10,2) NOT NULL,
+    betrag_brutto DECIMAL(10,2),
+    datum DATE,
+    belegt_durch TEXT,  -- Verweis auf Rechnung/Beleg
+
+    FOREIGN KEY (produkt_id) REFERENCES produkte(id),
+    CHECK (typ IN ('fracht', 'versicherung', 'zoll', 'montage', 'co2', 'maut', 'verpackung', 'pruefung', 'sonstige'))
+);
+```
+
+---
+
+##### **UI-Konzept (erweitert)**
+
+**Produkt bearbeiten - Erweiterte Ansicht:**
+
+```
+┌──────────────────────────────────────────────────────────┐
+│ Produkt bearbeiten: Laptop Dell XPS 13                   │
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│ PREISE:                                                  │
+│                                                          │
+│ ┌─────────────────────────────────────────────────────┐ │
+│ │ EINKAUFSPREIS (detailliert):                        │ │
+│ ├─────────────────────────────────────────────────────┤ │
+│ │                                                     │ │
+│ │ Anschaffungspreis (netto): [1.000,00] €             │ │
+│ │                                                     │ │
+│ │ + ANSCHAFFUNGSNEBENKOSTEN:                          │ │
+│ │   Frachtkosten:              [  50,00] €            │ │
+│ │   Versicherung:              [  10,00] €            │ │
+│ │   Zölle:                     [   0,00] €            │ │
+│ │   CO2-Abgaben:               [  15,00] €            │ │
+│ │   Sonstige:                  [   0,00] €            │ │
+│ │                              ─────────               │ │
+│ │   Summe Nebenkosten:            75,00 €             │ │
+│ │                                                     │ │
+│ │ - ANSCHAFFUNGSPREISMINDERUNGEN:                     │ │
+│ │   Skonto (2%):               [  20,00] €            │ │
+│ │   Rabatt:                    [   0,00] €            │ │
+│ │                              ─────────               │ │
+│ │   Summe Minderungen:           -20,00 €             │ │
+│ │                                                     │ │
+│ │ ═══════════════════════════════════════             │ │
+│ │ ANSCHAFFUNGSKOSTEN (netto):  1.055,00 €             │ │
+│ │ + USt 19%:                     200,45 €             │ │
+│ │ ─────────────────────────────────────               │ │
+│ │ ANSCHAFFUNGSKOSTEN (brutto): 1.255,45 €             │ │
+│ │ ═══════════════════════════════════════             │ │
+│ │                                                     │ │
+│ │ ℹ️ Gemäß §255 HGB müssen Nebenkosten zu den        │ │
+│ │    Anschaffungskosten gerechnet werden.            │ │
+│ └─────────────────────────────────────────────────────┘ │
+│                                                          │
+│ Verkaufspreis (netto):     [1.200,00] €                 │
+│ Gewinnmarge:               145,00 € (13,74%)            │
+│                                                          │
+│ [Abbrechen]                             [Speichern]     │
+└──────────────────────────────────────────────────────────┘
+```
+
+---
+
+##### **Workflow-Beispiel: Warenimport**
+
+```
+SZENARIO: Import von 100 Laptops aus China
+
+1. EINKAUF:
+   ┌─────────────────────────────────────────┐
+   │ Lieferantenrechnung:                    │
+   │ - 100 Laptops × 1.000 € = 100.000 €    │
+   │ - Fracht (Container):       2.000 €    │
+   │ - Versicherung:               500 €    │
+   │ - Zoll (EU-Import):         3.000 €    │
+   │ - CO2-Abgabe:                 500 €    │
+   │                           ─────────    │
+   │ Summe (netto):           106.000 €    │
+   │ + USt 19%:                20.140 €    │
+   │                           ─────────    │
+   │ Summe (brutto):          126.140 €    │
+   └─────────────────────────────────────────┘
+
+2. BUCHUNG (§255 HGB - KORREKT):
+   ┌─────────────────────────────────────────┐
+   │ Ware (100 Laptops):                     │
+   │ - Anschaffungskosten: 106.000 € (netto)│
+   │ - Pro Laptop: 1.060 € (netto)          │
+   │                                         │
+   │ Lagerwert: 106.000 €                   │
+   │                                         │
+   │ Bei Verkauf (1 Laptop):                │
+   │ - Wareneinsatz: 1.060 € (nicht 1.000 €)│
+   └─────────────────────────────────────────┘
+
+3. VEREINFACHT (toleriert bei Kleinunternehmer):
+   ┌─────────────────────────────────────────┐
+   │ Ware (100 Laptops): 100.000 € (netto)  │
+   │ Fracht: 2.000 € (Betriebsausgabe)      │
+   │ Versicherung: 500 € (Betriebsausgabe)  │
+   │ Zoll: 3.000 € (Betriebsausgabe)        │
+   │ CO2: 500 € (Betriebsausgabe)           │
+   │                                         │
+   │ Lagerwert: 100.000 €                   │
+   │                                         │
+   │ Bei Verkauf (1 Laptop):                │
+   │ - Wareneinsatz: 1.000 €                │
+   │ - Nebenkosten: 60 € (anteilig)         │
+   └─────────────────────────────────────────┘
+```
+
+---
+
+##### **Best Practices für RechnungsPilot**
+
+**Empfehlung:**
+
+1. **Anlagevermögen (Maschinen, Fahrzeuge):**
+   - ✅ **IMMER** Nebenkosten zu Anschaffungskosten rechnen
+   - ✅ §255 HGB zwingend
+   - ✅ Abschreibung über Gesamtkosten
+
+2. **Umlaufvermögen (Waren):**
+   - ✅ **Standard**: Nebenkosten zu Anschaffungskosten (§255 HGB)
+   - ⚠️ **Vereinfachung**: Separate Verbuchung (bei kleinen Beträgen toleriert)
+   - 💡 **RechnungsPilot**: Beide Methoden unterstützen, User wählt
+
+3. **Einstellung in RechnungsPilot:**
+   ```
+   ┌──────────────────────────────────────────────┐
+   │ ⚙️ Einstellungen > Warenwirtschaft          │
+   ├──────────────────────────────────────────────┤
+   │                                              │
+   │ Anschaffungsnebenkosten behandeln als:      │
+   │                                              │
+   │ ● Teil der Anschaffungskosten (§255 HGB)    │
+   │   Empfohlen, korrekt nach Handelsrecht      │
+   │                                              │
+   │ ○ Separate Betriebsausgaben                 │
+   │   Vereinfachung (nur bei kleinen Beträgen)  │
+   └──────────────────────────────────────────────┘
+   ```
+
+---
+
+##### **Zusammenfassung: Anschaffungskosten**
+
+**Problem:**
+Einkaufspreis ≠ Anschaffungskosten
+
+**Lösung:**
+```
+Anschaffungskosten = Einkaufspreis + Nebenkosten - Minderungen
+```
+
+**Nebenkosten (gehören DAZU):**
+- ✅ Fracht, Versicherung, Zölle, CO2, Montage, Verpackung (nicht rückgabefähig)
+
+**Nebenkosten (gehören NICHT dazu):**
+- ❌ Lagerkosten (laufend), Verwaltung, Finanzierung
+
+**Steuerlich:**
+- **Anlagevermögen**: Nebenkosten PFLICHT hinzurechnen (§255 HGB)
+- **Umlaufvermögen**: Sollte hinzugerechnet werden, Vereinfachung toleriert
+
+**RechnungsPilot:**
+- Datenbank-Erweiterung für detaillierte Nebenkosten
+- UI für Erfassung
+- Einstellung: §255 HGB vs. Vereinfachung
+
+**Status:** 📋 **Für v2.0 vorgemerkt** (komplexe Warenwirtschaft)
+
+---
+
+#### **📝 Zusammenfassung: Produktstammdaten**
 
 **Entscheidung:**
 - ✅ **Hybrid-Lösung** (wie Kundenstamm)
@@ -10287,6 +10687,7 @@ def create_produkt_from_template(template_name: str, **kwargs) -> Produkt:
 - 📊 **Gewinnmarge-Berechnung** (Verkaufspreis - Einkaufspreis)
 - ⚠️ **Lagerbestand-Warnung** (bei Unterschreitung Mindestbestand)
 - 🧮 **Kalkulations-Modul** (für v2.0 vorgemerkt)
+- 💰 **Anschaffungskosten** (§255 HGB) (für v2.0 vorgemerkt)
 
 **Status:** 📋 **Für v2.0 geplant** (NICHT in MVP v1.0)
 
