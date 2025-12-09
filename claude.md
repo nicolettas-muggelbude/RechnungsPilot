@@ -12134,6 +12134,483 @@ Kontakt für Widerruf:
 
 ---
 
+## **Kategorie 9: Import-Schnittstellen**
+
+### **⚠️ Fundamentale Unterscheidung: Zwei Arten von Import**
+
+**KRITISCH:** Es gibt zwei **völlig unterschiedliche** Arten von Import mit unterschiedlichen rechtlichen und technischen Anforderungen!
+
+---
+
+### **📝 Typ 1: Import zum Weiterarbeiten (editierbar)**
+
+**Zweck:** Migration/Übernahme von Stammdaten aus anderen Systemen
+
+**Eigenschaften:**
+- ✅ Daten können nach Import **bearbeitet** werden
+- ✅ Daten können **gelöscht** werden
+- ✅ Keine GoBD-Anforderungen (keine Buchführung)
+- ✅ Validierung kann nachträglich erfolgen
+- ✅ User hat **volle Kontrolle**
+
+**Anwendungsfälle:**
+1. **Kundenstamm-Import** aus CSV/Excel
+2. **Produktstamm-Import** aus CSV/Excel
+3. **Lieferantenstamm-Import** aus CSV
+4. **Kategorien-Import** aus anderen Buchhaltungsprogrammen
+5. **Kontakte-Import** aus CRM-Systemen
+6. **Artikel-Import** aus Shop-Systemen (Stammdaten)
+
+**Workflow:**
+```
+1. CSV/Excel-Datei hochladen
+2. Vorschau anzeigen (erste 10 Zeilen)
+3. Spalten-Mapping (automatisch + manuell)
+   ├─ "Name" → kunde.name
+   ├─ "E-Mail" → kunde.email
+   └─ "USt-IdNr" → kunde.ust_idnr
+4. Duplikat-Erkennung konfigurieren
+   ├─ Nach E-Mail
+   ├─ Nach Name + PLZ
+   └─ Nach Kundennummer
+5. Aktion bei Duplikaten wählen:
+   ├─ Überspringen
+   ├─ Überschreiben
+   └─ Zusammenführen
+6. Import durchführen
+7. ✅ Erfolg: 245 Kunden importiert, 12 Duplikate übersprungen
+8. ✅ User kann Daten in RechnungsPilot bearbeiten/löschen
+```
+
+**Datenbank:**
+```sql
+CREATE TABLE import_stammdaten (
+    id INTEGER PRIMARY KEY,
+    typ TEXT NOT NULL, -- 'kunden', 'produkte', 'lieferanten', 'kategorien'
+    dateiname TEXT NOT NULL,
+    dateityp TEXT, -- 'csv', 'xlsx', 'json'
+    importiert_am TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    benutzer TEXT,
+
+    anzahl_datensaetze INTEGER,
+    anzahl_erfolgreich INTEGER,
+    anzahl_fehler INTEGER,
+    anzahl_duplikate INTEGER,
+
+    spalten_mapping TEXT, -- JSON mit Mapping
+    duplikat_strategie TEXT, -- 'skip', 'overwrite', 'merge'
+
+    status TEXT DEFAULT 'erfolgreich', -- 'erfolgreich', 'mit_warnungen', 'fehler'
+    fehlerprotokoll TEXT, -- JSON mit Fehlern
+
+    CHECK (typ IN ('kunden', 'produkte', 'lieferanten', 'kategorien'))
+);
+
+CREATE INDEX idx_import_stammdaten_typ ON import_stammdaten(typ);
+CREATE INDEX idx_import_stammdaten_datum ON import_stammdaten(importiert_am);
+```
+
+**UI-Mockup:**
+```
+┌─────────────────────────────────────────────────────────┐
+│ 📥 Kundenstamm importieren                              │
+├─────────────────────────────────────────────────────────┤
+│ Schritt 1/4: Datei hochladen                            │
+│                                                         │
+│ ┌─────────────────────────────────────────────────┐     │
+│ │ [Datei auswählen] kunden_alt.csv                │     │
+│ │                                                 │     │
+│ │ Format erkannt: CSV (Komma-getrennt, UTF-8)    │     │
+│ │ 247 Zeilen, 8 Spalten                          │     │
+│ └─────────────────────────────────────────────────┘     │
+│                                                         │
+│ Vorschau (erste 5 Zeilen):                             │
+│ ┌─────────────────────────────────────────────────┐     │
+│ │ Name         │ E-Mail          │ PLZ   │ Ort    │     │
+│ │ Müller GmbH  │ info@mueller.de │ 10115 │ Berlin │     │
+│ │ Schmidt AG   │ mail@schmidt.de │ 80331 │ München│     │
+│ │ ...                                             │     │
+│ └─────────────────────────────────────────────────┘     │
+│                                                         │
+│ [Abbrechen]                    [Weiter zu Mapping →]    │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+### **📊 Typ 2: Import als Buchführung (unveränderbar)**
+
+**Zweck:** Übernahme von Buchführungsdaten aus externen Systemen (GoBD-relevant!)
+
+**Eigenschaften:**
+- ❌ Daten können **NICHT bearbeitet** werden (Unveränderbarkeit §146 AO)
+- ❌ Daten können **NICHT gelöscht** werden (nur storniert)
+- ✅ **GoBD-Anforderungen gelten** (Unveränderbarkeit, Vollständigkeit, Nachvollziehbarkeit)
+- ✅ Import muss **vor** dem Import validiert sein
+- ✅ **Import-Protokoll** erforderlich (wer, wann, was)
+- ✅ **Zeitstempel** und Versionierung
+- ✅ **Originaldatei archivieren** (Hash für Nachweis)
+
+**Anwendungsfälle:**
+1. **Bank-CSV-Import** (Transaktionen) ⭐
+2. **Kassensystem-Export** (AGENDA, helloCash, orderbird, etc.)
+3. **Zahlungsdienste** (PayPal, Stripe, Klarna, etc.)
+4. **E-Commerce-Plattformen** (Shopify, WooCommerce - Umsätze)
+5. **POS-Systeme** (Einzelhandel, Gastronomie)
+6. **Rechnungseingang** aus anderen Buchhaltungsprogrammen (PDF + Daten)
+
+**Workflow:**
+```
+1. CSV/Export-Datei hochladen
+2. Format-Erkennung (automatisch + Template-Auswahl)
+3. Vorschau anzeigen
+4. ⚠️ VALIDIERUNG (KRITISCH!):
+   ├─ Pflichtfelder vorhanden?
+   ├─ Datumsformat korrekt?
+   ├─ Beträge plausibel?
+   ├─ Summen-Check (Soll = Haben)
+   └─ Duplikate erkennen (Transaktions-ID)
+5. Bei Fehler: Import ABBRECHEN (keine teilweisen Imports!)
+6. Bei Erfolg: Import durchführen (atomare Transaktion)
+7. ✅ Originaldatei archivieren (SHA256-Hash)
+8. ✅ Import-Protokoll erstellen (unveränderbar)
+9. ✅ Daten sind ab sofort UNVERÄNDERBAR
+10. ✅ Nachträgliche Korrekturen nur via Stornobuchung
+```
+
+**Datenbank:**
+```sql
+CREATE TABLE import_buchfuehrung (
+    id INTEGER PRIMARY KEY,
+    typ TEXT NOT NULL, -- 'bank', 'kasse', 'paypal', 'agenda', 'pos', 'shop'
+    quelle TEXT NOT NULL, -- 'Sparkasse', 'PayPal', 'AGENDA Kassensystem', etc.
+    dateiname TEXT NOT NULL,
+    dateityp TEXT, -- 'csv', 'json', 'xml'
+
+    importiert_am TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    benutzer TEXT NOT NULL,
+
+    -- Originaldatei-Archivierung (GoBD!)
+    originaldatei_hash TEXT NOT NULL, -- SHA256 der Originaldatei
+    originaldatei_groesse INTEGER, -- Bytes
+    originaldatei_pfad TEXT, -- Pfad im Archiv
+
+    -- Import-Statistik
+    anzahl_buchungen INTEGER NOT NULL,
+    betrag_summe_soll DECIMAL(12,2),
+    betrag_summe_haben DECIMAL(12,2),
+    zeitraum_von DATE,
+    zeitraum_bis DATE,
+
+    -- Validierung
+    validiert BOOLEAN DEFAULT 1,
+    validierungsfehler TEXT, -- JSON mit Fehlern (falls vorhanden)
+
+    -- GoBD: Unveränderbarkeit
+    veraenderbar BOOLEAN DEFAULT 0 CHECK (veraenderbar = 0), -- IMMER false!
+
+    -- Import-Protokoll (JSON)
+    import_protokoll TEXT NOT NULL, -- Detailliertes Protokoll
+
+    status TEXT DEFAULT 'erfolgreich', -- 'erfolgreich', 'fehler'
+
+    CHECK (typ IN ('bank', 'kasse', 'paypal', 'stripe', 'agenda', 'hellocash', 'orderbird', 'pos', 'shopify', 'woocommerce', 'sonstige'))
+);
+
+CREATE INDEX idx_import_buchfuehrung_typ ON import_buchfuehrung(typ);
+CREATE INDEX idx_import_buchfuehrung_datum ON import_buchfuehrung(importiert_am);
+CREATE INDEX idx_import_buchfuehrung_hash ON import_buchfuehrung(originaldatei_hash);
+
+-- Verknüpfung: Welche Buchungen stammen aus welchem Import?
+ALTER TABLE bank_transaktionen ADD COLUMN import_id INTEGER;
+ALTER TABLE kassenbuch ADD COLUMN import_id INTEGER;
+
+ALTER TABLE bank_transaktionen ADD FOREIGN KEY (import_id) REFERENCES import_buchfuehrung(id);
+ALTER TABLE kassenbuch ADD FOREIGN KEY (import_id) REFERENCES import_buchfuehrung(id);
+```
+
+**Import-Protokoll (JSON-Beispiel):**
+```json
+{
+  "import_id": 42,
+  "typ": "bank",
+  "quelle": "Sparkasse LZO - MT940 Format",
+  "dateiname": "umsaetze_2025-01.csv",
+  "importiert_am": "2025-12-09T14:32:18Z",
+  "benutzer": "max.mustermann@example.com",
+
+  "originaldatei": {
+    "hash": "a3d5f7b9c2e1d4a6...",
+    "groesse": 245678,
+    "pfad": "imports/2025/12/09/umsaetze_2025-01_a3d5f7b9.csv"
+  },
+
+  "validierung": {
+    "erfolgreich": true,
+    "pruefungen": [
+      {"name": "Pflichtfelder", "status": "OK"},
+      {"name": "Datumsformat", "status": "OK"},
+      {"name": "Betragsformat", "status": "OK"},
+      {"name": "Duplikate", "status": "OK", "gefunden": 0},
+      {"name": "Summen-Check", "status": "OK", "soll": 12345.67, "haben": 12345.67}
+    ]
+  },
+
+  "import": {
+    "anzahl_buchungen": 187,
+    "betrag_summe_soll": 8234.56,
+    "betrag_summe_haben": 4111.11,
+    "zeitraum_von": "2025-01-01",
+    "zeitraum_bis": "2025-01-31"
+  },
+
+  "status": "erfolgreich"
+}
+```
+
+**UI-Mockup:**
+```
+┌─────────────────────────────────────────────────────────┐
+│ 📥 Bank-CSV importieren                                 │
+├─────────────────────────────────────────────────────────┤
+│ ⚠️ WICHTIG: Import als Buchführung (unveränderbar!)    │
+│                                                         │
+│ Schritt 3/4: Validierung                               │
+│                                                         │
+│ ✅ Format erkannt: Sparkasse MT940                     │
+│ ✅ Zeitraum: 01.01.2025 - 31.01.2025                   │
+│ ✅ 187 Transaktionen erkannt                           │
+│ ✅ Summe Soll:   8.234,56 €                            │
+│ ✅ Summe Haben:  4.111,11 €                            │
+│ ✅ Saldo:        4.123,45 € ✅                          │
+│                                                         │
+│ Validierung:                                            │
+│ ✅ Pflichtfelder vorhanden                             │
+│ ✅ Datumsformat korrekt                                │
+│ ✅ Betragsformat korrekt                               │
+│ ✅ Keine Duplikate gefunden                            │
+│                                                         │
+│ ⚠️ Nach Import können die Daten NICHT mehr            │
+│    bearbeitet werden (GoBD-konform)!                   │
+│                                                         │
+│ ✅ Originaldatei wird archiviert (SHA256-Hash)         │
+│ ✅ Import-Protokoll wird erstellt                      │
+│                                                         │
+│ [Abbrechen]                    [Import durchführen →]   │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Nach erfolgreichem Import:**
+```
+┌─────────────────────────────────────────────────────────┐
+│ ✅ Import erfolgreich abgeschlossen                     │
+├─────────────────────────────────────────────────────────┤
+│ Import-ID: #42                                          │
+│ Datum: 09.12.2025, 14:32:18 Uhr                        │
+│                                                         │
+│ 📊 Zusammenfassung:                                     │
+│ • 187 Transaktionen importiert                         │
+│ • Zeitraum: 01.01.2025 - 31.01.2025                    │
+│ • Summe Soll:   8.234,56 €                             │
+│ • Summe Haben:  4.111,11 €                             │
+│ • Saldo:        4.123,45 €                              │
+│                                                         │
+│ 🔒 Die importierten Daten sind unveränderbar           │
+│    (GoBD-konform nach §146 AO).                        │
+│                                                         │
+│ 📄 Originaldatei archiviert:                            │
+│    Hash: a3d5f7b9c2e1d4a6...                            │
+│                                                         │
+│ [Transaktionen anzeigen]  [Import-Protokoll anzeigen]   │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+### **🔄 Vergleichstabelle**
+
+| Aspekt | Import Stammdaten (editierbar) | Import Buchführung (unveränderbar) |
+|--------|-------------------------------|-----------------------------------|
+| **Zweck** | Migration, Übernahme | Buchführungsdaten übernehmen |
+| **Editierbar** | ✅ Ja, volle Kontrolle | ❌ Nein, unveränderbar |
+| **Löschbar** | ✅ Ja | ❌ Nein (nur Storno) |
+| **GoBD-relevant** | ❌ Nein | ✅ Ja, §146 AO |
+| **Validierung** | Optional, nachträglich | Pflicht, VOR Import |
+| **Import-Protokoll** | Optional | ✅ Pflicht |
+| **Originaldatei archivieren** | Optional | ✅ Pflicht (mit Hash) |
+| **Duplikat-Erkennung** | Konfigurierbar | Automatisch, Pflicht |
+| **Fehlerbehandlung** | Warnung, Import fortsetzbar | Fehler → Import ABBRUCH |
+| **Nachträgliche Korrektur** | ✅ Direkt editieren | ❌ Nur via Stornobuchung |
+| **Beispiele** | Kunden, Produkte, Lieferanten | Bank-CSV, Kasse, PayPal |
+
+---
+
+### **📋 MVP-Umfang für Kategorie 9**
+
+#### **Phase 1 (MVP):**
+
+**Import Stammdaten (editierbar):**
+- ✅ Kundenstamm-Import (CSV)
+- ✅ Produktstamm-Import (CSV)
+- ✅ Lieferantenstamm-Import (CSV)
+- ✅ Spalten-Mapping (automatisch + manuell)
+- ✅ Duplikat-Erkennung (konfigurierbar)
+- ✅ Vorschau + Fehlerprotokoll
+
+**Import Buchführung (unveränderbar):**
+- ✅ Bank-CSV-Import (bereits in Kategorie 5 spezifiziert)
+  - Format-Erkennung via Templates
+  - Validierung (Pflichtfelder, Datumsformat, Beträge)
+  - Import-Protokoll + Archivierung
+- ⏸️ PayPal-Import (bereits Template vorhanden)
+- ⏸️ Kassensystem-Import (AGENDA, helloCash - v1.1)
+
+#### **Phase 2 (v1.1):**
+- AGENDA-kompatibel (Kassensystem-Export)
+- helloCash-Export
+- Stripe/Klarna (Zahlungsdienstleister)
+
+#### **Phase 3 (v2.0):**
+- E-Commerce (Shopify, WooCommerce)
+- POS-Systeme (orderbird, etc.)
+- Excel-Import (komplexer)
+- JSON/XML-Import (API-Daten)
+
+---
+
+### **🛡️ Sicherheitsmaßnahmen bei Buchführungs-Import**
+
+**1. Unveränderbarkeit erzwingen:**
+```sql
+-- CHECK Constraint verhindert veraenderbar = true
+CREATE TABLE import_buchfuehrung (
+    veraenderbar BOOLEAN DEFAULT 0 CHECK (veraenderbar = 0)
+);
+
+-- Trigger verhindert UPDATE/DELETE auf importierte Buchungen
+CREATE TRIGGER prevent_edit_imported_transactions
+BEFORE UPDATE ON bank_transaktionen
+FOR EACH ROW
+WHEN OLD.import_id IS NOT NULL
+BEGIN
+    SELECT RAISE(ABORT, 'Importierte Buchungen dürfen nicht bearbeitet werden (GoBD)!');
+END;
+
+CREATE TRIGGER prevent_delete_imported_transactions
+BEFORE DELETE ON bank_transaktionen
+FOR EACH ROW
+WHEN OLD.import_id IS NOT NULL
+BEGIN
+    SELECT RAISE(ABORT, 'Importierte Buchungen dürfen nicht gelöscht werden (GoBD)!');
+END;
+```
+
+**2. Originaldatei-Archivierung:**
+```python
+import hashlib
+import shutil
+from pathlib import Path
+
+def archiviere_originaldatei(upload_datei: Path) -> dict:
+    """
+    Archiviert Originaldatei und erstellt Hash für GoBD-Nachweis.
+    """
+    # SHA256-Hash berechnen
+    sha256 = hashlib.sha256()
+    with open(upload_datei, 'rb') as f:
+        for chunk in iter(lambda: f.read(4096), b''):
+            sha256.update(chunk)
+
+    datei_hash = sha256.hexdigest()
+
+    # Archiv-Pfad erstellen (Jahr/Monat/Tag)
+    heute = datetime.now()
+    archiv_pfad = Path('imports') / str(heute.year) / f'{heute.month:02d}' / f'{heute.day:02d}'
+    archiv_pfad.mkdir(parents=True, exist_ok=True)
+
+    # Datei mit Hash-Präfix kopieren
+    archiv_datei = archiv_pfad / f'{upload_datei.stem}_{datei_hash[:8]}{upload_datei.suffix}'
+    shutil.copy2(upload_datei, archiv_datei)
+
+    return {
+        'hash': datei_hash,
+        'groesse': upload_datei.stat().st_size,
+        'pfad': str(archiv_datei)
+    }
+```
+
+**3. Atomare Transaktionen:**
+```python
+def import_bank_csv(datei: Path, template_id: int) -> ImportErgebnis:
+    """
+    Importiert Bank-CSV als unveränderbare Buchungen.
+    ALLES-ODER-NICHTS Prinzip!
+    """
+    conn = db.get_connection()
+    try:
+        conn.execute('BEGIN TRANSACTION')
+
+        # 1. Validierung
+        fehler = validiere_bank_csv(datei, template_id)
+        if fehler:
+            raise ValidationError(fehler)
+
+        # 2. Originaldatei archivieren
+        archiv = archiviere_originaldatei(datei)
+
+        # 3. Import-Eintrag erstellen
+        import_id = conn.execute('''
+            INSERT INTO import_buchfuehrung
+            (typ, dateiname, originaldatei_hash, anzahl_buchungen, ...)
+            VALUES (?, ?, ?, ?, ...)
+        ''', ...).lastrowid
+
+        # 4. Transaktionen importieren
+        for transaktion in parse_csv(datei):
+            conn.execute('''
+                INSERT INTO bank_transaktionen
+                (import_id, datum, betrag, verwendungszweck, ...)
+                VALUES (?, ?, ?, ?, ...)
+            ''', import_id, ...)
+
+        # 5. Import-Protokoll erstellen
+        protokoll = erstelle_import_protokoll(import_id, archiv, ...)
+        conn.execute('UPDATE import_buchfuehrung SET import_protokoll = ? WHERE id = ?',
+                     json.dumps(protokoll), import_id)
+
+        conn.execute('COMMIT')
+        return ImportErgebnis(erfolg=True, import_id=import_id)
+
+    except Exception as e:
+        conn.execute('ROLLBACK')
+        return ImportErgebnis(erfolg=False, fehler=str(e))
+```
+
+---
+
+### **✅ Status: Kategorie 9 - Grundlagen geklärt**
+
+**Wichtigste Erkenntnisse:**
+
+1. ✅ **Zwei fundamental unterschiedliche Import-Typen:**
+   - **Stammdaten:** Editierbar, keine GoBD-Anforderungen
+   - **Buchführung:** Unveränderbar, GoBD-konform, Import-Protokoll
+
+2. ✅ **Buchführungs-Import (kritisch):**
+   - Validierung VOR Import (Pflicht!)
+   - Originaldatei archivieren (SHA256-Hash)
+   - Import-Protokoll erstellen
+   - Unveränderbarkeit via DB-Constraints + Trigger
+   - Atomare Transaktionen (alles oder nichts)
+
+3. ✅ **MVP-Umfang:**
+   - Stammdaten-Import: Kunden, Produkte, Lieferanten
+   - Buchführungs-Import: Bank-CSV (bereits in Kategorie 5 spezifiziert)
+
+4. ✅ **AGENDA-kompatibel:** Phase 2 (v1.1) - Kassensystem-Export als unveränderbare Buchungen
+
+---
+
 ### **Noch zu klären (siehe fragen.md):**
 
 - ✅ ~~Kategorie 6: UStVA~~ - **Geklärt** (Hybrid-Ansatz, MVP nur Zahlen)
