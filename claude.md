@@ -8155,6 +8155,442 @@ def dsgvo_export(kunde_id: int) -> str:
 
 ---
 
+#### **🔗 Löschstrategie für verknüpfte Daten (Rechnungen)** ⚠️ **KRITISCH**
+
+**Problem:**
+- Kunde verlangt Löschung seiner Daten (Art. 17 DSGVO)
+- ABER: Rechnungen müssen 10 Jahre aufbewahrt werden (§147 AO)
+- **Konflikt:** Kundendaten sind in Rechnungen enthalten!
+
+**Frage:** Was passiert mit den Kundendaten in Rechnungen, wenn der Kunde gelöscht wird?
+
+---
+
+##### **Rechtsgrundlage: Ausnahme vom Löschrecht**
+
+**Art. 17 Abs. 3 lit. b DSGVO:**
+
+```
+Das Recht auf Löschung besteht NICHT, soweit die Verarbeitung
+erforderlich ist zur Erfüllung einer rechtlichen Verpflichtung.
+```
+
+**§147 AO & §257 HGB:**
+- 10-jährige Aufbewahrungspflicht für Rechnungen
+- Rechnung muss **vollständig nachvollziehbar** sein
+- Kundendaten (Name, Adresse, etc.) sind **Teil der Rechnung**
+
+**Ergebnis:**
+- ✅ **Kundendaten in Rechnungen DÜRFEN gespeichert bleiben** (auch nach Löschantrag)
+- ❌ **Kundenstammdaten MÜSSEN gesperrt werden** (bis Frist abläuft)
+
+---
+
+##### **Lösung: Denormalisierung der Kundendaten**
+
+**Strategie:**
+1. **Rechnungen enthalten KOPIE der Kundendaten** (nicht Foreign Key)
+2. **Kundenstamm wird gesperrt/pseudonymisiert** (bei Löschantrag)
+3. **Rechnungen bleiben unverändert** (Aufbewahrungspflicht)
+
+**Datenbank-Design:**
+
+```sql
+-- ❌ FALSCH: Foreign Key (führt zu Problemen bei Löschung)
+CREATE TABLE rechnungen (
+    id INTEGER PRIMARY KEY,
+    kunde_id INTEGER,  -- ❌ Foreign Key → Kunde kann nicht gelöscht werden!
+    FOREIGN KEY (kunde_id) REFERENCES kunden(id)
+);
+
+-- ✅ RICHTIG: Denormalisierte Kundendaten
+CREATE TABLE rechnungen (
+    id INTEGER PRIMARY KEY,
+    rechnungsnummer TEXT UNIQUE,
+    datum DATE,
+
+    -- ═══════════════════════════════════════════════════
+    -- KUNDENDATEN (KOPIE ZUM ZEITPUNKT DER RECHNUNG)
+    -- ═══════════════════════════════════════════════════
+
+    -- Optional: Referenz auf Kundenstamm (für Statistiken)
+    -- Wird NULL gesetzt, wenn Kunde gelöscht wird
+    kunde_id INTEGER,  -- Optional, kann NULL sein
+
+    -- Kundendaten (denormalisiert, immer gespeichert)
+    kunde_typ TEXT,  -- 'privat', 'firma'
+
+    -- Person
+    kunde_anrede TEXT,
+    kunde_vorname TEXT,
+    kunde_nachname TEXT,
+
+    -- Firma
+    kunde_firmenname TEXT,
+    kunde_rechtsform TEXT,
+
+    -- Adresse (PFLICHT für Rechnung)
+    kunde_strasse TEXT NOT NULL,
+    kunde_hausnummer TEXT,
+    kunde_plz TEXT NOT NULL,
+    kunde_ort TEXT NOT NULL,
+    kunde_land TEXT DEFAULT 'DE',
+
+    -- Kontakt
+    kunde_email TEXT,
+    kunde_telefon TEXT,
+    kunde_website TEXT,
+
+    -- Steuerlich
+    kunde_steuernummer TEXT,
+    kunde_ust_idnr TEXT,
+
+    -- ═══════════════════════════════════════════════════
+    -- RECHNUNGSDATEN
+    -- ═══════════════════════════════════════════════════
+
+    betrag_netto DECIMAL(10,2),
+    betrag_brutto DECIMAL(10,2),
+    -- ... weitere Felder
+
+    -- Foreign Key (optional, kann NULL sein)
+    FOREIGN KEY (kunde_id) REFERENCES kunden(id) ON DELETE SET NULL
+    --                                              ^^^^^^^^^^^^^^^^^
+    --                                              Bei Löschung: kunde_id → NULL
+    --                                              Kundendaten bleiben erhalten!
+);
+```
+
+**Wichtig:**
+- `kunde_id` ist **OPTIONAL** (nur für Statistiken, Verknüpfung mit Kundenstamm)
+- `kunde_*` Felder sind **DENORMALISIERT** (immer ausgefüllt, auch wenn `kunde_id` NULL)
+- Bei Löschung: `kunde_id` wird `NULL`, aber `kunde_name`, `kunde_adresse` etc. bleiben!
+
+---
+
+##### **Workflow: Kunde will Löschung**
+
+**Szenario:**
+1. Kunde "Erika Musterfrau" (ID 42) verlangt Löschung (Art. 17 DSGVO)
+2. Letzte Rechnung: 15.03.2024 (RE-2024-123)
+3. Aufbewahrungspflicht bis: 31.12.2034
+
+**Schritt 1: Prüfung**
+
+```python
+def kunde_loeschen(kunde_id: int):
+    kunde = db.get_kunde(kunde_id)
+    rechnungen = db.get_rechnungen_by_kunde(kunde_id)
+
+    # Prüfung: Hat Kunde Rechnungen?
+    if rechnungen:
+        letzte_rechnung = max(rechnungen, key=lambda r: r.datum)
+        aufbewahrung_bis = berechne_aufbewahrung_bis(letzte_rechnung.datum)
+
+        if aufbewahrung_bis > date.today():
+            # Aufbewahrungspflicht noch aktiv
+            raise ValueError(
+                f"Löschung nicht möglich: Aufbewahrungspflicht bis {aufbewahrung_bis} (§147 AO)\n"
+                f"Kunde wird stattdessen gesperrt."
+            )
+```
+
+**Schritt 2: Sperrung im Kundenstamm**
+
+```python
+    # Kundenstamm sperren
+    kunde.gesperrt = True
+    kunde.gesperrt_grund = 'DSGVO Art. 17 - Löschantrag vom ' + str(date.today())
+    kunde.gesperrt_am = date.today()
+    kunde.loesch_datum = aufbewahrung_bis
+
+    # Optional: Pseudonymisierung für zusätzlichen Schutz
+    kunde.email = None
+    kunde.telefon_mobil = None
+    kunde.telefon_festnetz = None
+    kunde.website = None
+    kunde.notizen = '[GESPERRT - DSGVO]'
+
+    db.save(kunde)
+
+    log_dsgvo_aktion('kunden', kunde_id, 'sperrung', {
+        'grund': 'Löschantrag',
+        'loesch_datum': aufbewahrung_bis,
+        'anzahl_rechnungen': len(rechnungen)
+    })
+```
+
+**Schritt 3: Rechnungen bleiben unverändert**
+
+```python
+    # Rechnungen NICHT ändern!
+    # - kunde_id bleibt erhalten (oder wird NULL gesetzt, je nach Design)
+    # - kunde_name, kunde_adresse etc. bleiben IMMER erhalten (denormalisiert)
+
+    # Optional: kunde_id auf NULL setzen (Verknüpfung trennen)
+    db.execute("""
+        UPDATE rechnungen
+        SET kunde_id = NULL
+        WHERE kunde_id = ?
+    """, (kunde_id,))
+
+    # WICHTIG: Kundendaten (kunde_name, kunde_adresse etc.) bleiben!
+```
+
+**Ergebnis:**
+- ✅ **Kundenstamm**: Gesperrt, nicht mehr sichtbar, optional pseudonymisiert
+- ✅ **Rechnungen**: Unverändert, alle Kundendaten erhalten
+- ✅ **Compliance**: Aufbewahrungspflicht erfüllt, Löschrecht respektiert
+
+---
+
+##### **Alternative Strategien**
+
+**Strategie 1: Vollständige Denormalisierung (empfohlen)**
+
+```sql
+-- Rechnungen enthalten ALLE Kundendaten (keine kunde_id)
+CREATE TABLE rechnungen (
+    id INTEGER PRIMARY KEY,
+    -- Kundendaten (vollständig denormalisiert)
+    kunde_typ TEXT,
+    kunde_name TEXT,
+    kunde_adresse TEXT,
+    -- ... alle relevanten Felder
+    -- KEIN kunde_id Foreign Key!
+);
+```
+
+**Vorteile:**
+- ✅ Keine Abhängigkeit zum Kundenstamm
+- ✅ Kunde kann vollständig gelöscht werden (nach Frist)
+- ✅ Rechnung bleibt immer nachvollziehbar
+
+**Nachteile:**
+- ❌ Keine Statistiken pro Kunde möglich (nach Löschung)
+- ❌ Mehr Speicherplatz
+
+---
+
+**Strategie 2: Foreign Key mit ON DELETE SET NULL (hybrid)**
+
+```sql
+CREATE TABLE rechnungen (
+    id INTEGER PRIMARY KEY,
+    kunde_id INTEGER,  -- Optional (für Statistiken)
+    -- Kundendaten (denormalisiert, immer ausgefüllt)
+    kunde_name TEXT NOT NULL,
+    kunde_adresse TEXT NOT NULL,
+    -- ...
+    FOREIGN KEY (kunde_id) REFERENCES kunden(id) ON DELETE SET NULL
+);
+```
+
+**Vorteile:**
+- ✅ Statistiken pro Kunde möglich (solange Kunde existiert)
+- ✅ Rechnung bleibt nachvollziehbar (auch nach Löschung)
+- ✅ kunde_id optional, Kundendaten immer da
+
+**Nachteile:**
+- ⚠️ Komplexer (zwei Datenquellen: kunde_id + denormalisierte Felder)
+
+---
+
+**Strategie 3: Pseudonymisierung (NICHT empfohlen für Rechnungen!)**
+
+```python
+# ❌ NICHT empfohlen für Rechnungen!
+def pseudonymisiere_kunde(kunde_id: int):
+    kunde = db.get_kunde(kunde_id)
+    kunde.vorname = f"KUNDE-{kunde_id}"
+    kunde.nachname = "GELÖSCHT"
+    kunde.email = f"geloescht-{kunde_id}@example.com"
+    kunde.telefon_mobil = None
+    # ...
+    db.save(kunde)
+```
+
+**Problem:**
+- ❌ Rechnung nicht mehr nachvollziehbar (Name geändert)
+- ❌ Finanzamt könnte Bedenken haben (Manipulation?)
+- ❌ Nicht GoBD-konform (Unveränderbarkeit)
+
+**Nur verwenden für:**
+- ✅ Kundenstamm (nach Sperrung)
+- ❌ NICHT für Rechnungen!
+
+---
+
+##### **Empfohlene Implementierung**
+
+**Datenbank-Schema:**
+
+```sql
+-- Strategie 2: Hybrid (Foreign Key + Denormalisierung)
+
+CREATE TABLE rechnungen (
+    id INTEGER PRIMARY KEY,
+    rechnungsnummer TEXT UNIQUE,
+    datum DATE,
+
+    -- OPTIONAL: Referenz auf Kundenstamm (für Statistiken, kann NULL werden)
+    kunde_id INTEGER,
+
+    -- PFLICHT: Denormalisierte Kundendaten (immer ausgefüllt)
+    kunde_typ TEXT NOT NULL,
+    kunde_anrede TEXT,
+    kunde_vorname TEXT,
+    kunde_nachname TEXT,
+    kunde_firmenname TEXT,
+    kunde_strasse TEXT NOT NULL,
+    kunde_hausnummer TEXT,
+    kunde_plz TEXT NOT NULL,
+    kunde_ort TEXT NOT NULL,
+    kunde_land TEXT DEFAULT 'DE',
+    kunde_email TEXT,
+    kunde_telefon TEXT,
+    kunde_ust_idnr TEXT,
+
+    -- ... Rechnungsdaten
+
+    FOREIGN KEY (kunde_id) REFERENCES kunden(id) ON DELETE SET NULL
+);
+```
+
+**Rechnung erstellen:**
+
+```python
+def erstelle_rechnung(kunde_id: int, positionen: list):
+    kunde = db.get_kunde(kunde_id)
+
+    # Kundendaten KOPIEREN (denormalisieren)
+    rechnung = Rechnung(
+        kunde_id=kunde_id,  # Optional, für Statistiken
+
+        # Kundendaten zum Zeitpunkt der Rechnungserstellung
+        kunde_typ=kunde.typ,
+        kunde_anrede=kunde.anrede,
+        kunde_vorname=kunde.vorname,
+        kunde_nachname=kunde.nachname,
+        kunde_firmenname=kunde.firmenname,
+        kunde_strasse=kunde.strasse,
+        kunde_hausnummer=kunde.hausnummer,
+        kunde_plz=kunde.plz,
+        kunde_ort=kunde.ort,
+        kunde_land=kunde.land,
+        kunde_email=kunde.email,
+        kunde_telefon=kunde.telefon_mobil or kunde.telefon_festnetz,
+        kunde_ust_idnr=kunde.ust_idnr,
+
+        # ... Rechnungspositionen
+    )
+
+    db.save(rechnung)
+    return rechnung
+```
+
+**Kunde löschen (nach Frist):**
+
+```python
+def loesche_kunde_nach_frist(kunde_id: int):
+    # Prüfung: Frist abgelaufen?
+    kunde = db.get_kunde(kunde_id)
+    if kunde.aufbewahrung_bis > date.today():
+        raise ValueError("Aufbewahrungsfrist noch nicht abgelaufen!")
+
+    # 1. kunde_id in Rechnungen auf NULL setzen
+    db.execute("UPDATE rechnungen SET kunde_id = NULL WHERE kunde_id = ?", (kunde_id,))
+
+    # 2. Kundenstamm löschen
+    db.delete_kunde(kunde_id)
+
+    # 3. Audit-Log
+    log_dsgvo_aktion('kunden', kunde_id, 'loeschung', {
+        'grund': 'Aufbewahrungsfrist abgelaufen'
+    })
+
+    # WICHTIG: Kundendaten in Rechnungen bleiben erhalten!
+    # (kunde_typ, kunde_name, kunde_adresse etc. sind denormalisiert)
+```
+
+---
+
+##### **UI: Löschantrag mit Warnung**
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│ 🗑️ Kundendaten löschen - DSGVO Art. 17                      │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│ Kunde: Erika Musterfrau (K-042)                             │
+│                                                              │
+│ ⚠️ WICHTIG: Dieser Kunde hat Rechnungen!                   │
+│                                                              │
+│ ┌──────────────────────────────────────────────────────┐   │
+│ │ 📋 VERKNÜPFTE DATEN                                  │   │
+│ ├──────────────────────────────────────────────────────┤   │
+│ │ Anzahl Rechnungen: 15                                │   │
+│ │ Letzte Rechnung: 15.03.2024 (RE-2024-123)           │   │
+│ │ Aufbewahrungspflicht bis: 31.12.2034                │   │
+│ │                                                      │   │
+│ │ ℹ️ Was passiert mit den Rechnungen?                 │   │
+│ │                                                      │   │
+│ │ ✅ Rechnungen bleiben erhalten (§147 AO)            │   │
+│ │    - Kundendaten in Rechnung: UNVERÄNDERT           │   │
+│ │    - Name, Adresse bleiben gespeichert              │   │
+│ │                                                      │   │
+│ │ ⚠️ Kundenstamm wird gesperrt:                       │   │
+│ │    - Nicht mehr in Suche sichtbar                   │   │
+│ │    - Kann nicht mehr bearbeitet werden              │   │
+│ │    - E-Mail/Telefon werden gelöscht (optional)      │   │
+│ │    - Automatische Löschung: 31.12.2034              │   │
+│ │                                                      │   │
+│ │ 📋 Rechtsgrundlage:                                  │   │
+│ │ Art. 17 Abs. 3 lit. b DSGVO - Ausnahme vom          │   │
+│ │ Löschrecht bei rechtlicher Aufbewahrungspflicht     │   │
+│ └──────────────────────────────────────────────────────┘   │
+│                                                              │
+│ Optionen:                                                    │
+│                                                              │
+│ ○ Kundenstamm sperren (empfohlen)                          │
+│   Daten werden gesperrt, aber nicht gelöscht.              │
+│   Automatische Löschung nach Fristablauf.                  │
+│                                                              │
+│ ○ Kundenstamm sperren + E-Mail/Telefon löschen             │
+│   Zusätzlicher Schutz durch Pseudonymisierung.             │
+│   Rechnungen bleiben vollständig erhalten.                 │
+│                                                              │
+│ ☐ Kunde über Sperrung informieren (E-Mail)                 │
+│                                                              │
+│ [Abbrechen]                         [Kunde sperren]         │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+##### **Zusammenfassung**
+
+**Problem:**
+Kunde will Löschung, aber Rechnungen müssen 10 Jahre aufbewahrt werden.
+
+**Lösung:**
+1. ✅ **Denormalisierung**: Kundendaten werden in Rechnung kopiert
+2. ✅ **Sperrung**: Kundenstamm wird gesperrt (nicht gelöscht)
+3. ✅ **Rechtsgrundlage**: Art. 17 Abs. 3 lit. b DSGVO (Ausnahme vom Löschrecht)
+4. ✅ **Automatische Löschung**: Nach Ablauf der 10-Jahres-Frist
+
+**Datenbank-Design:**
+- `rechnungen.kunde_id` → `ON DELETE SET NULL` (optional, für Statistiken)
+- `rechnungen.kunde_*` → Denormalisierte Kundendaten (immer ausgefüllt)
+
+**Compliance:**
+- ✅ DSGVO Art. 17 (Löschrecht) → Kundenstamm gesperrt
+- ✅ §147 AO (Aufbewahrungspflicht) → Rechnungen bleiben erhalten
+- ✅ GoBD (Unveränderbarkeit) → Rechnungen werden nicht geändert
+
+---
+
 #### **🤖 Automatische Löschung (Cron-Job)**
 
 ```python
