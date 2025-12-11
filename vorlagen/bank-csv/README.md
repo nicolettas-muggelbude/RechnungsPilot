@@ -8,24 +8,23 @@ Dieser Ordner enthält Beispiel-CSVs verschiedener Banken für die Import-Funkti
 
 ### Geplant für MVP:
 
-- [ ] **Sparkasse** - Deutschlands größtes Bankennetz
-- [ ] **Volksbank / Raiffeisenbank** - Genossenschaftsbanken
+- [x] **Sparkasse** - Deutschlands größtes Bankennetz ✅
+- [x] **Volksbank / Raiffeisenbank** - Genossenschaftsbanken ✅ (VR-Teilhaberbank)
 - [ ] **Deutsche Bank** - Großbank
-- [ ] **Commerzbank** - Großbank
+- [x] **Commerzbank** - Großbank ✅
 - [ ] **Postbank** - Retail-Bank
-- [ ] **DKB (Deutsche Kreditbank)** - Online-Bank
-- [ ] **ING (ehem. ING-DiBa)** - Online-Bank
+- [x] **DKB (Deutsche Kreditbank)** - Online-Bank ✅
+- [x] **ING (ehem. ING-DiBa)** - Online-Bank ✅
 - [ ] **N26** - Mobile Bank
 - [ ] **Comdirect** - Online-Bank
 - [ ] **Consorsbank** - Online-Broker mit Girokonto
-- [ ] **PayPal** - Zahlungsdienstleister (wichtig für Online-Geschäft)
+- [x] **PayPal** - Zahlungsdienstleister (wichtig für Online-Geschäft) ✅
+- [x] **Targobank** ✅
 
 ### Später:
 
-- [ ] Targobank
 - [ ] Santander
 - [ ] HypoVereinsbank
-- [ ] Commerzbank
 - [ ] PSD Bank
 - [ ] Sparda-Bank
 - [ ] Tomorrow Bank
@@ -39,17 +38,24 @@ Dieser Ordner enthält Beispiel-CSVs verschiedener Banken für die Import-Funkti
 
 ```
 bank-csv/
-├── README.md                  # Diese Datei
-├── TEMPLATE.md                # Vorlage und Anonymisierungs-Anleitung
-├── sparkasse-lzo-mt940.csv    # ✅ Sparkasse/LZO - MT940 Format
-├── sparkasse-lzo-camt-v2.csv  # ✅ Sparkasse/LZO - CAMT V2 Format
-├── sparkasse-lzo-camt-v8.csv  # ✅ Sparkasse/LZO - CAMT V8 Format
-├── paypal.csv                 # ✅ PayPal Aktivitätsbericht
-├── commerzbank.csv            # ✅ Commerzbank - Umsatzübersicht
-├── volksbank.csv              # (noch nicht vorhanden)
-├── dkb.csv                    # (noch nicht vorhanden)
-├── ing.csv                    # (noch nicht vorhanden)
-├── n26.csv                    # (noch nicht vorhanden)
+├── README.md                              # Diese Datei
+├── TEMPLATE.md                            # Vorlage und Anonymisierungs-Anleitung
+├── sparkasse-lzo-mt940.csv                # ✅ Sparkasse/LZO - MT940 Format
+├── sparkasse-lzo-camt-v2.csv              # ✅ Sparkasse/LZO - CAMT V2 Format
+├── sparkasse-lzo-camt-v8.csv              # ✅ Sparkasse/LZO - CAMT V8 Format
+├── paypal.csv                             # ✅ PayPal Aktivitätsbericht
+├── commerzbank.csv                        # ✅ Commerzbank - Umsatzübersicht
+├── dkb.csv                                # ✅ DKB - Girokonto Export
+├── ing.csv                                # ✅ ING - Umsatzanzeige (ohne Saldo)
+├── ing-mit-saldo.csv                      # ✅ ING - Umsatzanzeige (mit Saldo)
+├── targobank-duesseldorf.csv              # ✅ Targobank - CSV (Komma-Dezimaltrennzeichen)
+├── targobank-duesseldorf-variation.csv    # ✅ Targobank - CSV (Punkt-Dezimaltrennzeichen)
+├── targobank-duesseldorf.qif              # ✅ Targobank - QIF Format (Quicken)
+├── targobank-duesseldorf.xlsx             # ✅ Targobank - Excel Format
+├── vr-teilhaberbank.csv                   # ✅ VR-Teilhaberbank - CSV-Export
+├── vr-teilhaberbank.mta                   # ✅ VR-Teilhaberbank - MT940 Format
+├── volksbank.csv                          # (noch nicht vorhanden)
+├── n26.csv                                # (noch nicht vorhanden)
 └── ...
 ```
 
@@ -90,7 +96,7 @@ Jede Bank hat ihr eigenes CSV-Format. Typische Unterschiede:
 | **Spaltenanzahl** | 5-15+ Spalten |
 | **Besonderheiten** | Mehrzeilig, HTML, Sonderzeichen |
 
-**RechnungsPilot wird alle gängigen Formate unterstützen!**
+**RechnungsFee wird alle gängigen Formate unterstützen!**
 
 ---
 
@@ -165,18 +171,150 @@ def test_sparkasse_import():
 
 ---
 
+## 📋 Format-Spezifikationen
+
+### DKB (Deutsche Kreditbank)
+**Datei:** `dkb.csv`
+
+- **Trennzeichen:** `;` (Semikolon)
+- **Encoding:** UTF-8 mit BOM
+- **Dezimaltrennzeichen:** `,` (Komma)
+- **Datumsformat:** DD.MM.YY
+- **Header ab Zeile:** 5 (Zeilen 1-4: Metadaten)
+- **Spalten:** Buchungsdatum, Wertstellung, Status, Zahlungspflichtige*r, Zahlungsempfänger*in, Verwendungszweck, Umsatztyp, IBAN, Betrag (€), Gläubiger-ID, Mandatsreferenz, Kundenreferenz
+- **Besonderheiten:**
+  - Metadaten in ersten Zeilen (Kontotyp, IBAN, Kontostand vom XX.XX.XXXX)
+  - Geschlechtergerechte Spaltenbezeichnungen (`*in`)
+  - Beträge in Anführungszeichen
+
+### ING (ehem. ING-DiBa)
+**Dateien:** `ing.csv` (ohne Saldo), `ing-mit-saldo.csv` (mit Saldo)
+
+- **Trennzeichen:** `;` (Semikolon)
+- **Encoding:** ISO-8859-1 / Windows-1252
+- **Dezimaltrennzeichen:** `,` (Komma)
+- **Datumsformat:** DD.MM.YYYY
+- **Header ab Zeile:** 13 (ohne Saldo) bzw. 14 (mit Saldo)
+- **Spalten:** Buchung, Wertstellungsdatum, Auftraggeber/Empfänger, Buchungstext, Verwendungszweck, Betrag, Währung
+- **Besonderheiten:**
+  - Umfangreiche Metadaten in Zeilen 1-12/13:
+    - Zeile 1: "Umsatzanzeige;Datei erstellt am: ..."
+    - Zeile 3-7: IBAN, Kontoname, Bank, Kunde, Zeitraum
+    - Zeile 8: Saldo (nur in `ing-mit-saldo.csv`)
+  - Zwei Varianten: mit und ohne Saldo-Zeile
+
+### Targobank Düsseldorf
+**Dateien:** `targobank-duesseldorf.csv`, `targobank-duesseldorf-variation.csv`, `targobank-duesseldorf.qif`, `targobank-duesseldorf.xlsx`
+
+#### CSV-Variante 1 (Komma-Dezimal)
+**Datei:** `targobank-duesseldorf.csv`
+
+- **Trennzeichen:** `;` (Semikolon)
+- **Encoding:** UTF-8
+- **Dezimaltrennzeichen:** `,` (Komma)
+- **Datumsformat:** DD.MM.YYYY
+- **Header:** KEINE Header-Zeile!
+- **Spalten (implizit):** Datum, Buchungstext, Betrag, [4 leere Spalten], IBAN
+- **Besonderheiten:**
+  - KEINE Spaltenüberschriften
+  - Sehr ausführlicher Buchungstext mit allen Details in einem Feld
+  - Eigene IBAN am Ende jeder Zeile in Anführungszeichen
+
+#### CSV-Variante 2 (Punkt-Dezimal)
+**Datei:** `targobank-duesseldorf-variation.csv`
+
+- Identisch zu Variante 1, aber:
+- **Dezimaltrennzeichen:** `.` (Punkt) statt `,` (Komma)
+- Beispiel: `-5.00` statt `-5,00`
+
+#### QIF-Format (Quicken Interchange Format)
+**Datei:** `targobank-duesseldorf.qif`
+
+- **Format:** QIF (Textbasiert)
+- **Tags:**
+  - `!Type:Bank` = Kontotyp
+  - `D` = Datum (DD.MM.YY)
+  - `T` = Betrag (Transaction Amount)
+  - `P` = Payee (Buchungsbeschreibung)
+  - `^` = Transaktionsende
+- **Besonderheiten:**
+  - Klassisches Import-Format für Quicken/GnuCash/MoneyMoney
+  - Jede Transaktion endet mit `^`
+
+#### Excel-Format
+**Datei:** `targobank-duesseldorf.xlsx`
+
+- **Format:** Excel-Arbeitsmappe (binär)
+- Enthält wahrscheinlich gleiche Daten wie CSV-Varianten
+
+### VR-Teilhaberbank (Volksbank/Raiffeisenbank)
+**Dateien:** `vr-teilhaberbank.csv`, `vr-teilhaberbank.mta`
+
+#### CSV-Export
+**Datei:** `vr-teilhaberbank.csv`
+
+- **Trennzeichen:** `;` (Semikolon)
+- **Encoding:** UTF-8 mit BOM
+- **Dezimaltrennzeichen:** `,` (Komma)
+- **Datumsformat:** DD.MM.YYYY
+- **Header ab Zeile:** 1
+- **Spalten:** Bezeichnung Auftragskonto, IBAN Auftragskonto, BIC Auftragskonto, Bankname Auftragskonto, Buchungstag, Valutadatum, Name Zahlungsbeteiligter, IBAN Zahlungsbeteiligter, BIC (SWIFT-Code) Zahlungsbeteiligter, Buchungstext, Verwendungszweck, Betrag, Waehrung, Saldo nach Buchung, Bemerkung, Gekennzeichneter Umsatz, Glaeubiger ID, Mandatsreferenz
+- **Besonderheiten:**
+  - Sehr umfangreich: 18 Spalten
+  - Enthält Saldo nach jeder Buchung
+  - Vollständige SEPA-Informationen (Gläubiger-ID, Mandatsreferenz)
+
+#### MT940-Format
+**Datei:** `vr-teilhaberbank.mta`
+
+- **Format:** MT940 (SWIFT Message Type 940)
+- **Textbasiert** mit strukturierten Tags:
+  - `:20:` = Transaktionsreferenz
+  - `:25:` = Kontonummer
+  - `:60F:` = Anfangssaldo
+  - `:61:` = Buchungszeile
+  - `:86:` = Buchungsdetails
+  - `:62F:` = Endsaldo
+- **Besonderheiten:**
+  - Standard-Format für elektronische Kontoauszüge
+  - Mehrere Transaktionsblöcke, getrennt durch `-`
+  - Nicht CSV, sondern SWIFT-Nachrichtenformat
+
+### Commerzbank
+**Datei:** `commerzbank.csv`
+
+- **Trennzeichen:** `;` (Semikolon)
+- **Encoding:** UTF-8 mit BOM
+- **Dezimaltrennzeichen:** `,` (Komma)
+- **Datumsformat:** DD.MM.YYYY
+- **Header ab Zeile:** 1
+- **Spalten:** Buchungstag, Wertstellung, Umsatzart, Buchungstext, Betrag, Währung, IBAN Kontoinhaber, Kategorie
+- **Besonderheiten:**
+  - Sehr lange Buchungstexte mit vielen Details
+  - Kategorie-Feld (meist leer)
+  - Teilweise informative Zeilen (z.B. AGB-Änderungen) mit Betrag 0
+
+---
+
 ## 📊 Status-Übersicht
 
-| Bank/Dienst | Format | CSV vorhanden | Parser implementiert | Getestet |
-|-------------|--------|---------------|----------------------|----------|
-| Sparkasse/LZO | MT940 | ✅ | ❌ | ❌ |
+| Bank/Dienst | Format | Datei vorhanden | Parser implementiert | Getestet |
+|-------------|--------|-----------------|----------------------|----------|
+| Sparkasse/LZO | MT940 CSV | ✅ | ❌ | ❌ |
 | Sparkasse/LZO | CAMT V2 | ✅ | ❌ | ❌ |
 | Sparkasse/LZO | CAMT V8 | ✅ | ❌ | ❌ |
 | PayPal | Aktivitätsbericht | ✅ | ❌ | ❌ |
-| Commerzbank | Umsatzübersicht | ✅ | ❌ | ❌ |
+| Commerzbank | Umsatzübersicht CSV | ✅ | ❌ | ❌ |
+| DKB | Girokonto CSV | ✅ | ❌ | ❌ |
+| ING | Umsatzanzeige (ohne Saldo) | ✅ | ❌ | ❌ |
+| ING | Umsatzanzeige (mit Saldo) | ✅ | ❌ | ❌ |
+| Targobank | CSV (Komma-Dezimal) | ✅ | ❌ | ❌ |
+| Targobank | CSV (Punkt-Dezimal) | ✅ | ❌ | ❌ |
+| Targobank | QIF Format | ✅ | ❌ | ❌ |
+| Targobank | Excel (.xlsx) | ✅ | ❌ | ❌ |
+| VR-Teilhaberbank | CSV-Export | ✅ | ❌ | ❌ |
+| VR-Teilhaberbank | MT940 (.mta) | ✅ | ❌ | ❌ |
 | Volksbank | - | ❌ | ❌ | ❌ |
-| DKB | - | ❌ | ❌ | ❌ |
-| ING | - | ❌ | ❌ | ❌ |
 | N26 | - | ❌ | ❌ | ❌ |
 
 **Legende:**

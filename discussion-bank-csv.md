@@ -2,7 +2,7 @@
 
 Hallo Community! 👋
 
-RechnungsPilot soll Bank-Transaktionen automatisch importieren können – damit ihr nicht mehr jede Buchung manuell abtippen müsst. **Und dafür brauchen wir eure Hilfe!**
+RechnungsFee soll Bank-Transaktionen automatisch importieren können – damit ihr nicht mehr jede Buchung manuell abtippen müsst. **Und dafür brauchen wir eure Hilfe!**
 
 ---
 
@@ -15,7 +15,7 @@ Jede Bank exportiert Kontoumsätze in ihrem eigenen CSV-Format:
 - **N26** nutzt Komma (`,`), andere Spaltenköpfe
 - **Volksbank** hat wieder andere Feldnamen
 
-**RechnungsPilot muss alle diese Formate verstehen können!**
+**RechnungsFee muss alle diese Formate verstehen können!**
 
 Dafür brauchen wir anonymisierte Beispiel-CSVs von möglichst vielen Banken.
 
@@ -55,12 +55,12 @@ Datum;Partner;Verwendungszweck;Betrag
 ```
 
 ### **Schritt 3: Einreichen**
-1. Erstelle ein neues [GitHub Issue mit diesem Template](https://github.com/nicolettas-muggelbude/RechnungsPilot/issues/new?template=bank-csv-format.md)
+1. Erstelle ein neues [GitHub Issue mit diesem Template](https://github.com/nicolettas-muggelbude/RechnungsFee/issues/new?template=bank-csv-format.md)
 2. Fülle die Felder aus (Bankname, Trennzeichen, Encoding, etc.)
 3. Hänge die anonymisierte CSV an
 4. **Fertig!** 🎉
 
-📖 **Detaillierte Anleitung:** [CONTRIBUTING.md – Bank-CSV Format beitragen](https://github.com/nicolettas-muggelbude/RechnungsPilot/blob/main/CONTRIBUTING.md#-bank-csv-format-beitragen)
+📖 **Detaillierte Anleitung:** [CONTRIBUTING.md – Bank-CSV Format beitragen](https://github.com/nicolettas-muggelbude/RechnungsFee/blob/main/CONTRIBUTING.md#-bank-csv-format-beitragen)
 
 ---
 
@@ -111,8 +111,8 @@ Jede Bank-CSV, die du beiträgst, hilft:
 
 ## ❓ Fragen?
 
-- **Wie anonymisiere ich richtig?** → Siehe [TEMPLATE.md](https://github.com/nicolettas-muggelbude/RechnungsPilot/blob/main/vorlagen/bank-csv/TEMPLATE.md)
-- **Welche Felder muss ich anonymisieren?** → Siehe [Anonymisierungs-Checkliste](https://github.com/nicolettas-muggelbude/RechnungsPilot/blob/main/CONTRIBUTING.md#schritt-2-anonymisieren-wichtig)
+- **Wie anonymisiere ich richtig?** → Siehe [TEMPLATE.md](https://github.com/nicolettas-muggelbude/RechnungsFee/blob/main/vorlagen/bank-csv/TEMPLATE.md)
+- **Welche Felder muss ich anonymisieren?** → Siehe [Anonymisierungs-Checkliste](https://github.com/nicolettas-muggelbude/RechnungsFee/blob/main/CONTRIBUTING.md#schritt-2-anonymisieren-wichtig)
 - **Kann ich mehrere Banken beitragen?** → Ja, sehr gerne! 🎉
 - **Was passiert mit meinem CSV?** → Es wird in `vorlagen/bank-csv/` gespeichert und als Test-Fixture für die Import-Funktion genutzt
 
@@ -149,7 +149,7 @@ Aktuelle Anzahl unterstützter Banken: **1 Bank, 3 Formate** 🎉
 3. 📝 Issue mit Template erstellen
 4. ✅ Done!
 
-**Danke, dass du RechnungsPilot besser machst!** ❤️
+**Danke, dass du RechnungsFee besser machst!** ❤️
 
 ---
 

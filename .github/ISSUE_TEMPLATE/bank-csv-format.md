@@ -130,4 +130,4 @@ Bitte hänge eine **anonymisierte** Datei an (CSV, MT940, CAMT, etc.).
 
 ## 🙏 Danke für deinen Beitrag!
 
-Deine Hilfe macht RechnungsPilot besser für alle! 🚀
+Deine Hilfe macht RechnungsFee besser für alle! 🚀

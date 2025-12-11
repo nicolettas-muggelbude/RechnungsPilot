@@ -1,4 +1,4 @@
-# Social-Media-Grafiken für RechnungsPilot
+# Social-Media-Grafiken für RechnungsFee
 
 Vorschläge für visuelle Ankündigungen auf Social Media.
 
@@ -37,7 +37,7 @@ Vorschläge für visuelle Ankündigungen auf Social Media.
 │                                     │
 │        ───────────────────          │
 │                                     │
-│         RechnungsPilot              │
+│         RechnungsFee              │
 │                                     │
 │   ✅ Kostenlos & Open Source        │
 │   ✅ Offline-First                  │
@@ -53,7 +53,7 @@ Vorschläge für visuelle Ankündigungen auf Social Media.
 1. Neues Design → Instagram Post (1080x1080)
 2. Hintergrund: Gradient (Hellblau → Weiß)
 3. Oben: Großes Icon (📊 Emoji oder eigenes Logo)
-4. Mitte: "RechnungsPilot" in großer, fetter Schrift
+4. Mitte: "RechnungsFee" in großer, fetter Schrift
 5. Darunter: 4 Checkmarks mit Features
 6. Unten: GitHub-Link (klein)
 
@@ -62,14 +62,14 @@ Vorschläge für visuelle Ankündigungen auf Social Media.
 OPEN SOURCE BUCHHALTUNG
 für Selbstständige
 
-RechnungsPilot
+RechnungsFee
 
 ✅ Kostenlos & Open Source
 ✅ Offline-First
 ✅ Made in Germany
 ✅ Community-Driven
 
-github.com/nicolettas-muggelbude/RechnungsPilot
+github.com/nicolettas-muggelbude/RechnungsFee
 ```
 
 ---
@@ -87,7 +87,7 @@ github.com/nicolettas-muggelbude/RechnungsPilot
 │  • Closed Source     │  • Open Source                   │
 │  • Kompliziert       │  • Einfach                       │
 │                       │                                  │
-│         RechnungsPilot - Buchhaltung neu gedacht         │
+│         RechnungsFee - Buchhaltung neu gedacht         │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -107,7 +107,7 @@ github.com/nicolettas-muggelbude/RechnungsPilot
 ```
 ┌───────────────────┐
 │                   │
-│  RechnungsPilot   │
+│  RechnungsFee   │
 │    Features       │
 │                   │
 │  ┌─────────────┐  │
@@ -149,7 +149,7 @@ github.com/nicolettas-muggelbude/RechnungsPilot
 ```
 ┌─────────────────────────────────────┐
 │                                     │
-│    🙋 RechnungsPilot sucht DICH     │
+│    🙋 RechnungsFee sucht DICH     │
 │                                     │
 │    Wir brauchen:                    │
 │                                     │
@@ -207,7 +207,7 @@ github.com/nicolettas-muggelbude/RechnungsPilot
 ```
 ┌─────────────────────────────────────┐
 │                                     │
-│     RechnungsPilot Roadmap          │
+│     RechnungsFee Roadmap          │
 │                                     │
 │  ● Q1 2025                          │
 │    └─ Konzeptphase ← Wir sind hier! │
@@ -246,7 +246,7 @@ github.com/nicolettas-muggelbude/RechnungsPilot
 │                                     │
 │    - Max M., Freiberufler           │
 │                                     │
-│    RechnungsPilot                   │
+│    RechnungsFee                   │
 │    Open Source Buchhaltung          │
 │                                     │
 └─────────────────────────────────────┘
@@ -339,7 +339,7 @@ github.com/nicolettas-muggelbude/RechnungsPilot
 
 3. Filter: "Free"
 4. Passe Farben an (Blau/Grün-Töne)
-5. Ersetze Text mit RechnungsPilot-Content
+5. Ersetze Text mit RechnungsFee-Content
 6. Downloade als PNG (Social Media: 1080x1080)
 
 **Tipp:** Erstelle ein "Brand Kit" in Canva mit:
@@ -355,7 +355,7 @@ github.com/nicolettas-muggelbude/RechnungsPilot
 
 1. ✅ Erstelle 1-2 Grafiken in Canva (Grafik 1 + 4)
 2. ✅ Poste auf Social Media mit Text aus `community-ankuendigung.md`
-3. ✅ Verlinke immer: github.com/nicolettas-muggelbude/RechnungsPilot
+3. ✅ Verlinke immer: github.com/nicolettas-muggelbude/RechnungsFee
 4. ✅ Nutze Hashtags: #OpenSource #Buchhaltung #Freiberufler
 5. ✅ Reagiere auf Kommentare!
 

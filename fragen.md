@@ -1,4 +1,4 @@
-# Offene Fragen zu RechnungsPilot
+# Offene Fragen zu RechnungsFee
 
 ## Status:
 - ✅ Kategorie 1 (Kassenbuch) geklärt
@@ -352,31 +352,32 @@
 ## **📋 Kategorie 12: Hilfe-System**
 
 **Frage 12.1: Umfang der Hilfe:**
-- Tooltips auf jeder Eingabemaske (Fragezeichen-Icon)?
-- Kontextsensitive Hilfe-Texte (abhängig von aktueller Seite)?
-- Video-Tutorials (eingebettet oder YouTube-Links)?
-- PDF-Handbuch zum Download?
-- Interaktive Touren (z.B. bei Erstnutzung)?
+- Tooltips auf jeder Eingabemaske (Fragezeichen-Icon).
+- Kontextsensitive Hilfe-Texte (abhängig von aktueller Seite).
+- Video-Tutorials (eingebettet oder YouTube-Links) - später
+- PDF-Handbuch zum Download.
+- Interaktive Touren (z.B. bei Erstnutzung) mit Option nicht wieder anzeigen / Einstellungen: erneut aktivieren
+- evt. mardown Wiki
 
 **Frage 12.2: Hilfe-Inhalte:**
-- Technische Hilfe (wie bediene ich das Programm)?
-- Fachliche Hilfe (was ist eine EÜR, was bedeutet §19 UStG)?
-- Beide kombiniert?
+- Technische Hilfe (wie bediene ich das Programm).
+- Fachliche Hilfe (was ist eine EÜR, was bedeutet §19 UStG).
+- kombiniert
 
 **Frage 12.3: Steuerberatung:**
-- Disclaimer dass keine Steuerberatung gegeben wird?
-- Links zu offiziellen Quellen (BMF, ELSTER, Bundesagentur)?
-- Empfehlung "Bei Unsicherheit Steuerberater konsultieren"?
+- Disclaimer dass keine Steuerberatung gegeben wird.
+- Links zu offiziellen Quellen (BMF, ELSTER, Bundesagentur).
+- Empfehlung "Bei Unsicherheit Steuerberater konsultieren.
 
 **Frage 12.4: Community/Support:**
-- Community-Forum für Austausch zwischen Nutzern?
-- FAQ-Bereich?
-- GitHub Issues für Bug-Reports?
-- E-Mail-Support?
+- Community-Forum für Austausch zwischen Nutzern.
+- FAQ-Bereich
+- GitHub Issues für Bug-Reports.
+- Kein E-Mail-Support.
 
 **Frage 12.5: Sprache:**
-- Nur Deutsch oder auch Englisch (für internationale Nutzer)?
-- Mehrsprachigkeit später erweiterbar?
+- Deutsch und Englisch
+- Mehrsprachigkeit später erweiterbar.
 
 ---
 
@@ -445,12 +446,11 @@ Mein Vorschlag:
 Passt diese Reihenfolge oder würdest du anders priorisieren?
 
 **Frage 13.3: Zeitrahmen:**
-- Hast du eine ungefähre Vorstellung bis wann Version 1.0 fertig sein sollte?
-- Flexibel oder gibt es externe Faktoren (z.B. Steuerjahresende)?
+- Flexibel 
 
 **Frage 13.4: Meilensteine:**
 - Macht es Sinn alle 2-4 Wochen ein Review zu machen?
-- Willst du nach jedem Modul eine Test-Version haben?
+- Willst du nach jedem Modul eine Test-Version haben? -ja
 
 ---
 

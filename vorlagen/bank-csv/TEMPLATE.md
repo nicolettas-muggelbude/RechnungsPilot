@@ -36,9 +36,9 @@ Datum,Wertstellung,Buchungstext,Empfänger,IBAN,BIC,Betrag,Währung
 
 ## 🗂️ Felder-Mapping
 
-So werden die CSV-Felder auf RechnungsPilot-Felder gemappt:
+So werden die CSV-Felder auf RechnungsFee-Felder gemappt:
 
-| Bank-Feld | Bedeutung | RechnungsPilot-Feld | Pflicht |
+| Bank-Feld | Bedeutung | RechnungsFee-Feld | Pflicht |
 |-----------|-----------|---------------------|---------|
 | Buchungstag / Datum | Transaktionsdatum | `datum` | ✅ Ja |
 | Valuta / Wertstellung | Wertstellungsdatum | `valuta` | 🟡 Optional |

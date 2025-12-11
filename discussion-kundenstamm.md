@@ -2,7 +2,7 @@
 
 Hallo Community! 👋
 
-Ich brauche euer Feedback für eine wichtige **Architektur-Entscheidung** in RechnungsPilot:
+Ich brauche euer Feedback für eine wichtige **Architektur-Entscheidung** in RechnungsFee:
 
 **Soll Version 1.0 bereits einen Kundenstamm haben?**
 
@@ -11,9 +11,9 @@ Ich brauche euer Feedback für eine wichtige **Architektur-Entscheidung** in Rec
 ## 🤔 Hintergrund
 
 **So funktioniert's:**
-- RechnungsPilot öffnet LibreOffice/HTML-Vorlagen
+- RechnungsFee öffnet LibreOffice/HTML-Vorlagen
 - Du erstellst Rechnungen (mit Kundendaten)
-- RechnungsPilot importiert die Rechnung (PDF/XRechnung)
+- RechnungsFee importiert die Rechnung (PDF/XRechnung)
 - Bei Export (UStVA, ZM, DATEV) werden Daten validiert
 
 **Die Frage:**
@@ -151,7 +151,7 @@ Rechnung erstellen:
 ### **Frage 2: Wie wichtig ist dir schneller Release vs. Komfort?**
 
 - [ ] **Schnell am Markt (Option B: Ohne Stamm)**
-  - Ich will RechnungsPilot so schnell wie möglich nutzen
+  - Ich will RechnungsFee so schnell wie möglich nutzen
   - Komfort kann später kommen (Version 2.0)
 
 - [ ] **Komfort wichtiger (Option A: Mit Stamm)**
@@ -208,4 +208,4 @@ Rechnung erstellen:
 
 **Danke für dein Feedback!** 🙏
 
-Diese Entscheidung prägt das Design von RechnungsPilot maßgeblich - daher ist eure Meinung als potenzielle User extrem wichtig!
+Diese Entscheidung prägt das Design von RechnungsFee maßgeblich - daher ist eure Meinung als potenzielle User extrem wichtig!

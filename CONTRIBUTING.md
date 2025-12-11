@@ -1,6 +1,6 @@
-# 🤝 Beitragen zu RechnungsPilot
+# 🤝 Beitragen zu RechnungsFee
 
-Vielen Dank für dein Interesse an RechnungsPilot! Wir freuen uns über jeden Beitrag aus der Community.
+Vielen Dank für dein Interesse an RechnungsFee! Wir freuen uns über jeden Beitrag aus der Community.
 
 ---
 
@@ -52,7 +52,7 @@ Wir verpflichten uns zu einem offenen und einladenden Umfeld für alle, unabhän
 
 ### 💬 Feedback & Ideen
 
-- Öffne eine [Discussion](https://github.com/nicoletta/RechnungsPilot/discussions) für neue Ideen
+- Öffne eine [Discussion](https://github.com/nicoletta/RechnungsFee/discussions) für neue Ideen
 - Kommentiere zu bestehenden Features in Issues
 - Teile deine Erfahrungen als Freiberufler/Selbstständiger
 
@@ -82,7 +82,7 @@ Feature-Wünsche sind willkommen! Bitte:
 ### 💻 Code beitragen
 
 1. **Fork** das Repository
-2. **Clone** deinen Fork: `git clone https://github.com/DEIN-NAME/RechnungsPilot.git`
+2. **Clone** deinen Fork: `git clone https://github.com/DEIN-NAME/RechnungsFee.git`
 3. **Branch** erstellen: `git checkout -b feature/dein-feature-name`
 4. **Entwickeln** und testen
 5. **Commit** mit aussagekräftiger Nachricht
@@ -102,7 +102,7 @@ Doku-Verbesserungen sind genauso wichtig wie Code!
 
 Deine Bank wird noch nicht unterstützt? **Du kannst helfen!**
 
-RechnungsPilot wird Bank-CSVs verschiedener Banken importieren können. Jede Bank hat ihr eigenes Format - um alle zu unterstützen, brauchen wir anonymisierte Beispiel-CSVs.
+RechnungsFee wird Bank-CSVs verschiedener Banken importieren können. Jede Bank hat ihr eigenes Format - um alle zu unterstützen, brauchen wir anonymisierte Beispiel-CSVs.
 
 #### Schritt 1: CSV exportieren
 
@@ -155,7 +155,7 @@ Datum;Partner;Verwendungszweck;Betrag
 
 #### Schritt 3: Einreichen
 
-1. **Erstelle** ein [GitHub Issue](https://github.com/nicolettas-muggelbude/RechnungsPilot/issues/new?template=bank-csv-format.md) (verwende Template "Bank-CSV Format einreichen")
+1. **Erstelle** ein [GitHub Issue](https://github.com/nicolettas-muggelbude/RechnungsFee/issues/new?template=bank-csv-format.md) (verwende Template "Bank-CSV Format einreichen")
 2. **Fülle** die Felder aus:
    - Bankname (z.B. "Sparkasse Musterstadt")
    - CSV-Format-Details (Trennzeichen, Encoding, Datumsformat)
@@ -168,13 +168,13 @@ Datum;Partner;Verwendungszweck;Betrag
 - [ ] Header-Zeile ist unverändert (original Spaltenköpfe)
 - [ ] CSV-Struktur ist unverändert (Trennzeichen, Format)
 - [ ] 10-20 Beispielzeilen vorhanden (nicht zu wenige, nicht zu viele)
-- [ ] GitHub Issue mit [Template](https://github.com/nicolettas-muggelbude/RechnungsPilot/issues/new?template=bank-csv-format.md) erstellt
+- [ ] GitHub Issue mit [Template](https://github.com/nicolettas-muggelbude/RechnungsFee/issues/new?template=bank-csv-format.md) erstellt
 
 **Weitere Infos:**
 - [vorlagen/bank-csv/TEMPLATE.md](vorlagen/bank-csv/TEMPLATE.md) - Detaillierte Anonymisierungs-Anleitung
 - [vorlagen/bank-csv/README.md](vorlagen/bank-csv/README.md) - Übersicht unterstützter Banken
 
-**🙏 Danke für deinen Beitrag!** Jede Bank-CSV hilft RechnungsPilot für alle besser zu machen!
+**🙏 Danke für deinen Beitrag!** Jede Bank-CSV hilft RechnungsFee für alle besser zu machen!
 
 ---
 
@@ -194,8 +194,8 @@ Voraussichtlich:
 
 ```bash
 # Repository klonen
-git clone https://github.com/nicoletta/RechnungsPilot.git
-cd RechnungsPilot
+git clone https://github.com/nicoletta/RechnungsFee.git
+cd RechnungsFee
 
 # Dependencies installieren (Details folgen)
 # npm install (Frontend)
@@ -340,15 +340,15 @@ docs: README um Installation erweitert
 
 ### Hilfe bekommen
 
-- **Allgemeine Fragen**: [GitHub Discussions](https://github.com/nicoletta/RechnungsPilot/discussions)
-- **Bug Reports**: [GitHub Issues](https://github.com/nicoletta/RechnungsPilot/issues)
+- **Allgemeine Fragen**: [GitHub Discussions](https://github.com/nicoletta/RechnungsFee/discussions)
+- **Bug Reports**: [GitHub Issues](https://github.com/nicoletta/RechnungsFee/issues)
 - **Entwickler-Fragen**: Discussions mit Label `question`
 
 ---
 
 ## 🙏 Danke!
 
-Jeder Beitrag - egal wie klein - hilft RechnungsPilot besser zu machen.
+Jeder Beitrag - egal wie klein - hilft RechnungsFee besser zu machen.
 
 **Besonderer Dank an:**
 - Alle Contributors

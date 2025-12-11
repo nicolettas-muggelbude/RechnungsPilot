@@ -116,7 +116,7 @@ Leider enthält die CSV noch sensible Daten, die anonymisiert werden müssen:
 - [ ] Zeile 7: Verwendungszweck "Miete Musterstr. 42" → Bitte nur "Miete"
 
 Bitte lade eine aktualisierte CSV hoch. Die Anleitung findest du hier:
-[TEMPLATE.md - Anonymisierungs-Regeln](https://github.com/nicolettas-muggelbude/RechnungsPilot/blob/main/vorlagen/bank-csv/TEMPLATE.md#-anonymisierungs-regeln)
+[TEMPLATE.md - Anonymisierungs-Regeln](https://github.com/nicolettas-muggelbude/RechnungsFee/blob/main/vorlagen/bank-csv/TEMPLATE.md#-anonymisierungs-regeln)
 
 Danke! 🚀
 ```
@@ -274,9 +274,9 @@ Vielen Dank für deinen Beitrag! 🎉
 Die CSV für **<Bankname>** wurde erfolgreich hinzugefügt:
 - ✅ Anonymisierung geprüft
 - ✅ Format validiert
-- ✅ Ins Repository integriert → [vorlagen/bank-csv/<dateiname>.csv](https://github.com/nicolettas-muggelbude/RechnungsPilot/blob/main/vorlagen/bank-csv/<dateiname>.csv)
+- ✅ Ins Repository integriert → [vorlagen/bank-csv/<dateiname>.csv](https://github.com/nicolettas-muggelbude/RechnungsFee/blob/main/vorlagen/bank-csv/<dateiname>.csv)
 
-Dank deiner Hilfe unterstützt RechnungsPilot jetzt **<Anzahl> Banken**! 🚀
+Dank deiner Hilfe unterstützt RechnungsFee jetzt **<Anzahl> Banken**! 🚀
 
 Wenn du weitere Banken nutzt, trag sie gerne auch bei! 💪
 
@@ -291,9 +291,9 @@ Vielen Dank für deinen Beitrag! 🎉
 Die CSV für **Volksbank** wurde erfolgreich hinzugefügt:
 - ✅ Anonymisierung geprüft
 - ✅ Format validiert
-- ✅ Ins Repository integriert → [vorlagen/bank-csv/volksbank.csv](https://github.com/nicolettas-muggelbude/RechnungsPilot/blob/main/vorlagen/bank-csv/volksbank.csv)
+- ✅ Ins Repository integriert → [vorlagen/bank-csv/volksbank.csv](https://github.com/nicolettas-muggelbude/RechnungsFee/blob/main/vorlagen/bank-csv/volksbank.csv)
 
-Dank deiner Hilfe unterstützt RechnungsPilot jetzt **2 Banken** (Sparkasse/LZO, Volksbank)! 🚀
+Dank deiner Hilfe unterstützt RechnungsFee jetzt **2 Banken** (Sparkasse/LZO, Volksbank)! 🚀
 
 Wenn du weitere Banken nutzt, trag sie gerne auch bei! 💪
 
@@ -502,6 +502,6 @@ Nach jedem hinzugefügten CSV:
 
 ## 🙏 Danke!
 
-Jeder Maintainer-Einsatz hilft, RechnungsPilot besser für alle zu machen! 💪
+Jeder Maintainer-Einsatz hilft, RechnungsFee besser für alle zu machen! 💪
 
 Wenn du Verbesserungen für diesen Guide hast, ergänze sie gerne direkt! 🚀

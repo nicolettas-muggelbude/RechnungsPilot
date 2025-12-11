@@ -1,0 +1,13 @@
+﻿"Girokonto";"DE42120300001033738756"
+
+"Kontostand vom 09.12.2025:";"4.093,32 €"
+""
+"Buchungsdatum";"Wertstellung";"Status";"Zahlungspflichtige*r";"Zahlungsempfänger*in";"Verwendungszweck";"Umsatztyp";"IBAN";"Betrag (€)";"Gläubiger-ID";"Mandatsreferenz";"Kundenreferenz"
+"08.12.25";"08.12.25";"Gebucht";"Max Mustermann";"Max Mustermann";"Nebenkosten";"Eingang";"DE89370400440532013000";"200";"";"";""
+"05.12.25";"05.12.25";"Gebucht";"Max Mustermann Wandererstr. 112";"Firma";"K.MICHEL GMBH";"Ausgang";"DE89370400440532013000";"-62,3";"DE89370400440532013000";"1000-000000243257";"5012502091"
+"01.12.25";"01.12.25";"Gebucht";"Max Mustermann";"Max Mustermann";"Nebenkosten. Max Mustermann";"Eingang";"DE89370400440532013000";"150";"";"";""
+"01.12.25";"01.12.25";"Gebucht";"Max Mustermann";"Max Mustermann";"Nebenkosten";"Eingang";"DE89370400440532013000";"75";"";"";""
+"01.12.25";"01.12.25";"Gebucht";"Max Mustermann";"Firma";"KTO xxxx Abschlag Strom";"Ausgang";"DE89370400440532013000";"-48";"DE89370400440532013000";"000001322985";"KD.21447822 /030215107457"
+"01.12.25";"01.12.25";"Gebucht";"Mustermann, Max";Firma";"422.986.811-1 ABS. 11/25 Wanderer., Nuernberg";"Ausgang";"DE89370400440532013000";"-207";"DE89370400440532013000";"ML52000000063158";"52V-L2025-0006413624"
+"28.11.25";"28.11.25";"Gebucht";"Max Mustermann, Nuernberg";"Firma";"KD-Nr. xxx/ RG-Nr. yyy";"Ausgang";"DE89370400440532013000";"-29,99";"DE89370400440532013000";"0200002963973";"006302136011"
+"28.11.25";"28.11.25";"Gebucht";"Max Mustermann";"Firma";"KTO yyyyy Rechnung xxx / 27,28 EUR faellig 27.11.25";"Ausgang";"DE89370400440532013000";"-27,28";"DE89370400440532013000";"000000775897";"KD.21447822 /030215107456"

@@ -1,4 +1,4 @@
-## **📅 Projektplan: RechnungsPilot (Version 1.0)**
+## **📅 Projektplan: RechnungsFee (Version 1.0)**
 **Ziel:** Eine plattformunabhängige, Open-Source-Lösung für Rechnungserfassung, -verwaltung und Steuerdokumentengenerierung (EAR, EKS) mit Fokus auf §19 UStG und EKS-Kategorisierung.
 
 ---

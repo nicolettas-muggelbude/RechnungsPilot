@@ -1,6 +1,6 @@
 # Vorlagen & Beispieldateien
 
-Dieser Ordner enthält Beispieldateien, Vorlagen und Test-Fixtures für RechnungsPilot.
+Dieser Ordner enthält Beispieldateien, Vorlagen und Test-Fixtures für RechnungsFee.
 
 ---
 

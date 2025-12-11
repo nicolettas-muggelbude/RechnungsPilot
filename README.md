@@ -1,18 +1,18 @@
-# 📊 RechnungsPilot
+# 📊 RechnungsFee
 
 **Open-Source Buchhaltungssoftware für Freiberufler, Selbstständige und Kleinunternehmer**
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![Status](https://img.shields.io/badge/Status-In_Development-yellow)](https://github.com/nicolettas-muggelbude/RechnungsPilot)
-[![GitHub stars](https://img.shields.io/github/stars/nicolettas-muggelbude/RechnungsPilot?style=social)](https://github.com/nicolettas-muggelbude/RechnungsPilot/stargazers)
-[![GitHub issues](https://img.shields.io/github/issues/nicolettas-muggelbude/RechnungsPilot)](https://github.com/nicolettas-muggelbude/RechnungsPilot/issues)
-[![GitHub discussions](https://img.shields.io/github/discussions/nicolettas-muggelbude/RechnungsPilot)](https://github.com/nicolettas-muggelbude/RechnungsPilot/discussions)
+[![Status](https://img.shields.io/badge/Status-In_Development-yellow)](https://github.com/nicolettas-muggelbude/RechnungsFee)
+[![GitHub stars](https://img.shields.io/github/stars/nicolettas-muggelbude/RechnungsFee?style=social)](https://github.com/nicolettas-muggelbude/RechnungsFee/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/nicolettas-muggelbude/RechnungsFee)](https://github.com/nicolettas-muggelbude/RechnungsFee/issues)
+[![GitHub discussions](https://img.shields.io/github/discussions/nicolettas-muggelbude/RechnungsFee)](https://github.com/nicolettas-muggelbude/RechnungsFee/discussions)
 
 ---
 
 ## 🎯 Vision
 
-RechnungsPilot ist eine plattformunabhängige, offline-first Buchhaltungslösung mit Fokus auf:
+RechnungsFee ist eine plattformunabhängige, offline-first Buchhaltungslösung mit Fokus auf:
 
 - **Einfachheit** - Speziell für Buchhaltungs-Laien entwickelt
 - **Datenschutz** - Alle Daten bleiben lokal, verschlüsselte Backups
@@ -102,8 +102,8 @@ Dieses Projekt wird offen entwickelt - die Community soll von Anfang an dabei se
 
 ### Community
 
-- 📣 **Diskussionen**: [GitHub Discussions](https://github.com/nicolettas-muggelbude/RechnungsPilot/discussions)
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/nicolettas-muggelbude/RechnungsPilot/issues)
+- 📣 **Diskussionen**: [GitHub Discussions](https://github.com/nicolettas-muggelbude/RechnungsFee/discussions)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/nicolettas-muggelbude/RechnungsFee/issues)
 - 📧 **Kontakt**: *(coming soon)*
 
 ---
@@ -125,7 +125,7 @@ Siehe [LICENSE](LICENSE) für Details.
 
 ## ⚠️ Haftungsausschluss
 
-**Keine Steuerberatung:** RechnungsPilot ist ein Software-Tool, ersetzt aber keine professionelle Steuerberatung. Bei steuerlichen Fragen konsultiere einen Steuerberater oder das Finanzamt.
+**Keine Steuerberatung:** RechnungsFee ist ein Software-Tool, ersetzt aber keine professionelle Steuerberatung. Bei steuerlichen Fragen konsultiere einen Steuerberater oder das Finanzamt.
 
 **Keine Garantie:** Die Software wird "wie besehen" bereitgestellt, ohne Gewährleistung für Korrektheit oder Vollständigkeit.
 

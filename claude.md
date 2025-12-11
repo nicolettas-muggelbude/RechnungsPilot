@@ -1,6 +1,6 @@
-# RechnungsPilot - Claude Projektdokumentation
+# RechnungsFee - Claude Projektdokumentation
 
-**Projekt:** RechnungsPilot
+**Projekt:** RechnungsFee
 **Typ:** Open-Source Buchhaltungssoftware
 **Zielgruppe:** Freiberufler, Selbstständige, Kleinunternehmer
 **Lizenz:** AGPL-3.0
@@ -11,7 +11,7 @@
 
 ## **Projektvision**
 
-RechnungsPilot ist eine plattformunabhängige, Open-Source-Lösung für:
+RechnungsFee ist eine plattformunabhängige, Open-Source-Lösung für:
 - Rechnungserfassung (Eingang & Ausgang)
 - Kassenbuch-Führung
 - Steuerdokumentengenerierung (EAR, EKS, UStVA, EÜR)
@@ -54,7 +54,7 @@ RechnungsPilot ist eine plattformunabhängige, Open-Source-Lösung für:
 
 ### **Ansprache: "Du" statt "Sie"**
 
-**Entscheidung:** RechnungsPilot verwendet durchgängig die **Du-Ansprache**.
+**Entscheidung:** RechnungsFee verwendet durchgängig die **Du-Ansprache**.
 
 **Begründung:**
 - 💡 **Finanzen sind trocken** - Persönliche Ansprache macht es zugänglicher
@@ -749,7 +749,7 @@ Die **Anlage EKS (Einkommenserklärung für Selbstständige)** ist ein 9-seitige
   - **Vorläufige EKS:** Vor Beginn des Bewilligungszeitraums (Prognose)
   - **Abschließende EKS:** Nach Ende des Bewilligungszeitraums (tatsächliche Zahlen)
 
-**Ziel von RechnungsPilot:** Automatische Generierung der EKS aus vorhandenen Buchhaltungsdaten.
+**Ziel von RechnungsFee:** Automatische Generierung der EKS aus vorhandenen Buchhaltungsdaten.
 
 ---
 
@@ -757,7 +757,7 @@ Die **Anlage EKS (Einkommenserklärung für Selbstständige)** ist ein 9-seitige
 
 ##### **Tabelle A: Betriebseinnahmen (Einnahmen)**
 
-| Feld | Beschreibung | Quelle in RechnungsPilot |
+| Feld | Beschreibung | Quelle in RechnungsFee |
 |------|--------------|---------------------------|
 | **A1** | Betriebseinnahmen aus selbstständiger Tätigkeit | Ausgangsrechnungen + Kassenbuch (Einnahmen) |
 | **A2** | Privatentnahmen | Kassenbuch (Kategorie "Privatentnahme") |
@@ -776,7 +776,7 @@ Die **Anlage EKS (Einkommenserklärung für Selbstständige)** ist ein 9-seitige
 
 **Teil 1 - Allgemeine Ausgaben:**
 
-| Feld | Beschreibung | Quelle in RechnungsPilot |
+| Feld | Beschreibung | Quelle in RechnungsFee |
 |------|--------------|---------------------------|
 | **B1** | Wareneinkauf (Materialien, Waren) | Eingangsrechnungen (Kategorie "Wareneinkauf") |
 | **B2** | Personalkosten: | |
@@ -790,7 +790,7 @@ Die **Anlage EKS (Einkommenserklärung für Selbstständige)** ist ein 9-seitige
 
 **Teil 2 - Fahrzeuge, Reisen, Investitionen:**
 
-| Feld | Beschreibung | Quelle in RechnungsPilot |
+| Feld | Beschreibung | Quelle in RechnungsFee |
 |------|--------------|---------------------------|
 | **B6** | Fahrzeugkosten: | |
 | **B6.1** | Laufende Kfz-Kosten (Benzin, Wartung) | Eingangsrechnungen (Kategorie "Kfz") |
@@ -806,7 +806,7 @@ Die **Anlage EKS (Einkommenserklärung für Selbstständige)** ist ein 9-seitige
 
 **Teil 3 - Büro, Kommunikation, Sonstiges:**
 
-| Feld | Beschreibung | Quelle in RechnungsPilot |
+| Feld | Beschreibung | Quelle in RechnungsFee |
 |------|--------------|---------------------------|
 | **B9** | Büro- und Geschäftsbedarf | Eingangsrechnungen / Kassenbuch (Kategorie "Bürobedarf") |
 | **B10** | Porto, Telefon, Internet | Eingangsrechnungen (Kategorie "Kommunikation") |
@@ -830,7 +830,7 @@ Die **Anlage EKS (Einkommenserklärung für Selbstständige)** ist ein 9-seitige
 
 ##### **Tabelle C: Absetzungen vom Einkommen (Abzüge)**
 
-| Feld | Beschreibung | Quelle in RechnungsPilot |
+| Feld | Beschreibung | Quelle in RechnungsFee |
 |------|--------------|---------------------------|
 | **C1** | Steuern (Einkommensteuer, Gewerbesteuer) | Bank (Abgänge "Finanzamt") + Manuell |
 | **C2** | Pflichtbeiträge Krankenversicherung | Bank (Kategorie "KV") |
@@ -875,7 +875,7 @@ Die **Anlage EKS (Einkommenserklärung für Selbstständige)** ist ein 9-seitige
 **7. Monatliche Aufschlüsselung:**
 - Jede Kategorie (A1-C6) wird **pro Monat** aufgeschlüsselt
 - 6 Spalten für 6-Monats-Zeitraum
-- **Automatisch:** RechnungsPilot summiert nach Monat
+- **Automatisch:** RechnungsFee summiert nach Monat
 
 ---
 
@@ -929,7 +929,7 @@ Die **Anlage EKS (Einkommenserklärung für Selbstständige)** ist ein 9-seitige
 #### **Mapping Kassenbuch → EKS**
 
 **Kategorien im Kassenbuch erweitern:**
-RechnungsPilot bietet vordefinierte Kategorien, die direkt zu EKS-Feldern mappen:
+RechnungsFee bietet vordefinierte Kategorien, die direkt zu EKS-Feldern mappen:
 
 **Einnahmen-Kategorien:**
 - "Betriebseinnahmen" → A1
@@ -953,7 +953,7 @@ RechnungsPilot bietet vordefinierte Kategorien, die direkt zu EKS-Feldern mappen
 - "Sonstiges" → B13.5
 
 **Automatische Zuordnung:**
-- User wählt Kategorie → RechnungsPilot weiß automatisch, wo es in EKS hingehört
+- User wählt Kategorie → RechnungsFee weiß automatisch, wo es in EKS hingehört
 - Bei Export: Automatische Summierung pro Monat
 
 ---
@@ -1070,7 +1070,7 @@ CREATE TABLE eks_export (
 **Szenario: Abschließende EKS für Jan-Jun 2026**
 
 1. **Juni 2026 endet** → Bewilligungszeitraum vorbei
-2. **User öffnet RechnungsPilot** → Menü: "Anlage EKS exportieren"
+2. **User öffnet RechnungsFee** → Menü: "Anlage EKS exportieren"
 3. **Zeitraum wählen:** 01.01.2026 - 30.06.2026
 4. **Art wählen:** Abschließend
 5. **Automatische Datensammlung:**
@@ -1184,7 +1184,7 @@ Zahllast/Erstattung:
 
 #### **Zentrales Konzept: Buchungstext = Master-Kategorie**
 
-**RechnungsPilot verwendet ein einheitliches Kategorisierungssystem:**
+**RechnungsFee verwendet ein einheitliches Kategorisierungssystem:**
 
 ```
 User wählt Buchungstext/Kategorie (z.B. "Büromaterial")
@@ -1601,7 +1601,7 @@ function DatevExport() {
 - Post-MVP: DATEV Kassenarchiv separat recherchieren
 - Eventuell bei DATEV anfragen oder Reverse Engineering
 
-**Hinweis:** Da RechnungsPilot kein POS-Kassensystem ist (keine TSE), ist DATEV Kassenarchiv nicht verpflichtend. Standard-DATEV-Export reicht für MVP.
+**Hinweis:** Da RechnungsFee kein POS-Kassensystem ist (keine TSE), ist DATEV Kassenarchiv nicht verpflichtend. Standard-DATEV-Export reicht für MVP.
 
 ---
 
@@ -1682,7 +1682,7 @@ Match: Sparkasse/LZO MT940 (90% Übereinstimmung)
   "bank": "Sparkasse/LZO",
   "format": "MT940",
   "version": "1.0",
-  "author": "RechnungsPilot Team",
+  "author": "RechnungsFee Team",
   "delimiter": ";",
   "encoding": "UTF-8",
   "decimal_separator": ",",
@@ -1994,7 +1994,7 @@ Bank-CSV enthält:
 
 ### **Kontotypen**
 
-**RechnungsPilot unterscheidet 3 Kontotypen:**
+**RechnungsFee unterscheidet 3 Kontotypen:**
 
 | Typ | Beschreibung | Import-Verhalten |
 |-----|--------------|------------------|
@@ -2700,7 +2700,7 @@ class BankCSVParser:
 
 **User-Workflow:**
 ```
-1. RechnungsPilot öffnen
+1. RechnungsFee öffnen
    → Menü: "UStVA erstellen"
 
 2. Zeitraum wählen
@@ -2742,7 +2742,7 @@ class BankCSVParser:
 
 **Workflow:**
 ```
-1. RechnungsPilot öffnen
+1. RechnungsFee öffnen
    → UStVA erstellen
 
 2. Zeitraum wählen
@@ -2982,7 +2982,7 @@ Ausgangsrechnung erstellen
 3. Tracking-Nummer (DHL, UPS, FedEx)
 4. Empfangsbestätigung des Kunden
 
-**RechnungsPilot:**
+**RechnungsFee:**
 ```
 Rechnung bearbeiten
 │
@@ -3029,7 +3029,7 @@ Rechnung bearbeiten
 </ZM>
 ```
 
-**RechnungsPilot-Export:**
+**RechnungsFee-Export:**
 ```python
 def export_zm(zeitraum):
     """
@@ -3137,7 +3137,7 @@ Verkauf in EU:
 ⚠️ Kunde muss ggf. Import-MwSt zahlen
 ```
 
-**RechnungsPilot-Verhalten:**
+**RechnungsFee-Verhalten:**
 - EU-Felder ausgegraut bei Kleinunternehmer
 - Warnung: "Als Kleinunternehmer kein Reverse Charge möglich"
 
@@ -3372,7 +3372,7 @@ def warn_missing_gelangensbestaetigung(rechnung):
 
 ```
 ┌─────────────────────────────────────────┐
-│ RechnungsPilot - Ersteinrichtung       │
+│ RechnungsFee - Ersteinrichtung       │
 │ Schritt 1/5: Grunddaten                │
 ├─────────────────────────────────────────┤
 │                                         │
@@ -3429,7 +3429,7 @@ def setup_wizard_step1_validate(data):
 
 ```
 ┌─────────────────────────────────────────┐
-│ RechnungsPilot - Ersteinrichtung       │
+│ RechnungsFee - Ersteinrichtung       │
 │ Schritt 2/5: EU-Handel                 │
 ├─────────────────────────────────────────┤
 │                                         │
@@ -3609,7 +3609,7 @@ System: STOP!
 1. **Eigene USt-IdNr.**
    - Beim Finanzamt beantragen
    - Format: DE + 9 Ziffern (z.B. DE123456789)
-   - In RechnungsPilot: Einstellungen > Stammdaten
+   - In RechnungsFee: Einstellungen > Stammdaten
 
 2. **Regelbesteuerung**
    - Kleinunternehmer (§19 UStG) können keinen EU-Handel nutzen
@@ -3618,12 +3618,12 @@ System: STOP!
 3. **Kunden-USt-IdNr.**
    - Für jeden EU-Kunden erforderlich
    - MUSS über BZSt validiert werden
-   - In RechnungsPilot: Kunde bearbeiten > "Validieren"
+   - In RechnungsFee: Kunde bearbeiten > "Validieren"
 
 4. **Gelangensbestätigung**
    - Nachweis, dass Ware ins EU-Ausland geliefert wurde
    - CMR-Frachtbrief, DHL-Tracking, Lieferschein
-   - In RechnungsPilot: Rechnung > "Nachweis hochladen"
+   - In RechnungsFee: Rechnung > "Nachweis hochladen"
 
 ## ⚠️ Häufige Fehler
 
@@ -3639,7 +3639,7 @@ System: STOP!
 ## 📋 Monatliche Aufgaben
 
 - Zusammenfassende Meldung (ZM) an BZSt senden
-- RechnungsPilot: Berichte > ZM erstellen > XML exportieren
+- RechnungsFee: Berichte > ZM erstellen > XML exportieren
 ```
 
 ---
@@ -3649,7 +3649,7 @@ System: STOP!
 **Problem mit obigem Konzept:**
 
 ```
-RechnungsPilot MVP hat KEINEN Kundenstamm!
+RechnungsFee MVP hat KEINEN Kundenstamm!
 ────────────────────────────────────────────
 
 User erstellt Rechnungen:
@@ -3657,7 +3657,7 @@ User erstellt Rechnungen:
 • HTML-Vorlagen
 • PDF/XRechnung-Import
 
-→ KEINE Eingabemasken in RechnungsPilot
+→ KEINE Eingabemasken in RechnungsFee
 → KEINE Validierung bei Erfassung möglich
 → User könnte fehlerhafte Rechnungen erstellen
 ```
@@ -3922,7 +3922,7 @@ def validate_datev_export(zeitraum):
 
 3. Zwei Optionen:
 
-   Option A: In RechnungsPilot korrigieren
+   Option A: In RechnungsFee korrigieren
    ┌────────────────────────────────────┐
    │ Rechnung RE-2025-123 bearbeiten   │
    ├────────────────────────────────────┤
@@ -4118,7 +4118,7 @@ def export_ustva_pdf(ustva_data):
 **Besonderheit:** Keine UStVA erforderlich!
 
 **Verhalten:**
-- RechnungsPilot erkennt: User ist Kleinunternehmer
+- RechnungsFee erkennt: User ist Kleinunternehmer
 - UStVA-Menü wird ausgeblendet/deaktiviert
 - Hinweis: "Als Kleinunternehmer (§19 UStG) musst du keine UStVA abgeben"
 
@@ -4137,7 +4137,7 @@ def export_ustva_pdf(ustva_data):
 |---|---|---|
 | **Wann USt fällig?** | Bei Rechnungsstellung | Bei Zahlungseingang |
 | **Für wen?** | Alle (Standardfall) | Freiberufler, kleine Unternehmen |
-| **RechnungsPilot** | Alle Ausgangsrechnungen | Nur bezahlte Rechnungen |
+| **RechnungsFee** | Alle Ausgangsrechnungen | Nur bezahlte Rechnungen |
 
 ---
 
@@ -4172,7 +4172,7 @@ Ist-Versteuerung (RICHTIG bei ALG II):
 → Korrekte Anrechnung ✅
 ```
 
-**RechnungsPilot-Verhalten:**
+**RechnungsFee-Verhalten:**
 
 1. **Beim Ersteinrichtung:**
    ```
@@ -4372,7 +4372,7 @@ Gesamt anrechnungsfrei: 100 + 84 + 144 + 10 = 338,00 €
 → Bürgergeld wird um 762 € gekürzt
 ```
 
-#### **RechnungsPilot-Implementierung:**
+#### **RechnungsFee-Implementierung:**
 
 ```python
 def calculate_buergergeld_anrechnung(brutto_einkommen: Decimal, hat_kind: bool = False) -> dict:
@@ -4545,19 +4545,19 @@ def calculate_buergergeld_anrechnung(brutto_einkommen: Decimal, hat_kind: bool =
 
 ### **AGENDA - Export-Kompatibilität**
 
-**Was AGENDA importieren kann (= was RechnungsPilot exportieren muss):**
+**Was AGENDA importieren kann (= was RechnungsFee exportieren muss):**
 
 1. **DATEV-Format**
    - AGENDA kann DATEV-Daten importieren
-   - ✅ RechnungsPilot hat bereits DATEV-Export (Kategorie 2)
+   - ✅ RechnungsFee hat bereits DATEV-Export (Kategorie 2)
 
 2. **Belegbilder-Export (PDF + XML)**
    - **AGENDA-Anforderung:** PDF und XML müssen denselben Dateinamen haben
    - **Format:** `rechnung-123.pdf` + `rechnung-123.xml`
    - **Bulk-Export:** Gezippte Belegbilder
-   - **Workflow:** RechnungsPilot erstellt ZIP → AGENDA importiert → Matcht PDF+XML automatisch
+   - **Workflow:** RechnungsFee erstellt ZIP → AGENDA importiert → Matcht PDF+XML automatisch
 
-**RechnungsPilot-Export für AGENDA:**
+**RechnungsFee-Export für AGENDA:**
 
 ```python
 def export_belege_fuer_agenda(zeitraum):
@@ -4710,7 +4710,7 @@ Gewinn = Betriebseinnahmen - Betriebsausgaben
 
 #### **Automatische Buchung nach Zahlungsdatum**
 
-**Antwort: Ja, RechnungsPilot bucht automatisch nach Zahlungsdatum (nicht Rechnungsdatum).**
+**Antwort: Ja, RechnungsFee bucht automatisch nach Zahlungsdatum (nicht Rechnungsdatum).**
 
 **Technische Umsetzung:**
 
@@ -4778,7 +4778,7 @@ def get_ausgangsrechnungen_fuer_euer(jahr):
 
 #### **Hinweise bei Jahresübergang (Rechnung & Zahlung in verschiedenen Jahren)**
 
-**Antwort: Ja, RechnungsPilot warnt proaktiv bei Jahresübergang.**
+**Antwort: Ja, RechnungsFee warnt proaktiv bei Jahresübergang.**
 
 **Wann wird gewarnt?**
 
@@ -5021,7 +5021,7 @@ def ist_10_tage_regel_anwendbar(rechnung):
 - **Zeile 15:** Innergemeinschaftliche Lieferungen (0% USt, EU)
 - **Zeile 21:** Vereinnahmte Umsatzsteuer
 
-**RechnungsPilot-Datenquellen:**
+**RechnungsFee-Datenquellen:**
 ```python
 def calculate_betriebseinnahmen(jahr):
     """
@@ -5118,7 +5118,7 @@ def calculate_betriebseinnahmen(jahr):
 - **Zeile 45:** Abschreibungen (AfA)
 - **Zeile 60:** Vorsteuer (abziehbar)
 
-**RechnungsPilot-Datenquellen:**
+**RechnungsFee-Datenquellen:**
 ```python
 def calculate_betriebsausgaben(jahr):
     """
@@ -5190,7 +5190,7 @@ EÜR_KATEGORIEN = [
 
 **Konzept:**
 
-RechnungsPilot bietet ein **zweistufiges Kategorien-System**:
+RechnungsFee bietet ein **zweistufiges Kategorien-System**:
 
 1. **Vordefinierte Standard-Kategorien** (nach Anlage EÜR)
 2. **Frei erweiterbare User-Kategorien** (optional)
@@ -5397,7 +5397,7 @@ get_datev_konto(kategorie, 'SKR04')  # → 5400
 | KFZ-Kosten (Benzin) | Sprit |
 | Software, Lizenzen | SW |
 
-**User-Kategorien:** Können frei benannt werden, aber RechnungsPilot schlägt vor:
+**User-Kategorien:** Können frei benannt werden, aber RechnungsFee schlägt vor:
 - "Hosting & Domain-Kosten" (Unterkategorie von "Bürobedarf")
 - "Model-Honorare" (Unterkategorie von "Löhne & Gehälter")
 - "Werbe-Flyer" (Unterkategorie von "Werbekosten")
@@ -5471,7 +5471,7 @@ AfA 2026-2027: je 400 €
 AfA 2028 (Jan-Feb): 400 € × 2/12 = 66,67 €
 ```
 
-**RechnungsPilot-Implementierung:**
+**RechnungsFee-Implementierung:**
 ```python
 class Anlagegut:
     """
@@ -5567,9 +5567,9 @@ def handle_gwg(rechnung):
 
 ### **7.5.1 Anlagenverwaltung (Frage 7.3)**
 
-#### **Umfang der Anlagenverwaltung in RechnungsPilot**
+#### **Umfang der Anlagenverwaltung in RechnungsFee**
 
-**RechnungsPilot bietet vollständige Anlagenverwaltung mit:**
+**RechnungsFee bietet vollständige Anlagenverwaltung mit:**
 
 1. ✅ **GWG-Automatik** (Sofortabzug < 800 €, Poolabschreibung 800-1000 €)
 2. ✅ **AfA-Rechner** (automatische Abschreibungsberechnung)
@@ -5582,7 +5582,7 @@ def handle_gwg(rechnung):
 
 **Drei Schwellenwerte:**
 
-| Anschaffungskosten (netto) | Regelung | RechnungsPilot-Verhalten |
+| Anschaffungskosten (netto) | Regelung | RechnungsFee-Verhalten |
 |----------------------------|----------|--------------------------|
 | **< 800 €** | Sofortabzug Pflicht | Automatisch zu Zeile 43 (Sonstige Ausgaben) |
 | **800 € - 1.000 €** | Wahlrecht: Sofortabzug ODER Poolabschreibung | User wird gefragt (siehe Dialog unten) |
@@ -5621,7 +5621,7 @@ def handle_gwg(rechnung):
 
 **Empfehlung:**
 
-RechnungsPilot empfiehlt **Sofortabzug** (wenn User nicht sicher ist), da:
+RechnungsFee empfiehlt **Sofortabzug** (wenn User nicht sicher ist), da:
 - ✅ Steuerersparnis früher (im Jahr der Anschaffung)
 - ✅ Weniger Verwaltungsaufwand (keine 5-Jahres-Buchführung)
 - ✅ Einfacher zu verstehen
@@ -5670,7 +5670,7 @@ RechnungsPilot empfiehlt **Sofortabzug** (wenn User nicht sicher ist), da:
 
 **AfA-Tabelle (integriert):**
 
-RechnungsPilot enthält die wichtigsten Einträge der amtlichen AfA-Tabelle:
+RechnungsFee enthält die wichtigsten Einträge der amtlichen AfA-Tabelle:
 
 ```python
 AFA_TABELLE = {
@@ -5803,7 +5803,7 @@ AFA_TABELLE = {
 
 #### **Einfache Erfassung vs. vollständige Abschreibungslogik**
 
-**Entscheidung:** RechnungsPilot bietet **vollständige Abschreibungslogik**.
+**Entscheidung:** RechnungsFee bietet **vollständige Abschreibungslogik**.
 
 **Begründung:**
 
@@ -5818,7 +5818,7 @@ AFA_TABELLE = {
 **Kompromiss:** Automatische GWG-Erkennung
 
 - < 800 €: Sofortabzug (User muss kein Anlagegut anlegen)
-- \> 800 €: RechnungsPilot **schlägt vor**, Anlagegut anzulegen (kann übersprungen werden)
+- \> 800 €: RechnungsFee **schlägt vor**, Anlagegut anzulegen (kann übersprungen werden)
 
 **Workflow:**
 
@@ -5845,7 +5845,7 @@ Eingangsrechnung erfasst: Laptop 1.200 €
 └──────────────────────────────────────────┘
 ```
 
-**Wichtig:** User kann überspringen, aber RechnungsPilot warnt:
+**Wichtig:** User kann überspringen, aber RechnungsFee warnt:
 
 ⚠️ "Achtung: Anschaffungskosten > 1.000 € müssen lt. EStG abgeschrieben werden. Sofortabzug kann vom Finanzamt abgelehnt werden."
 
@@ -5868,7 +5868,7 @@ Analog zu UStVA (Kategorie 6.1) nutzen wir einen **Hybrid-Ansatz:**
 
 #### **Version 1.0 (MVP):**
 
-**✅ RechnungsPilot berechnet:**
+**✅ RechnungsFee berechnet:**
 - Betriebseinnahmen (nach EÜR-Zeilen sortiert)
 - Betriebsausgaben (nach EÜR-Zeilen sortiert)
 - AfA für Anlagegüter
@@ -5884,8 +5884,8 @@ Analog zu UStVA (Kategorie 6.1) nutzen wir einen **Hybrid-Ansatz:**
 
 **User-Workflow:**
 ```
-1. RechnungsPilot: "EÜR erstellen" → Zeitraum wählen (2025)
-2. RechnungsPilot berechnet alle Werte
+1. RechnungsFee: "EÜR erstellen" → Zeitraum wählen (2025)
+2. RechnungsFee berechnet alle Werte
 3. Export als CSV/Excel/PDF
 4. User öffnet ELSTER-Portal
 5. User trägt Werte MANUELL aus CSV in Anlage EÜR ein
@@ -5901,9 +5901,9 @@ Analog zu UStVA (Kategorie 6.1) nutzen wir einen **Hybrid-Ansatz:**
 
 **User-Workflow:**
 ```
-1. RechnungsPilot: "EÜR erstellen und senden"
-2. RechnungsPilot generiert ELSTER-XML
-3. RechnungsPilot sendet direkt ans Finanzamt
+1. RechnungsFee: "EÜR erstellen und senden"
+2. RechnungsFee generiert ELSTER-XML
+3. RechnungsFee sendet direkt ans Finanzamt
 4. Bestätigung erhalten → Fertig!
 ```
 
@@ -5951,7 +5951,7 @@ def calculate_euer(jahr):
 
 **Export-Varianten:**
 
-RechnungsPilot bietet **zwei EÜR-Export-Varianten**:
+RechnungsFee bietet **zwei EÜR-Export-Varianten**:
 
 1. **Amtliche Anlage EÜR** - Für ELSTER/Finanzamt (alle Zeilen, zu denen Daten verfügbar sind)
 2. **Vereinfachte EÜR** - Für User/Jobcenter (übersichtlich, nur Einnahmen - Ausgaben = Gewinn)
@@ -6274,7 +6274,7 @@ CREATE TABLE euer_exporte (
 
 Stammdaten sind **grundlegende Informationen**, die wiederholt verwendet werden:
 
-**Arten von Stammdaten in RechnungsPilot:**
+**Arten von Stammdaten in RechnungsFee:**
 
 1. **User-/Firmen-Stammdaten** (Pflicht)
    - Eigene Firma/Freiberufler-Daten
@@ -6418,7 +6418,7 @@ def validate_user_stammdaten():
 
 ```
 ┌─────────────────────────────────────────────────┐
-│ RechnungsPilot - Ersteinrichtung (Schritt 1/4) │
+│ RechnungsFee - Ersteinrichtung (Schritt 1/4) │
 ├─────────────────────────────────────────────────┤
 │                                                 │
 │ FIRMA / FREIBERUFLER                            │
@@ -6429,7 +6429,7 @@ def validate_user_stammdaten():
 │               □ GbR                             │
 │               ● Freiberufler                    │
 │                                                 │
-│  ℹ️ RechnungsPilot unterstützt nur            │
+│  ℹ️ RechnungsFee unterstützt nur            │
 │     EÜR-berechtigte Rechtsformen.              │
 │     Bilanzpflichtige Gesellschaften (GmbH,     │
 │     UG, OHG, KG) werden nicht unterstützt.     │
@@ -6453,7 +6453,7 @@ def validate_user_stammdaten():
 └─────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────┐
-│ RechnungsPilot - Ersteinrichtung (Schritt 2/4) │
+│ RechnungsFee - Ersteinrichtung (Schritt 2/4) │
 ├─────────────────────────────────────────────────┤
 │                                                 │
 │ STEUERLICHE DATEN                               │
@@ -6489,7 +6489,7 @@ def validate_user_stammdaten():
 └─────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────┐
-│ RechnungsPilot - Ersteinrichtung (Schritt 3/4) │
+│ RechnungsFee - Ersteinrichtung (Schritt 3/4) │
 ├─────────────────────────────────────────────────┤
 │                                                 │
 │ BANKVERBINDUNG                                  │
@@ -6505,7 +6505,7 @@ def validate_user_stammdaten():
 └─────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────┐
-│ RechnungsPilot - Ersteinrichtung (Schritt 4/4) │
+│ RechnungsFee - Ersteinrichtung (Schritt 4/4) │
 ├─────────────────────────────────────────────────┤
 │                                                 │
 │ ZUSAMMENFASSUNG                                 │
@@ -6530,7 +6530,7 @@ def validate_user_stammdaten():
 
 ### **8.2.1 Unterstützte Rechtsformen**
 
-**RechnungsPilot unterstützt nur EÜR-berechtigte Rechtsformen:**
+**RechnungsFee unterstützt nur EÜR-berechtigte Rechtsformen:**
 
 ✅ **Unterstützt:**
 - **Einzelunternehmer** - Gewerbetreibende ohne besondere Rechtsform
@@ -6554,7 +6554,7 @@ Rechtsform wählen:
 
 ──────────────────────────────────────
 
-ℹ️ Hinweis: RechnungsPilot unterstützt nur
+ℹ️ Hinweis: RechnungsFee unterstützt nur
    EÜR-berechtigte Rechtsformen.
 
    Bilanzpflichtige Gesellschaften (GmbH,
@@ -6565,7 +6565,7 @@ Rechtsform wählen:
 
 **Begründung:**
 
-| Rechtsform | EÜR | Bilanz | RechnungsPilot |
+| Rechtsform | EÜR | Bilanz | RechnungsFee |
 |------------|-----|--------|----------------|
 | Einzelunternehmer | ✅ | ❌ | ✅ Unterstützt |
 | Freiberufler | ✅ | ❌ | ✅ Unterstützt |
@@ -6578,7 +6578,7 @@ Rechtsform wählen:
 - Gewinn < 60.000 € pro Jahr UND
 - Umsatz < 600.000 € pro Jahr
 
-⚠️ **Warnung bei Überschreitung:** RechnungsPilot warnt, wenn GbR diese Grenzen überschreitet.
+⚠️ **Warnung bei Überschreitung:** RechnungsFee warnt, wenn GbR diese Grenzen überschreitet.
 
 ---
 
@@ -6619,7 +6619,7 @@ Rechtsform wählen:
 - 28 = Baden-Württemberg
 - etc.
 
-**RechnungsPilot unterstützt beide Formate:**
+**RechnungsFee unterstützt beide Formate:**
 
 ```python
 def validate_steuernummer(stnr: str) -> bool:
@@ -6714,7 +6714,7 @@ class User:
 
 ```
 ┌─────────────────────────────────────────────────┐
-│ RechnungsPilot - Ersteinrichtung (Schritt 1/4) │
+│ RechnungsFee - Ersteinrichtung (Schritt 1/4) │
 ├─────────────────────────────────────────────────┤
 │                                                 │
 │ BERUFSRECHTLICHE ANGABEN                        │
@@ -6867,7 +6867,7 @@ def validate_kammerangaben(user):
 ⚠️ **Wichtig:**
 - Bei Kammerberufen sind diese Angaben **gesetzlich verpflichtend** auf Rechnungen
 - Fehlende Angaben können zu Abmahnungen führen
-- RechnungsPilot fügt diese automatisch in Rechnungsvorlagen ein
+- RechnungsFee fügt diese automatisch in Rechnungsvorlagen ein
 
 💡 **Tipp:**
 - Falls unsicher: Auf der Website Ihrer Kammer nachsehen
@@ -8793,7 +8793,7 @@ def log_dsgvo_aktion(tabelle: str, datensatz_id: int, aktion: str, details: dict
 #### **📄 Datenschutzerklärung (Vorlage)**
 
 ```markdown
-# Datenschutzerklärung - RechnungsPilot
+# Datenschutzerklärung - RechnungsFee
 
 ## 1. Verantwortlicher
 [Dein Name/Firma]
@@ -10527,7 +10527,7 @@ Vorsteuerabzug: 199,50 € (wenn berechtigt)
 
 ---
 
-##### **Implementierung in RechnungsPilot**
+##### **Implementierung in RechnungsFee**
 
 **Erweiterung Datenbank-Schema (Produktstammdaten):**
 
@@ -10664,7 +10664,7 @@ SZENARIO: Import von 100 Laptops aus China
 
 ---
 
-##### **Best Practices für RechnungsPilot**
+##### **Best Practices für RechnungsFee**
 
 **Empfehlung:**
 
@@ -10676,9 +10676,9 @@ SZENARIO: Import von 100 Laptops aus China
 2. **Umlaufvermögen (Waren):**
    - ✅ **Standard**: Nebenkosten zu Anschaffungskosten (§255 HGB)
    - ⚠️ **Vereinfachung**: Separate Verbuchung (bei kleinen Beträgen toleriert)
-   - 💡 **RechnungsPilot**: Beide Methoden unterstützen, User wählt
+   - 💡 **RechnungsFee**: Beide Methoden unterstützen, User wählt
 
-3. **Einstellung in RechnungsPilot:**
+3. **Einstellung in RechnungsFee:**
    ```
    ┌──────────────────────────────────────────────┐
    │ ⚙️ Einstellungen > Warenwirtschaft          │
@@ -10716,7 +10716,7 @@ Anschaffungskosten = Einkaufspreis + Nebenkosten - Minderungen
 - **Anlagevermögen**: Nebenkosten PFLICHT hinzurechnen (§255 HGB)
 - **Umlaufvermögen**: Sollte hinzugerechnet werden, Vereinfachung toleriert
 
-**RechnungsPilot:**
+**RechnungsFee:**
 - Datenbank-Erweiterung für detaillierte Nebenkosten
 - UI für Erfassung
 - Einstellung: §255 HGB vs. Vereinfachung
@@ -11837,7 +11837,7 @@ class KundenService:
 
 ---
 
-#### **💻 Implementierung in RechnungsPilot**
+#### **💻 Implementierung in RechnungsFee**
 
 **Datenbank-Schema:**
 
@@ -12252,7 +12252,7 @@ Kontakt für Widerruf:
    └─ Zusammenführen
 6. Import durchführen
 7. ✅ Erfolg: 245 Kunden importiert, 12 Duplikate übersprungen
-8. ✅ User kann Daten in RechnungsPilot bearbeiten/löschen
+8. ✅ User kann Daten in RechnungsFee bearbeiten/löschen
 ```
 
 **Datenbank:**
@@ -12503,7 +12503,7 @@ CREATE TABLE import_kategorie_mapping (
     id INTEGER PRIMARY KEY,
     quelle TEXT NOT NULL, -- 'fakturama', 'hellocash', 'agenda'
     quelle_kategorie TEXT NOT NULL, -- 'Honorare', 'Speisen', etc.
-    ziel_kategorie_id INTEGER NOT NULL, -- Kategorie in RechnungsPilot
+    ziel_kategorie_id INTEGER NOT NULL, -- Kategorie in RechnungsFee
     ziel_konto_skr03 TEXT, -- '8400'
     ziel_konto_skr04 TEXT, -- '4400'
 
@@ -12526,9 +12526,9 @@ INSERT INTO import_kategorie_mapping VALUES
 │ 📥 Fakturama-Import: Kategorien zuordnen                │
 ├─────────────────────────────────────────────────────────┤
 │ Bitte ordne die Fakturama-Kategorien den                │
-│ RechnungsPilot-Kategorien zu:                           │
+│ RechnungsFee-Kategorien zu:                           │
 │                                                         │
-│ Fakturama-Kategorie          RechnungsPilot-Kategorie  │
+│ Fakturama-Kategorie          RechnungsFee-Kategorie  │
 │ ┌──────────────────────┐     ┌────────────────────┐    │
 │ │ Honorare             │ →   │ Erlöse (8400) ▼    │    │
 │ │ Warenverkauf         │ →   │ Umsatzerlöse (8300)│    │
@@ -12623,19 +12623,19 @@ INSERT INTO import_kategorie_mapping VALUES
 
 **Workaround für Migration (v1.0):**
 ```
-Wechsel von Fakturama zu RechnungsPilot:
+Wechsel von Fakturama zu RechnungsFee:
 
 1. Kundenstamm exportieren (CSV)
-   → In RechnungsPilot importieren ✅ (v1.0)
+   → In RechnungsFee importieren ✅ (v1.0)
 
 2. Produktstamm exportieren (CSV)
-   → In RechnungsPilot importieren ⏸️ (v1.1)
+   → In RechnungsFee importieren ⏸️ (v1.1)
 
 3. Alte Rechnungen (2023, 2024):
    a) Als PDF exportieren und archivieren
    b) Oder: Top 20 wichtigste Rechnungen manuell eingeben
 
-4. Ab 2025: Neue Rechnungen in RechnungsPilot erstellen
+4. Ab 2025: Neue Rechnungen in RechnungsFee erstellen
 ```
 
 ---
@@ -13068,7 +13068,7 @@ def import_bank_csv(datei: Path, template_id: int) -> ImportErgebnis:
 #### **1. Lokales Verzeichnis**
 ```
 Beispiel: /backup/rechnungspilot/
-         C:\Backups\RechnungsPilot\
+         C:\Backups\RechnungsFee\
 ```
 **Eigenschaften:**
 - ✅ Einfachste Variante
@@ -13091,7 +13091,7 @@ Beispiel: /media/usb-backup/
 ```
 SMB/CIFS-Share:
   smb://nas.local/backups/rechnungspilot
-  \\NAS\Backups\RechnungsPilot
+  \\NAS\Backups\RechnungsFee
 
 NFS:
   nfs://192.168.1.100/backups
@@ -13126,7 +13126,7 @@ Linux Samba-Share:
 
 ### **🔄 3-2-1-Backup-Regel**
 
-**Empfehlung für RechnungsPilot:**
+**Empfehlung für RechnungsFee:**
 
 ```
 3 Kopien der Daten:
@@ -13144,7 +13144,7 @@ Linux Samba-Share:
   - Optional: Cloud (v2.0)
 ```
 
-**Konfiguration in RechnungsPilot:**
+**Konfiguration in RechnungsFee:**
 ```
 ┌─────────────────────────────────────────────────────────┐
 │ ⚙️ Backup-Konfiguration                                 │
@@ -13200,7 +13200,7 @@ Linux Samba-Share:
 - ❌ Viel Speicherplatz
 - ❌ Langsam (bei großen Datenmengen)
 
-**Empfehlung für RechnungsPilot:**
+**Empfehlung für RechnungsFee:**
 - **Wöchentlich:** Vollbackup (z.B. Sonntag Nacht)
 - **Aufbewahrung:** 4 Wochen (4 Vollbackups)
 
@@ -13225,7 +13225,7 @@ Linux Samba-Share:
 - ❌ Wiederherstellung komplex (braucht Full + alle inkrementellen Backups)
 - ❌ Bei Verlust eines inkrementellen Backups → Kette unterbrochen
 
-**Empfehlung für RechnungsPilot:**
+**Empfehlung für RechnungsFee:**
 - **Täglich:** Inkrementelles Backup
 - **Aufbewahrung:** 30 Tage
 
@@ -13252,7 +13252,7 @@ Linux Samba-Share:
 **Nachteile:**
 - ⚠️ Wächst im Laufe der Woche (alle Änderungen seit Full)
 
-**Empfehlung für RechnungsPilot:**
+**Empfehlung für RechnungsFee:**
 - Alternative zu inkrementell
 - Einfacher für Einsteiger
 
@@ -13535,7 +13535,7 @@ backup_schedule = {
 
 #### **Change-Tracking (Änderungserkennung)**
 
-**RechnungsPilot trackt automatisch alle Änderungen:**
+**RechnungsFee trackt automatisch alle Änderungen:**
 
 ```sql
 -- Change Tracking Tabelle
@@ -13609,7 +13609,7 @@ WHERE geaendert_am > (
 │                                                         │
 │ Verschlüssele Daten...                                  │
 │                                                         │
-│ Bitte warte, RechnungsPilot wird nach dem              │
+│ Bitte warte, RechnungsFee wird nach dem              │
 │ Backup automatisch geschlossen.                        │
 │                                                         │
 │ [Im Hintergrund beenden] ❌ Nicht empfohlen             │
@@ -13629,7 +13629,7 @@ WHERE geaendert_am > (
 │ 🔐 Verschlüsselt: Ja (AES-256)                         │
 │ 📍 Ziel: smb://nas.local/backups/rechnungspilot        │
 │                                                         │
-│ RechnungsPilot wird jetzt geschlossen.                 │
+│ RechnungsFee wird jetzt geschlossen.                 │
 │                                                         │
 │ [Schließen ✓]                                           │
 └─────────────────────────────────────────────────────────┘
@@ -13791,7 +13791,7 @@ def on_exit():
 
 **Workflow:**
 ```
-1. RechnungsPilot neu installieren
+1. RechnungsFee neu installieren
 2. Backup auswählen:
    ┌─────────────────────────────────────────────────────────┐
    │ 📥 Backup wiederherstellen                              │
@@ -13816,7 +13816,7 @@ def on_exit():
 
 3. Bei verschlüsseltem Backup: Passwort eingeben
 4. Wiederherstellung (Fortschrittsbalken)
-5. Fertig! RechnungsPilot neu starten
+5. Fertig! RechnungsFee neu starten
 ```
 
 #### **2. Einzelne Datei/Beleg wiederherstellen**
@@ -13881,7 +13881,7 @@ CREATE TABLE backups (
     verschluesselungs_algorithmus TEXT DEFAULT 'AES-256-CBC',
 
     -- Metadaten
-    software_version TEXT, -- RechnungsPilot-Version
+    software_version TEXT, -- RechnungsFee-Version
     datenbank_version INTEGER, -- Schema-Version
     anzahl_rechnungen INTEGER,
     anzahl_belege INTEGER,
@@ -14078,7 +14078,7 @@ WHERE geaendert_am > (
 
 **Workflow:**
 ```
-1. RechnungsPilot startet
+1. RechnungsFee startet
    ↓
 2. Prüft: Neue Version verfügbar?
    ↓ JA
@@ -14102,7 +14102,7 @@ WHERE geaendert_am > (
    ↓
 4. Download im Hintergrund (Progress-Bar)
    ↓
-5. User beendet RechnungsPilot
+5. User beendet RechnungsFee
    ↓
 6. **AUTOMATISCHES BACKUP VOR UPDATE** ⭐
    ┌─────────────────────────────────────────┐
@@ -14119,10 +14119,10 @@ WHERE geaendert_am > (
    ↓
 7. Update installieren
    ↓
-8. RechnungsPilot automatisch neu starten
+8. RechnungsFee automatisch neu starten
    ↓
 9. ✅ Update erfolgreich!
-   "Willkommen bei RechnungsPilot v1.3.0!"
+   "Willkommen bei RechnungsFee v1.3.0!"
 ```
 
 #### **2. Manuelle Updates**
@@ -14135,9 +14135,9 @@ docker-compose down
 docker-compose up -d
 
 # AppImage
-wget https://github.com/rechnungspilot/releases/latest/RechnungsPilot.AppImage
-chmod +x RechnungsPilot.AppImage
-./RechnungsPilot.AppImage
+wget https://github.com/rechnungspilot/releases/latest/RechnungsFee.AppImage
+chmod +x RechnungsFee.AppImage
+./RechnungsFee.AppImage
 ```
 
 #### **3. Update-Kanäle**
@@ -14324,7 +14324,7 @@ CREATE INDEX idx_update_log_datum ON update_log(update_am);
 
 ### **📊 Unterstützte Steuersätze**
 
-RechnungsPilot unterstützt alle gängigen deutschen Umsatzsteuersätze:
+RechnungsFee unterstützt alle gängigen deutschen Umsatzsteuersätze:
 
 #### **1. Regelsteuersatz: 19%**
 - Standard für die meisten Waren und Dienstleistungen
@@ -14385,7 +14385,7 @@ RechnungsPilot unterstützt alle gängigen deutschen Umsatzsteuersätze:
 - Historische Auswertungen
 - Steuerprüfungen vergangener Jahre
 
-**RechnungsPilot-Verhalten:**
+**RechnungsFee-Verhalten:**
 - Historische Sätze werden im System hinterlegt
 - Bei Rechnungsdatum 01.07. - 31.12.2020 → Automatische Erkennung
 - Manuelle Überschreibung möglich
@@ -14800,21 +14800,21 @@ INSERT INTO kategorie_vorsteuer_regeln VALUES
 
 ### **Strategische Überlegung**
 
-**Frage:** Soll RechnungsPilot auch für **bilanzpflichtige Unternehmen** (Kapitalgesellschaften wie GmbH, UG, AG) nutzbar sein?
+**Frage:** Soll RechnungsFee auch für **bilanzpflichtige Unternehmen** (Kapitalgesellschaften wie GmbH, UG, AG) nutzbar sein?
 
 **Kontext:**
-- RechnungsPilot ist primär für **EÜR-Rechner** konzipiert (Einzelunternehmer, Freiberufler, GbR)
+- RechnungsFee ist primär für **EÜR-Rechner** konzipiert (Einzelunternehmer, Freiberufler, GbR)
 - Bilanzpflichtige Unternehmen sind nach **§238 HGB** zur doppelten Buchführung verpflichtet
-- RechnungsPilot bietet **keine doppelte Buchführung**
-- ABER: RechnungsPilot hat **DATEV-Export** und **UStVA-Modul**
+- RechnungsFee bietet **keine doppelte Buchführung**
+- ABER: RechnungsFee hat **DATEV-Export** und **UStVA-Modul**
 
-### **✅ Use Case: RechnungsPilot als Vorerfassungssystem**
+### **✅ Use Case: RechnungsFee als Vorerfassungssystem**
 
 **Workflow für GmbH/UG:**
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│ RechnungsPilot (Tagesgeschäft)                          │
+│ RechnungsFee (Tagesgeschäft)                          │
 ├─────────────────────────────────────────────────────────┤
 │ ✅ Eingangsrechnungen erfassen                          │
 │ ✅ Ausgangsrechnungen erstellen                         │
@@ -14828,7 +14828,7 @@ INSERT INTO kategorie_vorsteuer_regeln VALUES
                          ↓
 ┌─────────────────────────────────────────────────────────┐
 │ UStVA per ELSTER                                        │
-│ (direkt aus RechnungsPilot)                             │
+│ (direkt aus RechnungsFee)                             │
 └─────────────────────────────────────────────────────────┘
                          ↓
                     (Am Jahresende)
@@ -14852,7 +14852,7 @@ INSERT INTO kategorie_vorsteuer_regeln VALUES
 └─────────────────────────────────────────────────────────┘
 ```
 
-**Rolle von RechnungsPilot:**
+**Rolle von RechnungsFee:**
 - ✅ Belegverwaltungssystem mit Kategorisierung
 - ✅ Vorerfassungssystem für Steuerberater
 - ✅ UStVA-Modul (selbstständige Abgabe)
@@ -14862,7 +14862,7 @@ INSERT INTO kategorie_vorsteuer_regeln VALUES
 
 ### **📊 Steuerliche Einreichungen: Was ist gleich?**
 
-| Einreichung | EÜR (Einzelunternehmer) | GmbH/UG | In RechnungsPilot? |
+| Einreichung | EÜR (Einzelunternehmer) | GmbH/UG | In RechnungsFee? |
 |-------------|-------------------------|---------|-------------------|
 | **UStVA** (monatlich/quartalsweise) | ✅ Pflicht | ✅ Pflicht | ✅ **JA** |
 | **ZM** (Zusammenfassende Meldung) | ✅ bei EU-Geschäft | ✅ bei EU-Geschäft | ✅ **JA** (geplant) |
@@ -14876,7 +14876,7 @@ INSERT INTO kategorie_vorsteuer_regeln VALUES
 
 **✅ Fazit:** Alle **laufenden steuerlichen Pflichten** (UStVA, ZM, USt-Jahreserklärung) sind **identisch**!
 
-### **💡 Vorteile für RechnungsPilot**
+### **💡 Vorteile für RechnungsFee**
 
 **1. Deutlich größerer Markt:**
 - 🏢 **1,2 Millionen GmbHs** in Deutschland (Statistisches Bundesamt 2024)
@@ -14891,7 +14891,7 @@ INSERT INTO kategorie_vorsteuer_regeln VALUES
 - Steuerberater kommt 1× jährlich (Jahresabschluss)
 - Monatliche UStVA wird selbst gemacht
 
-→ **RechnungsPilot spart Steuerberater-Kosten für laufende Buchhaltung!**
+→ **RechnungsFee spart Steuerberater-Kosten für laufende Buchhaltung!**
 
 **3. Wenig zusätzlicher Entwicklungsaufwand:**
 - ✅ DATEV-Export bereits geplant
@@ -14900,7 +14900,7 @@ INSERT INTO kategorie_vorsteuer_regeln VALUES
 - ❌ KEINE zusätzliche Entwicklung für Bilanz nötig
 
 **4. Klare Abgrenzung:**
-- RechnungsPilot = Vorerfassungssystem für Steuerberater
+- RechnungsFee = Vorerfassungssystem für Steuerberater
 - DATEV = Finanzbuchhaltung & Jahresabschluss
 - Keine Konkurrenz, sondern **Ergänzung**
 
@@ -14909,7 +14909,7 @@ INSERT INTO kategorie_vorsteuer_regeln VALUES
 | Aspekt | EÜR-Rechner | Bilanzpflichtige GmbH | Lösung |
 |--------|-------------|----------------------|--------|
 | **Kontenrahmen** | SKR03 (bevorzugt) | SKR03 oder SKR04 | ✅ Beide bereits unterstützt |
-| **Gewinnermittlung** | EÜR selbst erstellen | Bilanz vom Steuerberater | ✅ RechnungsPilot nur Vorerfassung |
+| **Gewinnermittlung** | EÜR selbst erstellen | Bilanz vom Steuerberater | ✅ RechnungsFee nur Vorerfassung |
 | **Anlagevermögen** | Vereinfacht (AfA-Liste) | Detailliert (Anlagenbuchhaltung) | ⚠️ Basis-AfA-Verwaltung reicht |
 | **Abschreibungen** | Linear/Sofortabschreibung | Planmäßig/außerplanmäßig | ⚠️ In DATEV detailliert |
 | **Kostenstellenrechnung** | Selten | Häufig | ⏸️ v2.0 Feature |
@@ -14923,7 +14923,7 @@ INSERT INTO kategorie_vorsteuer_regeln VALUES
 
 **Marketing-Botschaft:**
 
-> **RechnungsPilot** – Die smarte Belegverwaltung für Einzelunternehmer und kleine GmbH/UG.
+> **RechnungsFee** – Die smarte Belegverwaltung für Einzelunternehmer und kleine GmbH/UG.
 >
 > ✅ Rechnungen schreiben & erfassen
 > ✅ Belege kategorisieren & archivieren
@@ -14969,7 +14969,7 @@ Beim **Ersteinrichtungs-Assistenten** eine zusätzliche Frage:
 └────────────────────────────────────────────┘
 
 ⚠️ Hinweis bei GmbH/UG:
-RechnungsPilot erstellt KEINE Bilanz. Am Jahresende
+RechnungsFee erstellt KEINE Bilanz. Am Jahresende
 exportierst du deine Belege per DATEV-Export an
 deinen Steuerberater, der dann Bilanz und
 Jahresabschluss in DATEV erstellt.
@@ -14992,7 +14992,7 @@ In der **Startseite / Dashboard** für GmbH/UG:
 
 ```
 ┌────────────────────────────────────────┐
-│ 📊 RechnungsPilot - Dashboard          │
+│ 📊 RechnungsFee - Dashboard          │
 ├────────────────────────────────────────┤
 │ Unternehmensform: GmbH (Bilanzpflicht) │
 │                                        │
@@ -15013,16 +15013,16 @@ In der **Startseite / Dashboard** für GmbH/UG:
 
 > **Hinweis für bilanzpflichtige Unternehmen (GmbH, UG, AG):**
 >
-> RechnungsPilot ist ein **Belegverwaltungssystem mit DATEV-Export-Funktion**.
+> RechnungsFee ist ein **Belegverwaltungssystem mit DATEV-Export-Funktion**.
 > Es ersetzt KEINE professionelle Finanzbuchhaltungs-Software (z.B. DATEV, Lexware Pro).
 >
-> **Was RechnungsPilot KANN:**
+> **Was RechnungsFee KANN:**
 > - ✅ Rechnungen erstellen & verwalten
 > - ✅ Belege erfassen & kategorisieren
 > - ✅ UStVA selbst abgeben
 > - ✅ DATEV-Export für Steuerberater
 >
-> **Was RechnungsPilot NICHT KANN:**
+> **Was RechnungsFee NICHT KANN:**
 > - ❌ Doppelte Buchführung (§238 HGB)
 > - ❌ Bilanz erstellen (§266 HGB)
 > - ❌ GuV nach §275 HGB
@@ -15030,7 +15030,7 @@ In der **Startseite / Dashboard** für GmbH/UG:
 > - ❌ Jahresabschluss (§264 HGB)
 >
 > **Empfehlung:**
-> Nutzen Sie RechnungsPilot für das Tagesgeschäft und übergeben Sie am Jahresende
+> Nutzen Sie RechnungsFee für das Tagesgeschäft und übergeben Sie am Jahresende
 > per DATEV-Export alle Belege an Ihren Steuerberater, der dann Bilanz und
 > Jahresabschluss in einer professionellen Fibu-Software (z.B. DATEV) erstellt.
 
@@ -15060,7 +15060,7 @@ In der **Startseite / Dashboard** für GmbH/UG:
 
 ---
 
-**Status:** ✅ **Strategische Entscheidung getroffen** - RechnungsPilot wird auch für bilanzpflichtige Unternehmen (GmbH, UG, AG) positioniert als **Vorerfassungssystem mit DATEV-Export**. Alle steuerlichen Einreichungen (UStVA, ZM) sind identisch. Bilanz und Jahresabschluss macht der Steuerberater in DATEV.
+**Status:** ✅ **Strategische Entscheidung getroffen** - RechnungsFee wird auch für bilanzpflichtige Unternehmen (GmbH, UG, AG) positioniert als **Vorerfassungssystem mit DATEV-Export**. Alle steuerlichen Einreichungen (UStVA, ZM) sind identisch. Bilanz und Jahresabschluss macht der Steuerberater in DATEV.
 
 ---
 
@@ -15074,8 +15074,8 @@ In der **Startseite / Dashboard** für GmbH/UG:
 **Idee:**
 - Rechnungsvorlagen für LibreOffice Writer/Calc bereitstellen
 - Platzhalter nach ZUGFeRD-Richtlinien
-- Integration mit RechnungsPilot:
-  - Daten aus RechnungsPilot in Vorlage einfügen
+- Integration mit RechnungsFee:
+  - Daten aus RechnungsFee in Vorlage einfügen
   - Automatisches Befüllen aller Pflichtfelder
   - Export als ZUGFeRD-PDF
 
@@ -15152,10 +15152,10 @@ In der **Startseite / Dashboard** für GmbH/UG:
   {{BEMERKUNG}}
   ```
 - **Integration:**
-  - RechnungsPilot öffnet LibreOffice via CLI
+  - RechnungsFee öffnet LibreOffice via CLI
   - Befüllt Platzhalter mit Daten
   - Export als PDF + ZUGFeRD-XML einbetten
-  - Speichert in RechnungsPilot
+  - Speichert in RechnungsFee
 
 **Implementierung (später):**
 - Phase: Rechnungsschreiben-Modul (nach MVP)
@@ -15207,7 +15207,7 @@ In der **Startseite / Dashboard** für GmbH/UG:
 ## **Projektstruktur (Vorschlag)**
 
 ```
-RechnungsPilot/
+RechnungsFee/
 ├── docs/                     # Dokumentation
 │   ├── projekt.md           # Projektplan (vorhanden)
 │   ├── fragen.md            # Offene Fragen (vorhanden)
@@ -15321,7 +15321,7 @@ RechnungsPilot/
 - Tabelle A (Betriebseinnahmen): 7 Kategorien dokumentiert
 - Tabelle B (Betriebsausgaben): 28 Kategorien dokumentiert
 - Tabelle C (Absetzungen): 6 Kategorien dokumentiert
-- Mapping RechnungsPilot → EKS definiert
+- Mapping RechnungsFee → EKS definiert
 - Export-Workflow (CSV/Excel/PDF) konzipiert
 - EKS-Zusatzdaten-Eingabemaske geplant
 - Plausibilitätsprüfung definiert

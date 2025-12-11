@@ -1,6 +1,6 @@
 # GitHub Repository Setup-Anleitung
 
-Schritt-für-Schritt-Anleitung zur Optimierung des RechnungsPilot-Repositories auf GitHub.
+Schritt-für-Schritt-Anleitung zur Optimierung des RechnungsFee-Repositories auf GitHub.
 
 ---
 
@@ -21,7 +21,7 @@ Schritt-für-Schritt-Anleitung zur Optimierung des RechnungsPilot-Repositories a
 
 ### **Schritt 1: About-Sektion bearbeiten**
 
-1. Gehe zu: https://github.com/nicolettas-muggelbude/RechnungsPilot
+1. Gehe zu: https://github.com/nicolettas-muggelbude/RechnungsFee
 2. Rechts oben in der Sidebar, beim **About**-Bereich, klicke auf das **⚙️ Zahnrad-Symbol**
 3. Es öffnet sich ein Dialog
 
@@ -151,7 +151,7 @@ GitHub leitet dich automatisch weiter:
 
 **Titel:**
 ```
-Willkommen bei RechnungsPilot - Lass uns gemeinsam etwas Großartiges bauen! 🚀
+Willkommen bei RechnungsFee - Lass uns gemeinsam etwas Großartiges bauen! 🚀
 ```
 
 **Text:** (aus community-ankuendigung.md, Version 1)
@@ -252,7 +252,7 @@ GitHub generiert automatisch ein Bild aus:
 4. Bild hochladen (empfohlen: 1280x640px)
 
 **Tipp:** Erstelle eine Grafik in Canva:
-- Text: "RechnungsPilot - Open Source Buchhaltung"
+- Text: "RechnungsFee - Open Source Buchhaltung"
 - Untertitel: "Für Selbstständige & Freiberufler"
 - Logo/Icon (wenn vorhanden)
 - Größe: 1280x640px
@@ -267,15 +267,15 @@ Die README hat bereits Badges. Prüfe ob sie funktionieren:
 
 ```markdown
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![Status](https://img.shields.io/badge/Status-In_Development-yellow)](https://github.com/nicolettas-muggelbude/RechnungsPilot)
+[![Status](https://img.shields.io/badge/Status-In_Development-yellow)](https://github.com/nicolettas-muggelbude/RechnungsFee)
 ```
 
 **Zusätzliche Badges (optional):**
 
 ```markdown
-[![GitHub stars](https://img.shields.io/github/stars/nicolettas-muggelbude/RechnungsPilot?style=social)](https://github.com/nicolettas-muggelbude/RechnungsPilot/stargazers)
-[![GitHub issues](https://img.shields.io/github/issues/nicolettas-muggelbude/RechnungsPilot)](https://github.com/nicolettas-muggelbude/RechnungsPilot/issues)
-[![GitHub discussions](https://img.shields.io/github/discussions/nicolettas-muggelbude/RechnungsPilot)](https://github.com/nicolettas-muggelbude/RechnungsPilot/discussions)
+[![GitHub stars](https://img.shields.io/github/stars/nicolettas-muggelbude/RechnungsFee?style=social)](https://github.com/nicolettas-muggelbude/RechnungsFee/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/nicolettas-muggelbude/RechnungsFee)](https://github.com/nicolettas-muggelbude/RechnungsFee/issues)
+[![GitHub discussions](https://img.shields.io/github/discussions/nicolettas-muggelbude/RechnungsFee)](https://github.com/nicolettas-muggelbude/RechnungsFee/discussions)
 ```
 
 → **Vorerst nicht nötig**, kannst du später hinzufügen!
@@ -335,7 +335,7 @@ Die README hat bereits Badges. Prüfe ob sie funktionieren:
 ### **After About-Bearbeitung:**
 
 ```
-RechnungsPilot
+RechnungsFee
 Public
 
 Open-Source Buchhaltungssoftware für Freiberufler...
@@ -357,7 +357,7 @@ Code  Issues  Pull requests  Discussions  Actions  ...
 ```
 📌 Pinned
 
-Willkommen bei RechnungsPilot - Lass uns gemeinsam...
+Willkommen bei RechnungsFee - Lass uns gemeinsam...
    💬 0  👍 0
 ```
 
@@ -376,13 +376,13 @@ Willkommen bei RechnungsPilot - Lass uns gemeinsam...
 
 **Link zum Teilen:**
 ```
-🚀 RechnungsPilot ist jetzt live auf GitHub!
+🚀 RechnungsFee ist jetzt live auf GitHub!
 
 Open-Source Buchhaltung für Selbstständige.
 Offline-first, datenschutzfreundlich, Made in Germany.
 
 Schau vorbei & gib Feedback:
-https://github.com/nicolettas-muggelbude/RechnungsPilot
+https://github.com/nicolettas-muggelbude/RechnungsFee
 
 #OpenSource #Buchhaltung #Freiberufler
 ```

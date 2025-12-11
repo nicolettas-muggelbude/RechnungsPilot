@@ -1,4 +1,4 @@
-# Community-Ankündigungen für RechnungsPilot
+# Community-Ankündigungen für RechnungsFee
 
 Verschiedene Texte für unterschiedliche Kanäle zur Bekanntmachung des Projekts.
 
@@ -6,11 +6,11 @@ Verschiedene Texte für unterschiedliche Kanäle zur Bekanntmachung des Projekts
 
 ## 🎯 Version 1: GitHub Discussions (Ausführlich & Persönlich)
 
-### Titel: "Willkommen bei RechnungsPilot - Lass uns gemeinsam etwas Großartiges bauen! 🚀"
+### Titel: "Willkommen bei RechnungsFee - Lass uns gemeinsam etwas Großartiges bauen! 🚀"
 
 Hallo zusammen! 👋
 
-Ich möchte euch **RechnungsPilot** vorstellen - ein Projekt, das mir persönlich am Herzen liegt und das ich mit eurer Hilfe Wirklichkeit werden lassen möchte.
+Ich möchte euch **RechnungsFee** vorstellen - ein Projekt, das mir persönlich am Herzen liegt und das ich mit eurer Hilfe Wirklichkeit werden lassen möchte.
 
 ### 💡 Worum geht's?
 
@@ -21,7 +21,7 @@ Wenn du Freiberufler*in oder Selbstständige*r bist, kennst du das vielleicht: D
 - 🤯 Überladen (Features die niemand braucht)
 - 🇺🇸 Für andere Länder gemacht (deutsche Steuervorschriften? Fehlanzeige!)
 
-**RechnungsPilot** soll anders sein:
+**RechnungsFee** soll anders sein:
 
 ✅ **Open Source** - Volle Transparenz, für immer kostenlos
 ✅ **Offline-First** - Deine Daten bleiben lokal und verschlüsselt
@@ -30,7 +30,7 @@ Wenn du Freiberufler*in oder Selbstständige*r bist, kennst du das vielleicht: D
 ✅ **Sozial** - Auch für Menschen mit Transferleistungen (EKS-Export für Arbeitsagentur)
 ✅ **Community-Driven** - Wir bauen das gemeinsam!
 
-### 🎯 Was kann RechnungsPilot (wenn fertig)?
+### 🎯 Was kann RechnungsFee (wenn fertig)?
 
 - 📥 Rechnungen erfassen (manuell, OCR, ZUGFeRD/XRechnung)
 - 📤 Rechnungen schreiben (später)
@@ -105,8 +105,8 @@ Weil Buchhaltung zu wichtig ist, um sie "Black Boxes" zu überlassen. Du sollst:
 ### 💬 Lass uns reden!
 
 Ich freue mich über:
-- 💡 Deine Ideen in den [Discussions](https://github.com/nicolettas-muggelbude/RechnungsPilot/discussions)
-- 🐛 Bug-Reports (später) in den [Issues](https://github.com/nicolettas-muggelbude/RechnungsPilot/issues)
+- 💡 Deine Ideen in den [Discussions](https://github.com/nicolettas-muggelbude/RechnungsFee/discussions)
+- 🐛 Bug-Reports (später) in den [Issues](https://github.com/nicolettas-muggelbude/RechnungsFee/issues)
 - ⭐ Einen Stern für das Repo (zeigt Interesse!)
 - 📣 Teilen des Projekts mit anderen Selbstständigen
 
@@ -125,7 +125,7 @@ P.S.: Schau dir gerne die [offenen Fragen](fragen.md) an - dort kannst du direkt
 
 ## 📱 Version 2: Reddit/Forum (Kompakt & Informativ)
 
-### Titel: "[Open Source] RechnungsPilot - Buchhaltung für Selbstständige, von Anfang an community-driven 🚀"
+### Titel: "[Open Source] RechnungsFee - Buchhaltung für Selbstständige, von Anfang an community-driven 🚀"
 
 **TL;DR:** Ich starte ein Open-Source-Projekt für Buchhaltungssoftware speziell für deutsche Selbstständige/Freiberufler. Offline-first, datenschutzfreundlich, einfach zu bedienen. Suche Feedback, Beta-Tester und Contributors!
 
@@ -133,7 +133,7 @@ P.S.: Schau dir gerne die [offenen Fragen](fragen.md) an - dort kannst du direkt
 
 Hey Leute! 👋
 
-Ich arbeite gerade an **RechnungsPilot** - einer Open-Source-Alternative zu teuren Buchhaltungstools wie Lexoffice & Co.
+Ich arbeite gerade an **RechnungsFee** - einer Open-Source-Alternative zu teuren Buchhaltungstools wie Lexoffice & Co.
 
 **Das Problem:**
 Die meisten Buchhaltungstools für Selbstständige sind entweder teuer (Abo-Modelle), closed source (deine Daten woanders), zu kompliziert, brauchen Zeit für die Konfiguration und individueller Anpassung, oder sind nicht für deutsche Steuervorschriften gemacht.
@@ -159,7 +159,7 @@ Eine Software die:
 
 **Status:** 🟡 Konzeptphase - Du kannst das Projekt von Anfang an mitgestalten!
 
-**Repo:** https://github.com/nicolettas-muggelbude/RechnungsPilot
+**Repo:** https://github.com/nicolettas-muggelbude/RechnungsFee
 
 **Wie du helfen kannst:**
 - Feedback geben (Was brauchst du in einer Buchhaltungssoftware?)
@@ -175,7 +175,7 @@ Ich freue mich über jeden Input! 🙌
 
 **Tweet 1 - Ankündigung:**
 ```
-🚀 Neues Open-Source-Projekt: RechnungsPilot
+🚀 Neues Open-Source-Projekt: RechnungsFee
 
 Buchhaltung für Selbstständige, wie sie sein sollte:
 ✅ Kostenlos & Open Source
@@ -185,7 +185,7 @@ Buchhaltung für Selbstständige, wie sie sein sollte:
 
 Suche Contributors & Beta-Tester!
 
-🔗 github.com/nicolettas-muggelbude/RechnungsPilot
+🔗 github.com/nicolettas-muggelbude/RechnungsFee
 
 #OpenSource #Buchhaltung #Freiberufler #Selbstständig
 ```
@@ -194,7 +194,7 @@ Suche Contributors & Beta-Tester!
 ```
 💭 Problem: Buchhaltungstools sind teuer, Cloud-only & closed source
 
-💡 Lösung: RechnungsPilot - Open-Source Buchhaltung die:
+💡 Lösung: RechnungsFee - Open-Source Buchhaltung die:
 • deine Daten lokal speichert
 • offline funktioniert
 • EÜR, UStVA & DATEV kann
@@ -202,12 +202,12 @@ Suche Contributors & Beta-Tester!
 
 Community-driven von Tag 1!
 
-github.com/nicolettas-muggelbude/RechnungsPilot
+github.com/nicolettas-muggelbude/RechnungsFee
 ```
 
 **Tweet 3 - Call-to-Action:**
 ```
-🙋 RechnungsPilot sucht:
+🙋 RechnungsFee sucht:
 
 💬 Selbstständige mit Feedback
 🧪 Beta-Tester
@@ -218,7 +218,7 @@ github.com/nicolettas-muggelbude/RechnungsPilot
 
 Kein Coding nötig - jede Hilfe zählt!
 
-⭐ github.com/nicolettas-muggelbude/RechnungsPilot
+⭐ github.com/nicolettas-muggelbude/RechnungsFee
 
 #OpenSource #Community
 ```
@@ -227,7 +227,7 @@ Kein Coding nötig - jede Hilfe zählt!
 
 ## 📧 Version 4: Newsletter/Blog-Post (Storytelling)
 
-### Titel: "Warum ich RechnungsPilot baue - und warum du dabei sein solltest"
+### Titel: "Warum ich RechnungsFee baue - und warum du dabei sein solltest"
 
 **Es begann mit einem Problem...**
 
@@ -249,13 +249,13 @@ Ich probierte verschiedene Tools:
 
 Was mir fehlte: **Eine einfache, datenschutzfreundliche, kostenlose Lösung für kleine Selbstständige.**
 
-**Die Idee: RechnungsPilot**
+**Die Idee: RechnungsFee**
 
 Ich dachte: "Das kann doch nicht so schwer sein?" (Spoiler: Es ist schwer. Aber machbar!)
 
 Also beschloss ich, selbst eine Lösung zu bauen. Aber nicht alleine - **mit der Community, von Anfang an.**
 
-**Was RechnungsPilot anders macht**
+**Was RechnungsFee anders macht**
 
 🔓 **Open Source (AGPL-3.0)**
 Kein Vendor Lock-in, volle Transparenz. Du siehst was mit deinen Daten passiert.
@@ -286,7 +286,7 @@ Du musst kein*e Programmierer*in sein! Wir brauchen:
 **Die Vision**
 
 In einem Jahr stelle ich mir vor:
-- Hunderte Selbstständige nutzen RechnungsPilot
+- Hunderte Selbstständige nutzen RechnungsFee
 - Die Community hat es mitgestaltet
 - Es gibt aktive Contributors
 - Jemand hat die Software auf Französisch übersetzt
@@ -296,7 +296,7 @@ In einem Jahr stelle ich mir vor:
 
 **Bist du dabei?**
 
-👉 Schau vorbei: https://github.com/nicolettas-muggelbude/RechnungsPilot
+👉 Schau vorbei: https://github.com/nicolettas-muggelbude/RechnungsFee
 👉 Gib Feedback in den Discussions
 👉 Stern das Repo wenn's dir gefällt
 👉 Erzähl anderen davon
@@ -315,7 +315,7 @@ P.S.: Das Projekt ist wirklich am Anfang. Du verpasst nichts - du bist genau rec
 
 **[Intro-Musik]**
 
-Hey! Schön dass du reinschaust. Heute will ich dir von einem Projekt erzählen, das mir richtig am Herzen liegt: RechnungsPilot.
+Hey! Schön dass du reinschaust. Heute will ich dir von einem Projekt erzählen, das mir richtig am Herzen liegt: RechnungsFee.
 
 **[Das Problem]**
 
@@ -327,7 +327,7 @@ Genau DAS will ich ändern.
 
 **[Die Lösung]**
 
-RechnungsPilot ist eine Open-Source Buchhaltungssoftware. Komplett kostenlos. Deine Daten bleiben auf deinem Computer. Offline nutzbar. Gemacht für deutsche Steuervorschriften.
+RechnungsFee ist eine Open-Source Buchhaltungssoftware. Komplett kostenlos. Deine Daten bleiben auf deinem Computer. Offline nutzbar. Gemacht für deutsche Steuervorschriften.
 
 Und das Besondere: Ich baue es nicht alleine. Ich baue es MIT der Community. Von Tag eins.
 
@@ -347,7 +347,7 @@ Gemeinsam bauen wir die Buchhaltungs-Software, die wir alle verdienen.
 
 Bis dann! 🚀
 
-**[Link in Beschreibung: github.com/nicolettas-muggelbude/RechnungsPilot]**
+**[Link in Beschreibung: github.com/nicolettas-muggelbude/RechnungsFee]**
 
 ---
 
