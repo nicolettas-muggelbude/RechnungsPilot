@@ -6,6 +6,7 @@
 - ✅ Kategorie 3 (Anlage EKS) geklärt
 - ✅ Kategorie 4 (DATEV-Export) geklärt
 - ✅ Kategorie 12 (Hilfe-System) geklärt
+- ✅ Kategorie 13 (Scope & Priorisierung) geklärt - Komfortables MVP
 
 ---
 
@@ -382,48 +383,119 @@
 
 ---
 
-## **📋 Kategorie 13: Scope & Priorisierung**
+## **📋 Kategorie 13: Scope & Priorisierung** ✅ GEKLÄRT
 
-**Frage 13.1: MVP-Definition (Version 1.0):**
-Welche Features MÜSSEN in Version 1.0 dabei sein? Bitte priorisieren:
+**Frage 13.1: MVP-Definition (Version 1.0)** ✅ GEKLÄRT
+**Entscheidung: Komfortables MVP** (Must-Have + wichtigste Should-Haves)
 
-**Must-Have (Prio 1):**
-- [ ] Eingangsrechnungen erfassen (manuell)
-- [ ] Eingangsrechnungen verwalten (Liste, Filter, Suche)
-- [ ] Kassenbuch führen
-- [ ] EAR-Export (Steuerberater / Elster)
-- [ ] Umsatzsteuer-Voranmeldung-Export (Steuerberater / Elster)
-- [ ] EKS-Export (Agentur für Arbeit)
-- [ ] Stammdaten-Verwaltung (Unternehmen, Kunden, Lieferanten)
-- [ ] Backup-Funktion
-- [ ] DATEV Export (Steuerberater)
+---
 
+### **🎯 Must-Have (Prio 1) - MUSS in v1.0**
 
-**Should-Have (Prio 2 - gerne in 1.0 aber nicht zwingend):**
-- [ ] PDF-Import mit OCR
-- [ ] ZUGFeRD/XRechnung-Import
-- [ ] Bank-CSV-Import
-- [ ] Automatischer Zahlungsabgleich
-- [ ] UStVA-Vorbereitung
-- [ ] EÜR-Export
-- [ ] DATEV-Export
-- [ ] Ausgangsrechnungen verwalten (ohne Schreibfunktion)
-- [ ] ?
+**Kern-Buchhaltung:**
+- [x] Stammdaten-Verwaltung (Unternehmen, Kunden, Lieferanten)
+- [x] Eingangsrechnungen erfassen (manuell)
+- [x] Eingangsrechnungen verwalten (Liste, Filter, Suche)
+- [x] Kassenbuch führen (mit GoBD-Konformität)
+- [x] Backup-Funktion (manuell + Exit-Backup)
 
-**Could-Have (Prio 3 - kann auch in 1.1/1.2):**
-- [ ] AGENDA-Export
-- [ ] Import aus hellocash/Rechnungsassistent/Fakturama
-- [ ] Mobile PWA
-- [ ] Erweiterte Statistiken
-- [ ] ?
+**Bank-Integration:**
+- [x] Bank-CSV-Import (Format-Erkennung für 10+ Banken)
+- [x] Zahlungsabgleich (Bank → Rechnungen)
 
-**Won't-Have in 1.0 (explizit später):**
-- [ ] Rechnungsschreiben (Ausgangsrechnungen erstellen)
-- [ ] POS-Kassenbuch mit TSE
-- [ ] ELSTER-Direktanbindung
-- [ ] Bank-API (live)
-- [ ] Multi-User/Mandantenfähigkeit
-- [ ] ?
+**Steuer-Exporte (Grundlagen):**
+- [x] EÜR-Export (Einnahmen-Überschuss-Rechnung für ELSTER)
+- [x] UStVA-Daten-Export (für ELSTER oder Steuerberater)
+- [x] Anlage EKS-Export (Agentur für Arbeit)
+
+**Grundlegende UI:**
+- [x] Dashboard (Übersicht, wichtigste KPIs)
+- [x] Hilfe-System (Tooltips, kontextsensitive Hilfe)
+- [x] Onboarding / Ersteinrichtungs-Assistent
+
+---
+
+### **💡 Should-Have (Prio 2) - In v1.0 inkludiert (Komfortables MVP)**
+
+**Wichtigste Should-Haves für v1.0:**
+- [x] ZUGFeRD/XRechnung-Import (E-Rechnungen werden Pflicht!)
+- [x] DATEV-Export (SKR03/04, CSV-Format)
+- [x] UStVA-Vorschau-PDF (zum Ausdrucken/Prüfen vor ELSTER)
+- [x] Ausgangsrechnungen erfassen (für UStVA-Umsätze, Read-Only!)
+
+**Weitere Should-Haves (können in v1.0 oder v1.1):**
+- [ ] PDF-Import (einfacher Upload, OHNE OCR vorerst)
+- [ ] Anlagenverwaltung (AfA-Berechnung für EÜR)
+- [ ] Wiederkehrende Rechnungen (z.B. monatliche Miete)
+- [ ] Ausgangsrechnungen-Liste (Verwaltung)
+
+---
+
+### **🔮 Could-Have (Prio 3) - Für v1.1/1.2**
+
+**Erweiterte Importe:**
+- [ ] Import aus hellocash
+- [ ] Import aus Fakturama
+- [ ] Import aus Rechnungsassistent
+- [ ] PDF-Import mit OCR (Tesseract, KI-gestützt)
+
+**Zusätzliche Exporte:**
+- [ ] AGENDA-Export (für DATEV-Alternative)
+- [ ] Erweiterte Excel-Berichte
+
+**UX-Verbesserungen:**
+- [ ] Dashboard mit interaktiven Charts
+- [ ] Erweiterte Filter & Suchfunktionen
+- [ ] Massenoperationen (mehrere Rechnungen gleichzeitig)
+- [ ] Tags/Labels für Rechnungen
+
+**Mobile & Progressive:**
+- [ ] Mobile PWA (Responsive Design)
+- [ ] Offline-Modus
+
+**Automatisierung:**
+- [ ] Automatische Kategorisierung (KI-basiert)
+- [ ] Regel-basierte Buchungen
+
+---
+
+### **❌ Won't-Have in v1.0 - Explizit NICHT in v1.0**
+
+**Rechnungsstellung:**
+- [x] Rechnungsschreiben (Ausgangsrechnungen erstellen/drucken)
+- [x] Angebote erstellen
+- [x] Mahnwesen
+
+**Hardware-Integration:**
+- [x] POS-Kassenbuch mit TSE (Technische Sicherheitseinrichtung)
+- [x] Bondrucker-Anbindung
+- [x] Kartenleser-Integration
+
+**Live-Anbindungen:**
+- [x] ELSTER-Direktanbindung (API-Integration)
+- [x] Bank-API (Live-Zugriff, PSD2)
+- [x] PayPal/Stripe-Integration
+
+**Enterprise-Features:**
+- [x] Multi-User / Mehrbenutzerbetrieb
+- [x] Mandantenfähigkeit (mehrere Firmen)
+- [x] Rechteverwaltung / Rollen
+
+**Erweiterte Funktionen:**
+- [x] Lohnbuchhaltung
+- [x] Warenwirtschaft / Lagerverwaltung
+- [x] CRM (Kundenbeziehungsmanagement)
+- [x] Projekt-Zeiterfassung
+- [x] Reisekostenabrechnung
+- [x] Multi-Währung (nur EUR in v1.0)
+
+---
+
+**📊 Zusammenfassung v1.0 (Komfortables MVP):**
+- **13 Must-Have Features** (Kern-Funktionalität)
+- **4 Should-Have Features** (für vollständigen Anwendungsfall)
+- **= 17 Features gesamt in v1.0**
+- Geschätzte Entwicklungszeit: 4-6 Monate
 
 **Frage 13.2: Reihenfolge der Entwicklung:**
 In welcher Reihenfolge sollen die Module entwickelt werden?
