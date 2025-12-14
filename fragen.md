@@ -5,7 +5,7 @@
 - ✅ Kategorie 2 (PDF/E-Rechnungs-Import) geklärt
 - ✅ Kategorie 3 (Anlage EKS) geklärt
 - ✅ Kategorie 4 (DATEV-Export) geklärt
-- ✅ Kategorie 5 (Bank-Integration) vollständig geklärt - 9 Banken, Auto-Erkennung, Matching
+- ✅ Kategorie 5 (Bank-Integration) vollständig geklärt - 10 Banken, Auto-Erkennung, Matching
 - ✅ Kategorie 6 (UStVA) vollständig geklärt - CSV/XML-Export, Kleinunternehmer, Zeiträume
 - ✅ Kategorie 7 (EÜR) vollständig geklärt - Master-Kategorien, AfA-Rechner, Anlagenverwaltung
 - ✅ Kategorie 8.1 (Unternehmerdaten) geklärt - 13 Pflichtfelder, 6 optional
@@ -107,12 +107,13 @@
 
 **Entscheidung: Alle vorhandenen Banken unterstützen**
 
-**Unterstützte Banken (9):**
+**Unterstützte Banken (10):**
 - [x] Commerzbank
 - [x] DKB
 - [x] ING (2 Varianten: normal + mit Saldo)
 - [x] PayPal
 - [x] Sparkasse LZO (3 Varianten: CAMT v2, CAMT v8, MT940)
+- [x] Sparda-Bank West eG
 - [x] Targobank Düsseldorf (+ Variation)
 - [x] VR-Teilhaberbank
 

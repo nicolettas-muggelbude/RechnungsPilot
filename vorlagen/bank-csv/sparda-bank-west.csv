@@ -1,0 +1,21 @@
+﻿Bezeichnung Auftragskonto;IBAN Auftragskonto;GENOXXXXX;Bankname Auftragskonto;Buchungstag;Valutadatum;Max Mustermann;IBAN Zahlungsbeteiligter;BIC (SWIFT-Code) Zahlungsbeteiligter;Buchungstext;Verwendungszweck;Betrag;Waehrung;Saldo nach Buchung;Bemerkung;Gekennzeichneter Umsatz;Glaeubiger ID;Mandatsreferenz
+SpardaGiro Online;DE89370400440532013000;GENOXXXXX;Sparda-Bank West eG;12.12.2025;12.12.2025;Max Mustermann;;;Basislastschrift;Kauf ;-4,99;EUR;2996,48;;;DE40Zxxxxxx;9E0xxxxxx
+SpardaGiro Online;DE89370400440532013000;GENOXXXXX;Sparda-Bank West eG;12.12.2025;12.12.2025;Max Mustermann;;;Basislastschrift;Dienstleistung;-4,44;EUR;3001,47;;;DE40Zxxxxxx;9E0xxxxxx
+SpardaGiro Online;DE89370400440532013000;GENOXXXXX;Sparda-Bank West eG;12.12.2025;12.12.2025;Max Mustermann;;;Basislastschrift;Überweisung;-8,89;EUR;3005,91;;;DE40Zxxxxxx;9E0xxxxxx
+SpardaGiro Online;DE89370400440532013000;GENOXXXXX;Sparda-Bank West eG;12.12.2025;12.12.2025;Max Mustermann;;;Basislastschrift;Kauf ;-4,44;EUR;3014,8;;;DE40Zxxxxxx;9E0xxxxxx
+SpardaGiro Online;DE89370400440532013000;GENOXXXXX;Sparda-Bank West eG;12.12.2025;12.12.2025;Max Mustermann;;;Basislastschrift;Dienstleistung;-29;EUR;3019,24;;;DE40Zxxxxxx;9E0xxxxxx
+SpardaGiro Online;DE89370400440532013000;GENOXXXXX;Sparda-Bank West eG;10.12.2025;10.12.2025;Max Mustermann;;;Basislastschrift;Überweisung;-13721;EUR;3048,24;;;DE40Zxxxxxx;9E0xxxxxx
+SpardaGiro Online;DE89370400440532013000;GENOXXXXX;Sparda-Bank West eG;10.12.2025;10.12.2025;Max Mustermann;;;Basislastschrift;Kauf ;-39,48;EUR;16769,24;;;DE40Zxxxxxx;9E0xxxxxx
+SpardaGiro Online;DE89370400440532013000;GENOXXXXX;Sparda-Bank West eG;10.12.2025;10.12.2025;Max Mustermann;;;Basislastschrift;Dienstleistung;-116,98;EUR;16808,72;;;DE40Zxxxxxx;9E0xxxxxx
+SpardaGiro Online;DE89370400440532013000;GENOXXXXX;Sparda-Bank West eG;09.12.2025;09.12.2025;Max Mustermann;;;Überweisungsgutschr.;Überweisung;510;EUR;16925,7;;;;
+SpardaGiro Online;DE89370400440532013000;GENOXXXXX;Sparda-Bank West eG;09.12.2025;09.12.2025;Max Mustermann;;;Basislastschrift;Kauf ;-3;EUR;16415,7;;;DE40Zxxxxxx;9E0xxxxxx
+SpardaGiro Online;DE89370400440532013000;GENOXXXXX;Sparda-Bank West eG;08.12.2025;08.12.2025;Max Mustermann;;;Kartenzahlung girocard;Dienstleistung;-181,5;EUR;16418,7;;;DE40Zxxxxxx;9E0xxxxxx
+SpardaGiro Online;DE89370400440532013000;GENOXXXXX;Sparda-Bank West eG;05.12.2025;05.12.2025;Max Mustermann;;;Dauerauftragsbelast;Überweisung;-255;EUR;16600,2;;;;
+SpardaGiro Online;DE89370400440532013000;GENOXXXXX;Sparda-Bank West eG;05.12.2025;05.12.2025;Max Mustermann;;;Dauerauftragsbelast;Kauf ;-505;EUR;16855,2;;;;
+SpardaGiro Online;DE89370400440532013000;GENOXXXXX;Sparda-Bank West eG;05.12.2025;05.12.2025;Max Mustermann;;;Basislastschrift;Dienstleistung;-731,06;EUR;17360,2;;;DE40Zxxxxxx;9E0xxxxxx
+SpardaGiro Online;DE89370400440532013000;GENOXXXXX;Sparda-Bank West eG;03.12.2025;03.12.2025;Max Mustermann;;;Kartenzahlung girocard;Überweisung;-8,26;EUR;18091,26;;;DE40Zxxxxxx;9E0xxxxxx
+SpardaGiro Online;DE89370400440532013000;GENOXXXXX;Sparda-Bank West eG;03.12.2025;03.12.2025;Max Mustermann;;;Basislastschrift;Kauf ;-8,99;EUR;18099,52;;;DE40Zxxxxxx;9E0xxxxxx
+SpardaGiro Online;DE89370400440532013000;GENOXXXXX;Sparda-Bank West eG;03.12.2025;03.12.2025;Max Mustermann;;;Basislastschrift;Dienstleistung;-22,33;EUR;18108,51;;;DE40Zxxxxxx;9E0xxxxxx
+SpardaGiro Online;DE89370400440532013000;GENOXXXXX;Sparda-Bank West eG;03.12.2025;03.12.2025;Max Mustermann;;;Basislastschrift;Überweisung;-53;EUR;18130,84;;;DE40Zxxxxxx;9E0xxxxxx
+SpardaGiro Online;DE89370400440532013000;GENOXXXXX;Sparda-Bank West eG;02.12.2025;02.12.2025;Max Mustermann;;;Basislastschrift;Kauf ;-8;EUR;18183,84;;;DE40Zxxxxxx;9E0xxxxxx
+SpardaGiro Online;DE89370400440532013000;GENOXXXXX;Sparda-Bank West eG;02.12.2025;02.12.2025;Max Mustermann;;;Basislastschrift;Dienstleistung;-120,99;EUR;18191,84;;;DE40Zxxxxxx;9E0xxxxxx

@@ -20,13 +20,14 @@ Dieser Ordner enthält Beispiel-CSVs verschiedener Banken für die Import-Funkti
 - [ ] **Consorsbank** - Online-Broker mit Girokonto
 - [x] **PayPal** - Zahlungsdienstleister (wichtig für Online-Geschäft) ✅
 - [x] **Targobank** ✅
+- [x] **Sparda-Bank West eG** ✅
 
 ### Später:
 
 - [ ] Santander
 - [ ] HypoVereinsbank
 - [ ] PSD Bank
-- [ ] Sparda-Bank
+- [ ] Sparda-Bank (weitere Regionalbanken)
 - [ ] Tomorrow Bank
 - [ ] Revolut
 - [ ] C24
@@ -54,6 +55,7 @@ bank-csv/
 ├── targobank-duesseldorf.xlsx             # ✅ Targobank - Excel Format
 ├── vr-teilhaberbank.csv                   # ✅ VR-Teilhaberbank - CSV-Export
 ├── vr-teilhaberbank.mta                   # ✅ VR-Teilhaberbank - MT940 Format
+├── sparda-bank-west.csv                   # ✅ Sparda-Bank West eG - CSV-Export
 ├── volksbank.csv                          # (noch nicht vorhanden)
 ├── n26.csv                                # (noch nicht vorhanden)
 └── ...
@@ -294,6 +296,21 @@ def test_sparkasse_import():
   - Kategorie-Feld (meist leer)
   - Teilweise informative Zeilen (z.B. AGB-Änderungen) mit Betrag 0
 
+### Sparda-Bank West eG
+**Datei:** `sparda-bank-west.csv`
+
+- **Trennzeichen:** `;` (Semikolon)
+- **Encoding:** UTF-8 mit BOM
+- **Dezimaltrennzeichen:** `,` (Komma)
+- **Datumsformat:** DD.MM.YYYY
+- **Header ab Zeile:** 1
+- **Spalten:** Bezeichnung Auftragskonto, IBAN Auftragskonto, BIC Auftragskonto, Bankname Auftragskonto, Buchungstag, Valutadatum, Name Zahlungsbeteiligter, IBAN Zahlungsbeteiligter, BIC (SWIFT-Code) Zahlungsbeteiligter, Buchungstext, Verwendungszweck, Betrag, Währung, Saldo nach Buchung, Bemerkung, Gekennzeichneter Umsatz, Gläubiger ID, Mandatsreferenz
+- **Besonderheiten:**
+  - Identische Struktur wie VR-Teilhaberbank (Genossenschaftsbank)
+  - 18 Spalten mit vollständigen SEPA-Informationen
+  - Enthält Saldo nach jeder Buchung
+  - Gläubiger-ID und Mandatsreferenz bei Lastschriften
+
 ---
 
 ## 📊 Status-Übersicht
@@ -314,6 +331,7 @@ def test_sparkasse_import():
 | Targobank | Excel (.xlsx) | ✅ | ❌ | ❌ |
 | VR-Teilhaberbank | CSV-Export | ✅ | ❌ | ❌ |
 | VR-Teilhaberbank | MT940 (.mta) | ✅ | ❌ | ❌ |
+| Sparda-Bank West eG | CSV-Export | ✅ | ❌ | ❌ |
 | Volksbank | - | ❌ | ❌ | ❌ |
 | N26 | - | ❌ | ❌ | ❌ |
 
