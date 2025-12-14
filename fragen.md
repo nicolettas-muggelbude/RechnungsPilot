@@ -8,6 +8,8 @@
 - ✅ Kategorie 5 (Bank-Integration) vollständig geklärt - 9 Banken, Auto-Erkennung, Matching
 - ✅ Kategorie 6 (UStVA) vollständig geklärt - CSV/XML-Export, Kleinunternehmer, Zeiträume
 - ✅ Kategorie 7 (EÜR) vollständig geklärt - Master-Kategorien, AfA-Rechner, Anlagenverwaltung
+- ✅ Kategorie 8.1 (Unternehmerdaten) geklärt - 13 Pflichtfelder, 6 optional
+- ✅ Kategorie 8.6 (Kundenstammdaten) vollständig geklärt - 9 Punkte inkl. VIES-API, Inland/EU/Drittland
 - ✅ Kategorie 12 (Hilfe-System) geklärt
 - ✅ Kategorie 13 (Scope & Priorisierung) vollständig geklärt - Komfortables MVP, 9 Phasen
 
@@ -479,16 +481,96 @@ Bei Auswahl von Einzelunternehmer, Freiberufler:
 - Oder später separat?
 - Welche Infos: Bankname, IBAN, Typ (Geschäftskonto/Privat)?
 
-**Frage 8.6: Kundenstammdaten - Felder:**
-- Pflichtfelder: Name, Anschrift
-- Optional: E-Mail, Telefon, Website, Ansprechpartner
-- USt-IdNr. (bei Geschäftskunden)
-- Kundennummer (automatisch oder manuell)?
-- Zahlungsziel (Standard z.B. 14 Tage, individuell änderbar?)
-- Kategorisierung:
-  - Privat/Geschäftskunde
-  - Inland/EU/Drittland (wichtig für USt)
-- Automatische USt-IdNr.-Prüfung über EU-API?
+**Frage 8.6: Kundenstammdaten - Felder:** ✅ GEKLÄRT
+
+**Punkt 1: Pflichtfelder** ✅
+- **Privatkunde:**
+  - Vorname, Nachname (Pflicht)
+  - E-Mail (Pflicht)
+  - Straße, Hausnummer, PLZ, Ort, Land (Pflicht)
+  - Telefon (Optional)
+- **Geschäftskunde (B2B):**
+  - Firma (Pflicht)
+  - E-Mail (Pflicht)
+  - Straße, Hausnummer, PLZ, Ort, Land (Pflicht)
+  - Ansprechpartner (ALLE optional):
+    - Vorname, Nachname
+    - Telefon, E-Mail
+    - Messenger-Kontakt (z.B. WhatsApp, Signal, Telegram)
+
+**Punkt 2: Kundennummer** ✅
+- **v1.0:** Automatisch (Format: KD-00001, KD-00002, KD-00003...)
+- **v1.1+:** Format konfigurierbar (z.B. KD-{YYYY}-{###})
+
+**Punkt 3: Kundentyp** ✅
+- **Entscheidung:** Option A - Explizite Unterscheidung
+- Auswahlfeld: "Privatkunde" / "Geschäftskunde"
+- Bestimmt Pflichtfelder im Formular
+
+**Punkt 3a: Steuernummer/UID bei B2B** ✅
+- Bei **Geschäftskunden (B2B):** Mindestens **EINES** ist Pflicht:
+  - Steuernummer (national) ODER
+  - USt-IdNr. (EU-weit)
+- Begründung: Distributoren/Großhändler benötigen diese für Rechnungsstellung
+
+**Punkt 3b: Zweite Adresse (Privatadresse)** ✅
+- **v1.0:** Einfaches Zusatzfeld-Set (ALLE optional):
+  - Privat-Straße
+  - Privat-Hausnummer
+  - Privat-PLZ
+  - Privat-Ort
+  - Privat-Land
+- **v1.1+:** Tab-basierte Adressverwaltung:
+  - Lieferadresse
+  - Rechnungsadresse
+  - Mehrere Ansprechpartner mit eigenen Adressen
+
+**Punkt 4: Zahlungsziel** ✅
+- Feld: "Zahlungsziel (Tage)" - Integer
+- Default: 14 Tage
+- Wird bei Ausgangsrechnungen als Vorschlag übernommen
+- Kann pro Rechnung überschrieben werden
+- Skonto-Regelung → **v1.1+** (zu komplex für v1.0)
+
+**Punkt 5: Kategorisierung Inland/EU/Drittland** ✅
+- **Entscheidung:** Option A - Automatische Erkennung
+- Basierend auf Feld "Land" (Dropdown ISO-Codes: DE, AT, FR, CH, US...)
+- Software erkennt automatisch:
+  - Land = DE → **Inland** (Standard-USt 19%/7%)
+  - Land in EU-Liste (27 Länder) → **EU**
+    - B2B + gültige UID → Reverse-Charge (§13b UStG, 0% USt)
+    - B2C ohne UID → wie Inland (19%/7%)
+  - Land nicht in EU → **Drittland** (Exportumsatz §4 Nr. 1a UStG, 0% USt)
+- Automatische Plausibilitätsprüfung und Hinweise
+
+**Punkt 6: USt-IdNr.-Prüfung über EU-API** ✅
+- **Entscheidung:** Option B - Manuelle Prüfung on-demand
+- Button "UID prüfen" im Formular
+- API: VIES (VAT Information Exchange System)
+- Endpunkt: `https://ec.europa.eu/taxation_customs/vies/rest-api/`
+- Ergebnis wird gespeichert (✅ Gültig / ❌ Ungültig + Zeitstempel)
+- Nutzer entscheidet, wann geprüft wird (keine automatische Wartezeit)
+
+**Punkt 7: Notizen/Bemerkungsfeld** ✅
+- Freitextfeld "Notizen" (optional, unbegrenzt)
+- Einfaches aufziehbares Textfeld (Textarea)
+- Nur intern sichtbar (erscheint nicht auf Rechnungen)
+- Verwendung: Interne Vermerke (z.B. "Kunde zahlt immer pünktlich", "Preisabsprache vom...")
+
+**Punkt 8: Aktiv/Inaktiv Status** ✅
+- Checkbox "Aktiv" (Standard: ✅ aktiviert)
+- Inaktive Kunden:
+  - Werden in Dropdown-Listen ausgegraut oder ausgeblendet
+  - Bleiben in Historie sichtbar (GoBD!)
+  - Können jederzeit reaktiviert werden
+- Filter-Option: "Nur aktive Kunden anzeigen"
+- **Wichtig:** Keine Löschung (GoBD-Konformität)
+
+**Punkt 9: Erstellungs-/Änderungsdatum (Metadaten)** ✅
+- `created_at` - Zeitpunkt des Anlegens (automatisch)
+- `updated_at` - Letzte Änderung (automatisch)
+- Nicht editierbar, nur Anzeige
+- **Unbedingt erforderlich** für GoBD-Konformität und Nachvollziehbarkeit
 
 **Frage 8.7: Lieferantenstammdaten:**
 - Ähnliche Felder wie Kunden?
