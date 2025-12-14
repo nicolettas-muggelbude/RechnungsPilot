@@ -10,6 +10,7 @@
 - ✅ Kategorie 7 (EÜR) vollständig geklärt - Master-Kategorien, AfA-Rechner, Anlagenverwaltung
 - ✅ Kategorie 8.1 (Unternehmerdaten) geklärt - 13 Pflichtfelder, 6 optional
 - ✅ Kategorie 8.6 (Kundenstammdaten) vollständig geklärt - 9 Punkte inkl. VIES-API, Inland/EU/Drittland
+- ✅ Kategorie 8.7 (Lieferantenstammdaten) geklärt - Ähnlich Kunden, einfacher, VIES-API
 - ✅ Kategorie 12 (Hilfe-System) geklärt
 - ✅ Kategorie 13 (Scope & Priorisierung) vollständig geklärt - Komfortables MVP, 9 Phasen
 
@@ -579,10 +580,76 @@ Bei Auswahl von Einzelunternehmer, Freiberufler:
 - Nicht editierbar, nur Anzeige
 - **Unbedingt erforderlich** für GoBD-Konformität und Nachvollziehbarkeit
 
-**Frage 8.7: Lieferantenstammdaten:**
-- Ähnliche Felder wie Kunden?
-- Oder minimalistischer (nur Name, Anschrift, USt-IdNr.)?
-- Lieferantennummer?
+**Frage 8.7: Lieferantenstammdaten** ✅ GEKLÄRT
+
+**Struktur: Ähnlich wie Kundenstamm, aber einfacher (keine B2B/B2C-Unterscheidung)**
+
+### **Pflichtfelder (minimal):**
+- [x] **Firma** (Pflicht)
+- [x] **Adresse:**
+  - Straße + Hausnummer (Pflicht)
+  - PLZ (Pflicht)
+  - Ort (Pflicht)
+  - Land (Pflicht - Default: DE)
+- [x] **E-Mail** (Pflicht - für Kommunikation)
+
+### **Automatische Felder:**
+- [x] **Lieferantennummer** - automatisch (LF-00001, LF-00002, LF-00003...)
+  - Format wie Kundennummer
+  - v1.1+: Konfigurierbar (z.B. LF-{YYYY}-{###})
+
+### **Optionale Felder:**
+
+**Kontakt:**
+- [x] Telefon
+- [x] Webseite (URL)
+- [x] Webshop (URL)
+
+**Geschäftsbeziehung:**
+- [x] Lieferanten-Kundennummer (unsere Kundennummer beim Lieferanten)
+  - Beispiel: "KD-123456" bei Amazon Business
+
+**Steuerliche Daten:**
+- [x] Steuernummer (national)
+  - Validierung: Altes Format (bundesland-spezifisch) UND neues Format (13-stellig)
+- [x] **USt-ID** (Umsatzsteuer-Identifikationsnummer, EU-weit)
+  - VIES-API-Prüfung: Manueller Button "UID prüfen" (wie bei Kunden)
+  - Ergebnis wird mit Zeitstempel gespeichert
+- [x] Handelsregisternummer (optional)
+
+**Ansprechpartner (ALLE optional):**
+- [x] Kontaktperson (Name)
+- [x] Kontaktperson Telefon
+- [x] Kontaktperson E-Mail
+
+**Sonstiges:**
+- [x] Beschreibung/Notizen (Textarea, unbegrenzt)
+  - Nur intern sichtbar
+  - Beispiel: "Zahlungsziel 30 Tage", "Liefert nur dienstags", etc.
+
+### **Status & Kategorisierung:**
+- [x] **Aktiv/Inaktiv** - Checkbox (Standard: ✅ aktiviert)
+  - Inaktive Lieferanten ausblenden, nicht löschen (GoBD!)
+- [x] **Inland/EU/Drittland** - automatische Erkennung basierend auf Land-Feld
+  - Land = DE → Inland
+  - Land in EU → EU
+  - Land außerhalb EU → Drittland
+  - Wichtig für Reverse-Charge bei Rechnungen von EU-Lieferanten
+
+### **Metadaten (GoBD):**
+- [x] `created_at` - Zeitpunkt des Anlegens (automatisch)
+- [x] `updated_at` - Letzte Änderung (automatisch)
+- [x] Nicht editierbar, nur Anzeige
+- [x] **Unbedingt erforderlich** für GoBD-Konformität
+
+---
+
+**Unterschiede zu Kundenstammdaten:**
+- ❌ Keine B2B/B2C-Unterscheidung (alle Lieferanten = B2B)
+- ❌ Keine Privatadresse (nur Geschäftsadresse)
+- ❌ Kein Zahlungsziel (wir bekommen Rechnungen mit vorgegebenem Zahlungsziel)
+- ✅ Zusatzfelder: Webshop, Lieferanten-Kundennummer
+- ✅ Einfacher und schlanker
 
 **Frage 8.8: Produktstammdaten (für späteres Rechnungsschreib-Modul):**
 - Schon in Ersteinrichtung erfassen oder erst später wenn Modul aktiv?
