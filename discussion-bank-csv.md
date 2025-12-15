@@ -73,14 +73,19 @@ Hilf uns herauszufinden, welche Banken Priorität haben sollten!
 - Nutzt du mehrere Banken?
 - Hast du bereits ein CSV exportiert?
 
-### Geplante Unterstützung (MVP):
-- [ ] Sparkasse
-- [ ] Volksbank / Raiffeisenbank
+### Bereits unterstützt (MVP):
+- [x] **Sparkasse** ✅ (3 Formate: MT940, CAMT V2, CAMT V8)
+- [x] **Volksbank / Raiffeisenbank** ✅ (VR-Teilhaberbank: CSV + MT940)
+- [x] **Commerzbank** ✅
+- [x] **DKB (Deutsche Kreditbank)** ✅
+- [x] **ING (ehem. ING-DiBa)** ✅ (2 Varianten)
+- [x] **PayPal** ✅ (Aktivitätsbericht)
+- [x] **Targobank** ✅ (4 Formate: CSV, QIF, XLSX)
+- [x] **Sparda-Bank West eG** ✅
+
+### Noch offen:
 - [ ] Deutsche Bank
-- [ ] Commerzbank
 - [ ] Postbank
-- [ ] DKB (Deutsche Kreditbank)
-- [ ] ING (ehem. ING-DiBa)
 - [ ] N26
 - [ ] Comdirect
 - [ ] Consorsbank
@@ -122,21 +127,34 @@ Jede Bank-CSV, die du beiträgst, hilft:
 
 ## 📊 Status-Übersicht
 
-Aktuelle Anzahl unterstützter Banken: **1 Bank, 3 Formate** 🎉
+Aktuelle Anzahl unterstützter Banken: **10 Banken, 17+ Formate** 🎉
 
 | Bank | Format | Status |
 |------|--------|--------|
-| ✅ Sparkasse/LZO | MT940 | CSV vorhanden |
+| ✅ Sparkasse/LZO | MT940 CSV | CSV vorhanden |
 | ✅ Sparkasse/LZO | CAMT V2 | CSV vorhanden |
 | ✅ Sparkasse/LZO | CAMT V8 | CSV vorhanden |
-| ⏳ Volksbank | - | Noch offen |
-| ⏳ DKB | - | Noch offen |
-| ⏳ ING | - | Noch offen |
+| ✅ PayPal | Aktivitätsbericht | CSV vorhanden |
+| ✅ Commerzbank | Umsatzübersicht | CSV vorhanden |
+| ✅ DKB | Girokonto CSV | CSV vorhanden |
+| ✅ ING | Umsatzanzeige (ohne Saldo) | CSV vorhanden |
+| ✅ ING | Umsatzanzeige (mit Saldo) | CSV vorhanden |
+| ✅ Targobank | CSV (Komma-Dezimal) | CSV vorhanden |
+| ✅ Targobank | CSV (Punkt-Dezimal) | CSV vorhanden |
+| ✅ Targobank | QIF Format | QIF vorhanden |
+| ✅ Targobank | Excel Format | XLSX vorhanden |
+| ✅ VR-Teilhaberbank | CSV-Export | CSV vorhanden |
+| ✅ VR-Teilhaberbank | MT940 Format | MTA vorhanden |
+| ✅ Sparda-Bank West eG | CSV-Export | CSV vorhanden |
+| ⏳ Volksbank | Standard-CSV | Noch offen |
 | ⏳ N26 | - | Noch offen |
+| ⏳ Postbank | - | Noch offen |
+| ⏳ Deutsche Bank | - | Noch offen |
+| ⏳ Comdirect | - | Noch offen |
 
-**Die erste Bank ist dabei - gleich mit 3 Formaten! 🚀**
+**Wow! Schon 10 Banken mit 17+ verschiedenen Formaten dabei! 🚀**
 
-**Hinweis:** Manche Banken bieten mehrere Export-Formate an (MT940, CAMT). Du kannst gerne alle Formate beitragen, die deine Bank anbietet!
+**Hinweis:** Manche Banken bieten mehrere Export-Formate an (MT940, CAMT, QIF, XLSX). Du kannst gerne alle Formate beitragen, die deine Bank anbietet!
 
 ---
 
