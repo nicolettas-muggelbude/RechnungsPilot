@@ -10,9 +10,13 @@
 - ✅ Kategorie 7 (EÜR) vollständig geklärt - Master-Kategorien, AfA-Rechner, Anlagenverwaltung
 - ✅ Kategorie 8.1 (Unternehmerdaten) geklärt - 13 Pflichtfelder, 6 optional
 - ✅ Kategorie 8.2 (Steuerliche Einstellungen) geklärt - USt-Status, Ist-Default, Dauerfrist, änderbar
+- ✅ Kategorie 8.3 (Kontenrahmen) geklärt - Auto-Auswahl nach Rechtsform, nachträglich änderbar
+- ✅ Kategorie 8.4 (Geschäftsjahr) geklärt - Standard Kalenderjahr, abweichendes optional, änderbar
+- ✅ Kategorie 8.5 (Bank-/Konteneinrichtung) geklärt - Min. 1 Konto Pflicht, 4 Pflichtfelder, 3 Typen
 - ✅ Kategorie 8.6 (Kundenstammdaten) vollständig geklärt - 9 Punkte inkl. VIES-API, Inland/EU/Drittland
 - ✅ Kategorie 8.7 (Lieferantenstammdaten) geklärt - Ähnlich Kunden, einfacher, VIES-API
 - ✅ Kategorie 8.8 (Artikel & Dienstleistungen) geklärt - Gemeinsamer Stamm, 3 Typen, EAN auch bei DL
+- ⏳ Kategorie 10 (Backup & Update) teilweise geklärt - 10.1 Speicherort geklärt
 - ✅ Kategorie 12 (Hilfe-System) geklärt
 - ✅ Kategorie 13 (Scope & Priorisierung) vollständig geklärt - Komfortables MVP, 9 Phasen
 
@@ -628,20 +632,140 @@ Diese Einstellungen werden bei der **Ersteinrichtung** festgelegt und beeinfluss
 └────────────────────────────────────────────────────┘
 ```
 
-**Frage 8.3: Kontenrahmen:**
-- SKR03 oder SKR04 bei Einrichtung wählen?
-- Erklärung für Laien (wann welcher Rahmen)?
-- Kann später gewechselt werden?
+**Frage 8.3: Kontenrahmen** ✅ GEKLÄRT
 
-**Frage 8.4: Geschäftsjahr:**
-- Standard: Kalenderjahr (01.01. - 31.12.)?
-- Abweichendes Wirtschaftsjahr möglich?
-- Wichtig für EÜR und Jahresabschluss
+**Entscheidung: Intelligente Defaults basierend auf Rechtsform**
 
-**Frage 8.5: Bank-/Konteneinrichtung:**
-- Konten direkt bei Ersteinrichtung anlegen?
-- Oder später separat?
-- Welche Infos: Bankname, IBAN, Typ (Geschäftskonto/Privat)?
+- [x] **Automatische Auswahl basierend auf Rechtsform (aus 8.1):**
+  - **Freiberufler** → SKR04 (Standard-Kontenrahmen für Freiberufler)
+  - **Einzelunternehmer, GbR, UG, GmbH, AG, e.K., Sonstige** → SKR03 (Standard-Kontenrahmen für Gewerbetreibende)
+- [x] **Nachträglich änderbar** in Einstellungen
+- [x] **Keine Auswahl bei Einrichtung nötig** - Vereinfacht Setup für Laien
+- [x] **Keine Erklärung erforderlich** - System wählt automatisch den richtigen
+
+**Vorteil:** Nutzer braucht kein Wissen über Kontenrahmen - das System entscheidet basierend auf der bereits erfassten Rechtsform.
+
+**Frage 8.4: Geschäftsjahr** ✅ GEKLÄRT
+
+**Entscheidung: Kalenderjahr als Standard, abweichendes Wirtschaftsjahr optional**
+
+- [x] **Standard: Kalenderjahr** (01.01. - 31.12.)
+  - Für die meisten Selbstständigen und Freiberufler
+  - Automatisch voreingestellt
+- [x] **Abweichendes Wirtschaftsjahr möglich**
+  - Bei Einstellung Dauerfristverlängerung aktivierbar
+  - Wichtig für EÜR und Jahresabschluss
+- [x] **Nachträglich änderbar** in Einstellungen
+  - Kann jederzeit angepasst werden
+
+**Auswirkungen:**
+- Bestimmt den Zeitraum für EÜR-Export
+- Relevant für Jahresabschluss und Steuererklärung
+- Bei abweichendem Wirtschaftsjahr: Besondere Berücksichtigung bei UStVA
+
+**Frage 8.5: Bank-/Konteneinrichtung** ✅ GEKLÄRT
+
+**Entscheidung: Mindestens ein Konto bei Ersteinrichtung erforderlich**
+
+**Begründung:**
+- ❌ Ohne Konto: Exporte nicht möglich (UStVA, EÜR, DATEV)
+- ❌ Ohne Konto: Kontoabgleich nicht möglich
+- ❌ Ohne Konto: Bank-CSV-Import nicht zuordenbar
+- ✅ **Mindestens eine Bankverbindung = Pflicht**
+
+---
+
+### **Pflichtfelder pro Konto:**
+
+- [x] **Kontoinhaber** (Pflicht)
+  - Muss **exakt** wie bei der Bank hinterlegt sein
+  - Wichtig für SEPA-Mandate und Abgleich
+  - Beispiel: "Max Mustermann" oder "Mustermann GmbH"
+- [x] **Bankname** (Pflicht)
+  - z.B. "Sparkasse Musterstadt", "GLS Bank", "ING"
+  - Für Übersichtlichkeit und Zuordnung
+- [x] **IBAN** (Pflicht)
+  - Validierung: DE + 20 Zeichen (oder andere Länder-Formate)
+  - Eindeutig identifizierbar
+- [x] **Kontotyp** (Pflicht - Dropdown)
+  - **Geschäftskonto** - nur geschäftliche Transaktionen
+  - **Mischkonto** - privat + geschäftlich gemischt (Filter beim Import)
+  - **Privatkonto** - nur private Transaktionen (nicht importierbar)
+  - Wichtig für SEPA-Mandate-Zuordnung und Transaktionsfilterung
+
+---
+
+### **Optionale Felder:**
+
+- [x] **BIC** (optional)
+  - Für internationale Überweisungen
+  - Oft automatisch aus IBAN ableitbar
+- [x] **Kontoname** (optional)
+  - Interne Bezeichnung, z.B. "Hauptgeschäftskonto", "PayPal Business"
+  - Für bessere Übersicht bei mehreren Konten
+
+---
+
+### **Workflow bei Ersteinrichtung:**
+
+```
+Schritt 7: Bankverbindung einrichten
+
+⚠️ Mindestens ein Konto erforderlich
+
+┌─────────────────────────────────────────────┐
+│ Kontoinhaber: [Max Mustermann e.K.    ]   │
+│ Bankname:     [Sparkasse Musterstadt  ]   │
+│ IBAN:         [DE89370400440532013000 ]   │
+│ BIC:          [COBADEFFXXX            ]   │ (optional)
+│                                             │
+│ Kontotyp:     [Geschäftskonto       ▼]    │
+│               ○ Geschäftskonto              │
+│               ○ Mischkonto (privat+geschäft)│
+│               ○ Privatkonto                 │
+│                                             │
+│ Kontoname:    [Hauptkonto             ]   │ (optional)
+│                                             │
+│ [ + Weiteres Konto hinzufügen ]            │
+│                                             │
+│         [Zurück]    [Weiter]               │
+└─────────────────────────────────────────────┘
+```
+
+---
+
+### **Mehrere Konten möglich:**
+
+- [x] Nutzer kann mehrere Konten anlegen (z.B. Sparkasse + PayPal)
+- [x] Button "Weiteres Konto hinzufügen" verfügbar
+- [x] Aber: **Mindestens eines ist Pflicht**
+- [x] Weitere Konten können später in Einstellungen hinzugefügt werden
+
+---
+
+### **Verwendung der Kontotypen:**
+
+**Geschäftskonto:**
+- Alle Transaktionen werden als geschäftlich importiert
+- Keine Filter-Dialoge beim Import
+- Standard für Selbstständige
+
+**Mischkonto:**
+- Bei CSV-Import: Dialog zur Auswahl geschäftlich/privat
+- System lernt aus Entscheidungen (Smart Filter)
+- Für Selbstständige mit gemischter Kontonutzung
+
+**Privatkonto:**
+- Kann nicht für Bank-CSV-Import verwendet werden
+- Nur für Übersicht/spätere Nutzung
+- Warnung: "Privatkonten können nicht importiert werden"
+
+---
+
+**Wichtig für SEPA-Mandate:**
+- Kontoinhaber muss exakt mit SEPA-Mandaten übereinstimmen
+- Bei Abweichung: Fehlgeschlagene Lastschriften möglich
+- System warnt bei Abweichungen
 
 **Frage 8.6: Kundenstammdaten - Felder:** ✅ GEKLÄRT
 
@@ -1078,35 +1202,1224 @@ Beispiele:
 
 ## **📋 Kategorie 10: Backup & Update**
 
-**Frage 10.1: Backup-Speicherort:**
-- Nur Nextcloud oder auch lokal/USB-Stick/Netzlaufwerk?
-- Mehrere Backup-Ziele parallel möglich?
-- Cloud-Backup optional (manche wollen nur lokal)?
+**Frage 10.1: Backup-Speicherort** ✅ GEKLÄRT
 
-**Frage 10.2: Backup-Verschlüsselung:**
-- Verschlüsselt oder unverschlüsselt?
-- Wenn verschlüsselt: Mit Master-Passwort oder separatem Backup-Passwort?
-- Verschlüsselung optional oder Pflicht?
+**Entscheidung: Lokales Backup Pflicht, mehrere Ziele möglich**
 
-**Frage 10.3: Backup-Versionen:**
-- Wie viele Backup-Versionen aufbewahren (3, 7, 30)?
-- Automatische Rotation (älteste löschen)?
-- Zeitstempel im Dateinamen?
+### **Minimum (v1.0):**
+- [x] **Lokales Backup IMMER** (Pflicht)
+  - Automatisch bei Programmende
+  - Standard-Pfad: `~/.rechnungspilot/backups/` (Linux/macOS) oder `%APPDATA%/RechnungsPilot/backups/` (Windows)
+  - Mindestens 3 Versionen aufbewahren
+  - **Kann nicht deaktiviert werden** (Datensicherheit!)
 
-**Frage 10.4: Backup bei Programmende:**
-- Immer automatisch oder nur wenn Änderungen?
-- Fortschrittsanzeige oder im Hintergrund?
-- Was bei Backup-Fehler? Programm trotzdem beenden?
+### **Zusätzliche Backup-Ziele (v1.0 - optional):**
+- [x] **USB-Stick** (optional konfigurierbar)
+  - Nutzer wählt Laufwerk/Pfad
+  - Backup wird auch dorthin kopiert (zusätzlich zu lokal)
+  - Warnung wenn USB nicht verfügbar
+- [x] **Netzlaufwerk** (optional konfigurierbar)
+  - SMB/NFS-Share
+  - UNC-Pfad (Windows) oder Mount-Point (Linux/macOS)
+  - Warnung wenn Netzwerk nicht erreichbar
 
-**Frage 10.5: Manuelles Backup:**
-- Über Menü "Jetzt sichern"?
-- Ziel wählbar oder nur Standard-Ziel?
-- Backup-Protokoll/Log einsehbar?
+### **Mehrere Backup-Ziele parallel:**
+- [x] **Local + USB + Netzlaufwerk** gleichzeitig möglich
+- [x] Jedes Ziel kann einzeln aktiviert/deaktiviert werden
+- [x] **Außer lokales Backup** - das ist immer aktiv
 
-**Frage 10.6: Wiederherstellung:**
-- Automatische Wiederherstellung bei Programmstart (wenn DB korrupt)?
-- Manuell aus Backup-Liste wählen?
-- Vorschau welche Backup-Version (Datum, Größe)?
+### **Später ausbaubar (v1.1+):**
+- [ ] Nextcloud/WebDAV
+- [ ] Cloud-Storage (Dropbox, Google Drive, OneDrive)
+- [ ] SFTP/SSH
+- [ ] Git-basiertes Backup
+
+---
+
+### **Backup-Verhalten:**
+
+```
+Beim Programmende:
+1. Lokales Backup erstellen (IMMER)
+   ✅ ~/.rechnungspilot/backups/backup-2025-01-15-14-30-00.db
+
+2. Wenn USB konfiguriert:
+   - USB verfügbar? → Backup kopieren ✅
+   - USB nicht verfügbar? → Warnung anzeigen ⚠️
+
+3. Wenn Netzlaufwerk konfiguriert:
+   - Netzwerk erreichbar? → Backup kopieren ✅
+   - Netzwerk nicht erreichbar? → Warnung anzeigen ⚠️
+
+4. Programm beenden
+```
+
+---
+
+### **UI-Einstellungen:**
+
+```
+Einstellungen → Backup & Wiederherstellung
+
+┌─────────────────────────────────────────────┐
+│ Backup-Ziele                                │
+├─────────────────────────────────────────────┤
+│ ☑ Lokal (Pflicht, nicht deaktivierbar)     │
+│   Pfad: ~/.rechnungspilot/backups/         │
+│   Versionen: [3 ▼]                          │
+│                                             │
+│ ☐ USB-Stick                                 │
+│   Pfad: [/media/usb/backups/        ]      │
+│   [ Durchsuchen ]                           │
+│                                             │
+│ ☐ Netzlaufwerk                              │
+│   Pfad: [\\server\backups\          ]      │
+│   [ Durchsuchen ]                           │
+│                                             │
+│ [ Jetzt sichern ]  [ Wiederherstellen ]    │
+└─────────────────────────────────────────────┘
+```
+
+---
+
+**Vorteile dieser Lösung:**
+- ✅ **Sicherheit:** Lokales Backup kann nicht deaktiviert werden
+- ✅ **Flexibilität:** Zusätzliche Ziele nach Bedarf
+- ✅ **Einfachheit:** Standard-Setup funktioniert out-of-the-box
+- ✅ **Erweiterbar:** Weitere Backup-Ziele in späteren Versionen
+
+**Frage 10.2: Backup-Verschlüsselung** ✅ GEKLÄRT
+
+**Entscheidung: Backups immer verschlüsselt, flexible Passwortverwaltung**
+
+### **Verschlüsselung:**
+- [x] **Backups IMMER verschlüsselt** (Pflicht, nicht deaktivierbar)
+  - AES-256 Verschlüsselung
+  - Datenschutz-konform (DSGVO)
+  - Schutz sensibler Buchhaltungsdaten
+  - **Kann nicht deaktiviert werden**
+
+### **Passwort-Verwaltung (User wählt Methode):**
+
+#### **Option 1: Passwort manuell (Default)** ⭐ Standard
+- [x] **Passwort bei Ersteinrichtung festlegen**
+  - Min. 8 Zeichen, empfohlen: 12+ Zeichen
+  - Passwort-Stärke-Anzeige
+  - Bestätigung (zweimal eingeben)
+- [x] **Passwort wird bei jedem Backup/Restore abgefragt**
+  - Sicherste Methode
+  - Nutzer behält volle Kontrolle
+  - Nachteil: Muss bei jedem Programmende eingegeben werden
+
+#### **Option 2: System-Keyring** 🔐 Empfohlen
+- [x] **Integration mit System-Keychain/-Keyring**
+  - **macOS:** Keychain
+  - **Linux:** GNOME Keyring / KWallet (KDE) / Secret Service API
+  - **Windows:** Windows Credential Manager
+- [x] **Passwort einmal eingeben, danach automatisch**
+  - Bei Ersteinrichtung: Passwort festlegen + "Im Keyring speichern"
+  - System verschlüsselt und speichert Passwort sicher
+  - Bei Backup/Restore: Automatisch aus Keyring abrufen
+- [x] **Vorteile:**
+  - Komfort: Kein ständiges Passwort-Eingeben
+  - Sicherheit: System-Level-Verschlüsselung
+  - Standard bei modernen Betriebssystemen
+
+#### **Option 3: Passwortmanager-Integration** 🔑 Für Power-User
+- [x] **Integration mit gängigen Passwortmanagern (v1.0 oder v1.1)**
+  - KeePass / KeePassXC
+  - Bitwarden
+  - 1Password
+  - Andere (über CLI/API)
+- [x] **Workflow:**
+  - Passwort in Passwortmanager speichern
+  - RechnungsPilot ruft Passwort via CLI/API ab
+  - Beispiel KeePassXC: `keepassxc-cli show database.kdbx "RechnungsPilot Backup"`
+- [x] **Für Nutzer mit bestehendem Passwort-Management-Workflow**
+
+---
+
+### **Backup-Passwort vs. Master-Passwort:**
+
+**Entscheidung: Separates Backup-Passwort**
+
+- [x] **Backup-Passwort ≠ Programm-Login** (falls es ein Programm-Login gibt)
+- [x] **Begründung:**
+  - Backup kann extern wiederhergestellt werden (z.B. auf anderem Rechner)
+  - User kann Backup-Passwort anderen geben (z.B. Steuerberater) ohne Programm-Zugriff
+  - Flexibilität: Verschiedene Sicherheitsstufen
+
+---
+
+### **UI-Einstellungen:**
+
+```
+Einstellungen → Backup & Wiederherstellung → Verschlüsselung
+
+┌─────────────────────────────────────────────┐
+│ Backup-Verschlüsselung                      │
+├─────────────────────────────────────────────┤
+│ ☑ Backups verschlüsseln (Pflicht)          │
+│   Methode: AES-256                          │
+│                                             │
+│ Passwort-Verwaltung:                        │
+│ ○ Manuell eingeben (bei jedem Backup)      │
+│ ● System-Keyring (empfohlen)               │
+│ ○ Passwortmanager-Integration              │
+│                                             │
+│ Aktuelles Passwort: ••••••••                │
+│ [ Passwort ändern ]                         │
+│                                             │
+│ ℹ️ Bei System-Keyring: Passwort wird       │
+│   sicher im System-Schlüsselbund gespeichert│
+└─────────────────────────────────────────────┘
+```
+
+---
+
+### **Ersteinrichtung (Setup-Assistent):**
+
+```
+Schritt 8: Backup-Verschlüsselung einrichten
+
+┌─────────────────────────────────────────────┐
+│ Backup-Passwort festlegen                   │
+├─────────────────────────────────────────────┤
+│ Deine Backups werden verschlüsselt (AES-256)│
+│ zum Schutz sensibler Daten.                 │
+│                                             │
+│ Neues Passwort:                             │
+│ [________________________]                  │
+│ Stärke: ████████░░ Stark                    │
+│                                             │
+│ Passwort bestätigen:                        │
+│ [________________________]                  │
+│                                             │
+│ ☑ Im System-Keyring speichern (empfohlen)  │
+│   → Kein erneutes Eingeben nötig            │
+│                                             │
+│ ⚠️ Wichtig: Passwort gut aufbewahren!      │
+│   Ohne Passwort sind Backups nicht nutzbar. │
+│                                             │
+│         [Zurück]    [Weiter]               │
+└─────────────────────────────────────────────┘
+```
+
+---
+
+### **Backup bei Programmende (mit Keyring):**
+
+```
+Benutzer klickt "Beenden"
+↓
+1. Änderungen vorhanden?
+   ├─ Nein → Programm beenden
+   └─ Ja → Backup erstellen
+
+2. Passwort benötigt
+   ├─ Keyring aktiviert?
+   │  ├─ Ja → Passwort aus Keyring abrufen ✅
+   │  └─ Nein → Passwort-Dialog anzeigen
+   └─ Passwort erhalten
+
+3. Backup erstellen (verschlüsselt mit Passwort)
+   ✅ backup-2025-01-15-14-30-00.db.enc
+
+4. Programm beenden
+```
+
+---
+
+### **Wiederherstellung:**
+
+```
+Backup wiederherstellen
+↓
+1. Backup-Datei auswählen
+   backup-2025-01-15-14-30-00.db.enc
+
+2. Passwort benötigt
+   ├─ Keyring aktiviert?
+   │  ├─ Ja → Passwort aus Keyring abrufen
+   │  └─ Nein → Passwort abfragen
+   └─ Passwort korrekt?
+      ├─ Ja → Entschlüsseln & Wiederherstellen ✅
+      └─ Nein → Fehler "Falsches Passwort" ❌
+```
+
+---
+
+### **Passwort vergessen?**
+
+**Wichtiger Hinweis für Nutzer:**
+
+```
+⚠️ Backup-Passwort vergessen?
+
+Leider gibt es KEINE Möglichkeit, verschlüsselte
+Backups ohne Passwort wiederherzustellen.
+
+Bitte bewahre dein Passwort sicher auf:
+- Passwortmanager
+- Notizzettel im Safe
+- Vertrauenswürdiger Ort
+
+Ohne Passwort sind alle Backups unbrauchbar!
+```
+
+---
+
+### **Technische Details:**
+
+**Verschlüsselung:**
+- Algorithmus: AES-256-GCM (Galois/Counter Mode)
+- Key Derivation: PBKDF2 (100.000+ Iterationen)
+- Salt: Zufällig generiert pro Backup
+- Dateiformat: `.db.enc` (verschlüsselte SQLite)
+
+**Keyring-Bibliotheken:**
+- Rust: `keyring` crate
+- Cross-Platform-Support (Windows, macOS, Linux)
+- Fallback: Wenn Keyring nicht verfügbar → manuelle Eingabe
+
+---
+
+**Vorteile dieser Lösung:**
+- ✅ **Sicherheit:** Immer verschlüsselt, DSGVO-konform
+- ✅ **Komfort:** Keyring vermeidet ständige Passwort-Eingabe
+- ✅ **Flexibilität:** User wählt bevorzugte Methode
+- ✅ **Standard-konform:** System-Keyring ist moderne Best Practice
+
+**Frage 10.3: Backup-Versionen** ✅ GEKLÄRT
+
+**Entscheidung: 7 Versionen als Standard, konfigurierbar**
+
+### **Anzahl der Versionen:**
+- [x] **Standard: 7 Versionen** (1 Woche Puffer)
+  - Guter Kompromiss zwischen Sicherheit und Speicherplatz
+  - Ermöglicht Zeitreise bis zu 7 Tage zurück
+  - Für die meisten Nutzer ausreichend
+
+### **Konfigurierbar:**
+- [x] **Nutzer kann Anzahl ändern** (in Einstellungen)
+  - Minimum: 3 Versionen (nicht weniger - Datensicherheit!)
+  - Empfohlen: 7 Versionen ⭐
+  - Maximum: 30 Versionen (für Power-User)
+  - Dropdown-Werte: 3, 5, 7, 10, 14, 30
+
+### **Automatische Rotation:**
+- [x] **Älteste Backups automatisch löschen** (Pflicht)
+  - Wenn Maximum erreicht → ältestes Backup wird gelöscht
+  - Neues Backup wird erstellt
+  - Anzahl bleibt konstant (z.B. immer genau 7)
+  - **Kann nicht deaktiviert werden** (verhindert Speicher-Überlauf)
+
+### **Zeitstempel im Dateinamen:**
+- [x] **Format: `backup-YYYY-MM-DD-HH-MM-SS.db.enc`**
+  - Beispiel: `backup-2025-01-22-14-30-45.db.enc`
+  - Eindeutig identifizierbar
+  - Sortierbar (chronologisch)
+  - Nutzer sieht auf einen Blick, wann Backup erstellt wurde
+
+---
+
+### **Speicherplatz-Berechnung:**
+
+**Annahme:** Datenbank-Größe ≈ 50 MB (typisch für Kleinunternehmer)
+
+| Versionen | Gesamt-Speicherplatz | Rücksprung-Zeitraum |
+|-----------|---------------------|---------------------|
+| 3 | ~150 MB | 2-3 Tage |
+| **7** ⭐ | **~350 MB** | **1 Woche** |
+| 30 | ~1,5 GB | 1 Monat |
+
+**Bei größeren Datenbanken (z.B. 200 MB):**
+- 7 Versionen = ~1,4 GB
+
+---
+
+### **Rotation-Beispiel (7 Versionen):**
+
+```
+Tag 1-7: Backups werden aufgebaut
+backup-2025-01-16.db.enc  (ältestes)
+backup-2025-01-17.db.enc
+backup-2025-01-18.db.enc
+backup-2025-01-19.db.enc
+backup-2025-01-20.db.enc
+backup-2025-01-21.db.enc
+backup-2025-01-22.db.enc  (neuestes)
+
+Tag 8: Neues Backup erstellt
+→ backup-2025-01-16.db.enc wird GELÖSCHT ❌
+→ backup-2025-01-23.db.enc wird ERSTELLT ✅
+
+Ergebnis:
+backup-2025-01-17.db.enc  (jetzt ältestes)
+backup-2025-01-18.db.enc
+backup-2025-01-19.db.enc
+backup-2025-01-20.db.enc
+backup-2025-01-21.db.enc
+backup-2025-01-22.db.enc
+backup-2025-01-23.db.enc  (neuestes)
+```
+
+**→ Immer genau 7 Versionen vorhanden**
+
+---
+
+### **UI-Einstellungen:**
+
+```
+Einstellungen → Backup & Wiederherstellung → Versionen
+
+┌─────────────────────────────────────────────┐
+│ Backup-Versionen                            │
+├─────────────────────────────────────────────┤
+│ Anzahl aufzubewahrender Versionen:          │
+│ [7 ▼]                                       │
+│ (Dropdown: 3, 5, 7, 10, 14, 30)            │
+│                                             │
+│ ☑ Älteste Backups automatisch löschen      │
+│   (Rotation - nicht deaktivierbar)          │
+│                                             │
+│ ℹ️ Speicherplatz pro Version: ~50 MB       │
+│    Gesamt benötigt: ~350 MB (7 Versionen)  │
+│                                             │
+│ Vorhandene Backups (7):                     │
+│ ┌───────────────────────────────────────┐  │
+│ │ ○ 2025-01-22 14:30 (50 MB) ← Neuestes│  │
+│ │ ○ 2025-01-21 16:45 (49 MB)           │  │
+│ │ ○ 2025-01-20 10:15 (48 MB)           │  │
+│ │ ○ 2025-01-19 18:20 (50 MB)           │  │
+│ │ ○ 2025-01-18 12:00 (47 MB)           │  │
+│ │ ○ 2025-01-17 15:30 (49 MB)           │  │
+│ │ ○ 2025-01-16 09:45 (48 MB) ← Ältestes│  │
+│ └───────────────────────────────────────┘  │
+│                                             │
+│ [ Ausgewähltes wiederherstellen ]          │
+│ [ Ausgewähltes manuell löschen ]           │
+└─────────────────────────────────────────────┘
+```
+
+---
+
+### **Vorteile 7 Versionen:**
+- ✅ **Sicherheit:** 1 Woche Puffer für Fehler-Erkennung
+- ✅ **Speicherplatz:** Moderat (nicht zu viel, nicht zu wenig)
+- ✅ **Praktisch:** Wochenzyklus passt zu Arbeitsrhythmus
+- ✅ **Flexibel:** Nutzer kann bei Bedarf anpassen
+
+---
+
+### **Schutz-Szenarien abgedeckt:**
+
+**Versehentliche Löschung innerhalb 7 Tagen:**
+- ✅ Wiederherstellbar
+
+**Daten-Korruption erkannt innerhalb 7 Tagen:**
+- ✅ Auf älteres Backup zurückgreifen
+
+**Falsche Buchungen über mehrere Tage:**
+- ✅ Bis zu 1 Woche zurückspringen
+
+**Zeitreise für Vergleiche:**
+- ✅ "Wie sah Kontostand vor 5 Tagen aus?"
+
+---
+
+**Zusammenfassung:**
+- Standard: 7 Versionen (empfohlen)
+- Konfigurierbar: 3-30 Versionen
+- Automatische Rotation: Ja (Pflicht)
+- Zeitstempel-Format: `YYYY-MM-DD-HH-MM-SS`
+- Dateiendung: `.db.enc` (verschlüsselt)
+
+**Frage 10.4: Backup bei Programmende** ✅ GEKLÄRT
+
+**Entscheidung: Automatisch bei Änderungen mit Fortschritt und intelligenter Fehlerbehandlung**
+
+### **Wann wird Backup erstellt?**
+- [x] **Nur wenn Änderungen vorhanden** (smart)
+  - System prüft: Wurden Daten geändert seit letztem Backup?
+  - Keine Änderungen → Kein Backup nötig → Programm schließt sofort
+  - Änderungen vorhanden → Backup wird erstellt
+- [x] **Automatisch beim Beenden** (kein Nutzer-Eingriff nötig)
+  - User klickt "Beenden" → System entscheidet automatisch
+
+### **Fortschrittsanzeige:**
+- [x] **Sichtbare Fortschrittsanzeige** (nicht im Hintergrund)
+  - Dialog mit Fortschrittsbalken
+  - Verhindert versehentliches Herunterfahren während Backup
+  - User sieht: "Backup läuft, bitte warten"
+  - Geschätzte Dauer anzeigen (bei großen DBs)
+
+### **Fehlerbehandlung:**
+- [x] **Bei Backup-Fehler: Warnung mit Optionen**
+  - Option 1: "Backup wiederholen" (empfohlen)
+  - Option 2: "Trotzdem beenden" (Warnung wird gespeichert)
+  - **Kein erzwungenes Schließen** - User entscheidet
+
+### **Warnung beim nächsten Start:**
+- [x] **Falls trotz Fehler geschlossen wurde**
+  - Beim nächsten Programmstart: Warnung anzeigen
+  - "Letztes Backup fehlgeschlagen - jetzt nachholen?"
+  - Option: Backup nachholen oder ignorieren
+  - Warnung bleibt, bis Backup erfolgreich
+
+---
+
+### **Workflow: Normaler Programmende (mit Änderungen)**
+
+```
+1. User klickt "Beenden" (X, Menü, Strg+Q)
+   ↓
+2. System prüft: Änderungen seit letztem Backup?
+   ├─ Nein → Programm schließen sofort ✅
+   └─ Ja → Weiter zu Schritt 3
+
+3. Fortschritts-Dialog anzeigen:
+   ┌─────────────────────────────────────┐
+   │ Backup wird erstellt...             │
+   ├─────────────────────────────────────┤
+   │ ████████████████░░░░░░░░ 65%       │
+   │                                     │
+   │ Verschlüssele Daten...              │
+   │ Geschätzte Zeit: 5 Sekunden         │
+   │                                     │
+   │ [ Abbrechen ] (nur in Notfällen)   │
+   └─────────────────────────────────────┘
+
+4. Backup erfolgreich
+   ↓
+5. Programm schließen ✅
+```
+
+---
+
+### **Workflow: Backup-Fehler beim Beenden**
+
+```
+1. User klickt "Beenden"
+   ↓
+2. Änderungen vorhanden → Backup starten
+   ↓
+3. ❌ FEHLER tritt auf (z.B. Festplatte voll, USB nicht erreichbar)
+   ↓
+4. Fehler-Dialog anzeigen:
+
+   ┌─────────────────────────────────────────┐
+   │ ⚠️ Backup fehlgeschlagen                │
+   ├─────────────────────────────────────────┤
+   │ Das Backup konnte nicht erstellt werden:│
+   │                                         │
+   │ Fehler: Nicht genügend Speicherplatz    │
+   │ Pfad: ~/.rechnungsfee/backups/         │
+   │                                         │
+   │ Deine Änderungen sind NICHT gesichert!  │
+   │                                         │
+   │ Was möchtest du tun?                    │
+   │                                         │
+   │ [ 🔄 Backup wiederholen ]  ← Empfohlen │
+   │ [ ⚠️ Trotzdem beenden ]                │
+   │ [ ↩️ Abbrechen ]                        │
+   └─────────────────────────────────────────┘
+
+5a. User wählt "Backup wiederholen"
+    → Zurück zu Schritt 3 (erneuter Versuch)
+
+5b. User wählt "Trotzdem beenden"
+    → Warnung speichern (für nächsten Start)
+    → Programm schließen ⚠️
+
+5c. User wählt "Abbrechen"
+    → Zurück ins Programm (nicht beenden)
+```
+
+---
+
+### **Workflow: Warnung beim nächsten Programmstart**
+
+```
+Programm startet
+↓
+System prüft: Letztes Backup fehlgeschlagen?
+├─ Nein → Normal starten
+└─ Ja → Warnung anzeigen
+
+┌─────────────────────────────────────────────┐
+│ ⚠️ Backup-Warnung                           │
+├─────────────────────────────────────────────┤
+│ Das letzte Backup ist fehlgeschlagen!       │
+│                                             │
+│ Zeitpunkt: 2025-01-22 16:45                │
+│ Fehler: Nicht genügend Speicherplatz        │
+│                                             │
+│ Deine Daten vom letzten Mal sind NICHT     │
+│ gesichert. Möchtest du jetzt ein Backup    │
+│ erstellen?                                  │
+│                                             │
+│ [ 🔄 Jetzt Backup erstellen ] ← Empfohlen  │
+│ [ ⏭️ Später (bei Programmende) ]           │
+│ [ ❌ Ignorieren (nicht empfohlen) ]        │
+└─────────────────────────────────────────────┘
+
+User wählt "Jetzt Backup erstellen":
+→ Backup wird sofort erstellt
+→ Bei Erfolg: Warnung verschwindet ✅
+→ Bei Fehler: Warnung bleibt, erneuter Versuch später
+
+User wählt "Später":
+→ Warnung bleibt gespeichert
+→ Wird bei nächstem Programmende erneut versucht
+
+User wählt "Ignorieren":
+→ Bestätigungs-Dialog:
+  "Wirklich ignorieren? Daten sind ungesichert!"
+  [Ja, ignorieren] [Abbrechen]
+→ Warnung wird gelöscht (auf eigenes Risiko)
+```
+
+---
+
+### **Fehler-Typen und Behandlung:**
+
+| Fehler-Typ | Ursache | Automatische Behandlung | User-Aktion |
+|------------|---------|------------------------|-------------|
+| **Speicherplatz voll** | Festplatte voll | Warnung anzeigen | Speicher freigeben, wiederholen |
+| **USB nicht erreichbar** | USB-Stick abgezogen | Lokales Backup trotzdem erstellen ✅, USB-Warnung | USB einstecken, später sync |
+| **Netzwerk nicht erreichbar** | Netzlaufwerk offline | Lokales Backup trotzdem erstellen ✅, Netzwerk-Warnung | Netzwerk prüfen, später sync |
+| **Passwort falsch** | Keyring-Fehler | Passwort-Dialog anzeigen | Passwort eingeben |
+| **Datei gesperrt** | Antivirus blockiert | Warnung anzeigen | Antivirus-Ausnahme hinzufügen |
+| **Schreibrechte fehlen** | Permissions-Problem | Warnung anzeigen | Rechte prüfen, ggf. Admin |
+
+---
+
+### **Spezialfall: USB/Netzwerk-Fehler**
+
+**Wichtig:** Lokales Backup hat Priorität!
+
+```
+Backup-Prozess:
+1. Lokales Backup erstellen
+   ├─ Erfolgreich ✅ → Weiter zu Schritt 2
+   └─ Fehlgeschlagen ❌ → Fehler-Dialog (wie oben)
+
+2. USB-Backup erstellen (falls konfiguriert)
+   ├─ Erfolgreich ✅ → Weiter zu Schritt 3
+   └─ Fehlgeschlagen ⚠️ → Warnung (aber Programm kann beenden)
+                          "USB-Backup fehlgeschlagen, lokales Backup OK"
+
+3. Netzwerk-Backup erstellen (falls konfiguriert)
+   ├─ Erfolgreich ✅ → Alles gut, Programm beenden
+   └─ Fehlgeschlagen ⚠️ → Warnung (aber Programm kann beenden)
+                          "Netzwerk-Backup fehlgeschlagen, lokales Backup OK"
+```
+
+**→ Lokales Backup MUSS erfolgreich sein, zusätzliche Ziele sind optional!**
+
+---
+
+### **UI-Einstellungen:**
+
+```
+Einstellungen → Backup & Wiederherstellung → Programmende
+
+┌─────────────────────────────────────────────┐
+│ Backup bei Programmende                     │
+├─────────────────────────────────────────────┤
+│ ☑ Automatisch Backup erstellen (Pflicht)   │
+│   Nur wenn Änderungen vorhanden             │
+│                                             │
+│ ☑ Fortschrittsanzeige anzeigen             │
+│   (nicht deaktivierbar)                     │
+│                                             │
+│ Bei Backup-Fehler:                          │
+│ ☑ Warnung beim nächsten Start anzeigen     │
+│ ☑ Option zum Wiederholen anbieten           │
+│                                             │
+│ Zusätzliche Backup-Ziele (optional):        │
+│ ☐ USB-Backup als kritisch markieren        │
+│   (Programm nur beenden wenn erfolgreich)   │
+│ ☐ Netzwerk-Backup als kritisch markieren   │
+│                                             │
+│ ℹ️ Lokales Backup ist immer kritisch       │
+└─────────────────────────────────────────────┘
+```
+
+---
+
+### **Abbrechen-Button im Fortschritts-Dialog:**
+
+**Wichtiger Hinweis:** "Abbrechen" sollte nur in Notfällen verwendet werden!
+
+```
+User klickt "Abbrechen" während Backup läuft
+↓
+Bestätigungs-Dialog:
+┌─────────────────────────────────────────┐
+│ ⚠️ Backup wirklich abbrechen?           │
+├─────────────────────────────────────────┤
+│ Das Backup ist noch nicht fertig!       │
+│                                         │
+│ Wenn du jetzt abbrichst:                │
+│ • Änderungen sind NICHT gesichert       │
+│ • Backup-Datei ist unvollständig        │
+│ • Daten könnten verloren gehen          │
+│                                         │
+│ Wirklich abbrechen?                     │
+│                                         │
+│ [ ↩️ Zurück zum Backup ] ← Empfohlen   │
+│ [ ⚠️ Ja, abbrechen ]                   │
+└─────────────────────────────────────────┘
+
+Falls "Ja, abbrechen":
+→ Unvollständiges Backup löschen
+→ Warnung für nächsten Start speichern
+→ Zurück ins Programm (nicht beenden)
+```
+
+---
+
+### **Technische Implementation:**
+
+**Änderungs-Erkennung:**
+```rust
+struct BackupTracker {
+    last_backup_hash: String,  // SHA256 der DB
+    last_backup_time: DateTime,
+}
+
+fn needs_backup() -> bool {
+    let current_hash = calculate_db_hash();
+    let last_hash = load_last_backup_hash();
+
+    current_hash != last_hash  // true = Änderungen vorhanden
+}
+```
+
+**Fehler-Warnung speichern:**
+```rust
+struct BackupWarning {
+    failed_at: DateTime,
+    error_message: String,
+    retry_count: u32,
+}
+
+// In Config-Datei speichern:
+~/.rechnungsfee/backup_warning.json
+```
+
+---
+
+### **Vorteile dieser Lösung:**
+- ✅ **Intelligent:** Nur Backup wenn nötig (spart Zeit)
+- ✅ **Transparent:** User sieht Fortschritt
+- ✅ **Sicher:** Fehler werden nicht ignoriert
+- ✅ **Flexibel:** User kann bei Fehler entscheiden
+- ✅ **Persistent:** Warnungen bleiben bis behoben
+- ✅ **Prioritäten:** Lokales Backup ist kritisch, Rest optional
+
+**Frage 10.5: Manuelles Backup** ✅ GEKLÄRT
+
+**Entscheidung: Menü "Jetzt sichern" mit freier Zielwahl und Log-Viewer**
+
+### **Zugriff:**
+- [x] **Menü: Datei → Jetzt sichern** (oder Tastenkürzel Strg+B)
+- [x] **Toolbar-Button** (optional, konfigurierbar)
+- [x] **Einstellungen → Backup-Button** "Jetzt sichern"
+
+### **Zielwahl:**
+- [x] **Keine Vorgabe - User wählt frei:**
+  - Nur lokal
+  - Nur USB
+  - Nur Netzwerk
+  - Alle konfigurierten Ziele
+  - Oder beliebige Kombination
+- [x] **Zusätzlich: Ad-hoc-Ziel wählen**
+  - "An anderem Ort sichern..." → Datei-Browser
+  - Für Einmal-Backups (z.B. vor großen Änderungen)
+
+### **Backup-Protokoll/Log-Viewer:**
+- [x] **Vollständige Backup-Historie einsehbar**
+  - Alle automatischen Backups
+  - Alle manuellen Backups
+  - Erfolge und Fehler
+  - Zeitstempel, Größe, Ziel
+- [x] **Zugriff:** Menü → Backup & Wiederherstellung → Backup-Protokoll
+- [x] **Funktionen:**
+  - Filtern (nach Datum, Status, Ziel)
+  - Sortieren
+  - Details anzeigen
+  - Backup direkt wiederherstellen aus Log
+
+---
+
+### **UI: Manuelles Backup-Dialog**
+
+```
+Menü: Datei → Jetzt sichern (Strg+B)
+↓
+
+┌─────────────────────────────────────────────┐
+│ Manuelles Backup erstellen                  │
+├─────────────────────────────────────────────┤
+│ Wohin möchtest du sichern?                  │
+│                                             │
+│ ☑ Lokal                                     │
+│   ~/.rechnungsfee/backups/                 │
+│   Letztes Backup: vor 2 Stunden            │
+│                                             │
+│ ☑ USB-Stick                                 │
+│   /media/usb/backups/                      │
+│   Letztes Backup: vor 1 Tag                │
+│                                             │
+│ ☐ Netzlaufwerk (nicht konfiguriert)        │
+│   [ Konfigurieren... ]                     │
+│                                             │
+│ ─────────────────────────────────────────  │
+│                                             │
+│ ☐ An anderem Ort sichern...                │
+│   [ Durchsuchen... ]                       │
+│   Für Einmal-Backup (z.B. externe Festpl.) │
+│                                             │
+│ ─────────────────────────────────────────  │
+│                                             │
+│ Dateiname (optional):                       │
+│ [backup-vor-steuerexport.db.enc      ]     │
+│ (Standard: backup-YYYY-MM-DD-HH-MM-SS.db.enc)│
+│                                             │
+│ ☑ Vorhandene Versionen beibehalten         │
+│   (zählt nicht zur Auto-Rotation)          │
+│                                             │
+│ [ ✅ Backup jetzt erstellen ]              │
+│ [ Abbrechen ]      [ 📋 Protokoll ]        │
+└─────────────────────────────────────────────┘
+```
+
+---
+
+### **Workflow: Manuelles Backup erstellen**
+
+```
+1. User: Menü → "Jetzt sichern" (Strg+B)
+   ↓
+2. Backup-Dialog öffnet sich (siehe UI oben)
+   ↓
+3. User wählt Ziele (z.B. Lokal + USB)
+   ↓
+4. Optional: Eigenen Dateinamen eingeben
+   ↓
+5. "Backup jetzt erstellen" klicken
+   ↓
+6. Fortschritts-Dialog (wie bei Programmende)
+   ┌─────────────────────────────────────┐
+   │ Backup wird erstellt...             │
+   ├─────────────────────────────────────┤
+   │ ████████████████░░░░░░░░ 65%       │
+   │                                     │
+   │ Aktuell: USB-Stick (2/2)           │
+   │ Geschätzte Zeit: 3 Sekunden         │
+   └─────────────────────────────────────┘
+   ↓
+7. Erfolgs-Meldung:
+   ┌─────────────────────────────────────┐
+   │ ✅ Backup erfolgreich erstellt      │
+   ├─────────────────────────────────────┤
+   │ Gesichert nach:                     │
+   │ • Lokal (50 MB)                    │
+   │ • USB-Stick (50 MB)                │
+   │                                     │
+   │ [ OK ]  [ Protokoll anzeigen ]     │
+   └─────────────────────────────────────┘
+```
+
+---
+
+### **Use Cases für manuelles Backup:**
+
+**1. Vor großen Änderungen**
+```
+User denkt: "Ich mache jetzt große Änderungen (z.B. viele Löschungen)"
+→ Manuelles Backup erstellen mit eigenem Namen:
+  "backup-vor-loeschung-2025-01-22.db.enc"
+→ Falls etwas schiefgeht: Dieses Backup wiederherstellen
+```
+
+**2. Vor Steuerberater-Termin**
+```
+User: "Ich gebe Daten an Steuerberater weiter"
+→ Manuelles Backup auf USB-Stick
+→ USB-Stick dem Steuerberater geben
+→ Steuerberater kann selbst wiederherstellen
+```
+
+**3. Regelmäßiges USB-Backup (Offline-Sicherung)**
+```
+User: "Jeden Freitag sichere ich auf USB"
+→ Manuell: USB-Stick auswählen
+→ Unabhängig von automatischem Backup
+→ Zusätzliche Sicherheit (3-2-1-Backup-Regel)
+```
+
+**4. Ad-hoc externe Festplatte**
+```
+User: "Ich habe gerade externe Festplatte angeschlossen"
+→ "An anderem Ort sichern" wählen
+→ Externe Festplatte auswählen
+→ Einmal-Backup (wird nicht automatisch wiederholt)
+```
+
+---
+
+### **Backup-Protokoll/Log-Viewer**
+
+```
+Menü: Backup & Wiederherstellung → Backup-Protokoll
+↓
+
+┌─────────────────────────────────────────────────────────────┐
+│ Backup-Protokoll                                  [ ✕ ]     │
+├─────────────────────────────────────────────────────────────┤
+│ Filter: [Alle ▼] Zeitraum: [Letzte 30 Tage ▼] [Aktualis.] │
+│                                                             │
+│ Datum/Zeit        │ Typ        │ Ziel      │ Größe │ Status│
+├───────────────────┼────────────┼───────────┼───────┼───────┤
+│ 2025-01-22 16:45 │ Automatisch│ Lokal     │ 50 MB │ ✅    │
+│ 2025-01-22 16:45 │ Automatisch│ USB       │ 50 MB │ ⚠️ X │
+│ 2025-01-22 14:30 │ Manuell    │ USB       │ 50 MB │ ✅    │
+│ 2025-01-22 10:15 │ Automatisch│ Lokal     │ 49 MB │ ✅    │
+│ 2025-01-21 18:20 │ Automatisch│ Lokal     │ 49 MB │ ✅    │
+│ 2025-01-21 18:20 │ Automatisch│ Netzwerk  │ 49 MB │ ❌    │
+│ 2025-01-21 12:00 │ Manuell    │ Alle      │150 MB │ ✅    │
+│ 2025-01-20 16:45 │ Automatisch│ Lokal     │ 48 MB │ ✅    │
+│ ...                                                         │
+├─────────────────────────────────────────────────────────────┤
+│ ℹ️ Legende:                                                │
+│ ✅ Erfolgreich  ⚠️ Teilweise (lokal OK, USB Fehler)       │
+│ ❌ Fehlgeschlagen                                          │
+│                                                             │
+│ [ Details ]  [ Wiederherstellen ]  [ Exportieren (CSV) ]  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### **Detailansicht (Doppelklick auf Eintrag):**
+
+```
+┌─────────────────────────────────────────────┐
+│ Backup-Details: 2025-01-22 16:45           │
+├─────────────────────────────────────────────┤
+│ Typ: Automatisch (Programmende)            │
+│ Zeitpunkt: 22.01.2025 16:45:32            │
+│ Dauer: 4,2 Sekunden                        │
+│                                             │
+│ Ziele:                                      │
+│ ✅ Lokal                                    │
+│    Pfad: ~/.rechnungsfee/backups/         │
+│    Datei: backup-2025-01-22-16-45-32.db.enc│
+│    Größe: 50,3 MB                          │
+│    Hash: a3f5c89d...                       │
+│                                             │
+│ ⚠️ USB-Stick (Fehler)                      │
+│    Pfad: /media/usb/backups/               │
+│    Fehler: Gerät nicht gefunden            │
+│    Wiederholungen: 3                       │
+│                                             │
+│ Datenbank-Info:                             │
+│ Rechnungen: 245                            │
+│ Transaktionen: 1.832                       │
+│ Kunden: 42                                 │
+│ Lieferanten: 18                            │
+│                                             │
+│ [ Dieses Backup wiederherstellen ]         │
+│ [ Backup-Datei im Explorer anzeigen ]      │
+│ [ Schließen ]                              │
+└─────────────────────────────────────────────┘
+```
+
+---
+
+### **Log-Einträge:**
+
+**Jeder Log-Eintrag enthält:**
+- Zeitstempel (Datum + Uhrzeit)
+- Typ (Automatisch / Manuell)
+- Ziel(e) (Lokal, USB, Netzwerk, Extern)
+- Größe (in MB)
+- Status (Erfolgreich ✅ / Teilweise ⚠️ / Fehlgeschlagen ❌)
+- Bei Fehler: Fehlermeldung
+- Hash (zur Integritätsprüfung)
+- Datenbank-Statistiken (Anzahl Rechnungen, etc.)
+
+---
+
+### **Filter & Suche:**
+
+```
+Filter-Optionen:
+┌─────────────────────────────────────────┐
+│ Status: [Alle ▼]                       │
+│ • Alle                                  │
+│ • Nur erfolgreiche                     │
+│ • Nur fehlgeschlagene                  │
+│ • Nur teilweise                        │
+│                                         │
+│ Typ: [Alle ▼]                          │
+│ • Alle                                  │
+│ • Nur automatische                     │
+│ • Nur manuelle                         │
+│                                         │
+│ Ziel: [Alle ▼]                         │
+│ • Alle                                  │
+│ • Nur lokal                            │
+│ • Nur USB                              │
+│ • Nur Netzwerk                         │
+│                                         │
+│ Zeitraum: [Letzte 30 Tage ▼]          │
+│ • Heute                                 │
+│ • Letzte 7 Tage                        │
+│ • Letzte 30 Tage                       │
+│ • Dieses Jahr                          │
+│ • Benutzerdefiniert...                 │
+└─────────────────────────────────────────┘
+```
+
+---
+
+### **Export-Funktion:**
+
+**CSV-Export des Protokolls:**
+```csv
+Zeitstempel,Typ,Ziel,Größe_MB,Status,Fehler,Pfad
+2025-01-22 16:45:32,Automatisch,Lokal,50.3,Erfolgreich,,~/.rechnungsfee/backups/backup-2025-01-22-16-45-32.db.enc
+2025-01-22 16:45:32,Automatisch,USB,0,Fehlgeschlagen,Gerät nicht gefunden,
+2025-01-22 14:30:15,Manuell,USB,50.1,Erfolgreich,,/media/usb/backups/backup-2025-01-22-14-30-15.db.enc
+...
+```
+
+**Nützlich für:**
+- Dokumentation (Steuerberater, Wirtschaftsprüfer)
+- Nachweis regelmäßiger Backups (GoBD)
+- Fehleranalyse bei Support-Anfragen
+
+---
+
+### **Tastenkürzel:**
+
+| Aktion | Tastenkürzel |
+|--------|--------------|
+| Manuelles Backup | **Strg+B** |
+| Backup-Protokoll öffnen | **Strg+Shift+B** |
+| Letzte Wiederherstellung | **Strg+R** |
+
+---
+
+### **Einstellungen: Protokoll-Aufbewahrung**
+
+```
+Einstellungen → Backup & Wiederherstellung → Protokoll
+
+┌─────────────────────────────────────────────┐
+│ Backup-Protokoll                            │
+├─────────────────────────────────────────────┤
+│ Protokoll-Einträge aufbewahren:             │
+│ [90 Tage ▼]                                 │
+│ (Dropdown: 30, 60, 90, 180, 365, Unbegrenzt)│
+│                                             │
+│ ☑ Erfolgreiche Backups im Protokoll        │
+│ ☑ Fehlgeschlagene Backups im Protokoll     │
+│ ☑ Warnungen im Protokoll                   │
+│                                             │
+│ Protokoll-Speicherort:                      │
+│ ~/.rechnungsfee/backup_log.db              │
+│                                             │
+│ Aktuelle Größe: 2,4 MB (1.245 Einträge)   │
+│                                             │
+│ [ Protokoll bereinigen ]                   │
+│ [ Protokoll exportieren (CSV) ]            │
+└─────────────────────────────────────────────┘
+```
+
+---
+
+### **Technische Implementation:**
+
+**Log-Datenbank:**
+```sql
+CREATE TABLE backup_log (
+    id INTEGER PRIMARY KEY,
+    timestamp DATETIME NOT NULL,
+    type TEXT NOT NULL,  -- 'auto', 'manual'
+    target TEXT NOT NULL,  -- 'local', 'usb', 'network', 'custom'
+    file_path TEXT,
+    file_size_bytes INTEGER,
+    status TEXT NOT NULL,  -- 'success', 'partial', 'failed'
+    error_message TEXT,
+    duration_seconds REAL,
+    db_hash TEXT,
+
+    -- Statistiken
+    db_rechnungen_count INTEGER,
+    db_transaktionen_count INTEGER,
+    db_kunden_count INTEGER,
+    db_lieferanten_count INTEGER,
+
+    -- Metadaten
+    triggered_by TEXT,  -- 'user', 'program_exit', 'scheduled'
+    retry_count INTEGER DEFAULT 0,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+---
+
+### **Vorteile dieser Lösung:**
+- ✅ **Flexibilität:** User wählt Ziel(e) frei
+- ✅ **Transparenz:** Vollständiges Protokoll aller Backups
+- ✅ **Kontrolle:** Jederzeit manuell sichern möglich
+- ✅ **Nachvollziehbarkeit:** Log-Export für Dokumentation
+- ✅ **Komfort:** Tastenkürzel für Power-User
+- ✅ **GoBD-konform:** Nachweis regelmäßiger Sicherungen
+
+**Frage 10.6: Wiederherstellung:** ✅ GEKLÄRT
+
+**Entscheidung: Hybrid-Ansatz (Automatisch mit manuellem Fallback)**
+
+#### **Workflow:**
+
+**1. Automatischer Wiederherstellungsversuch:**
+- [x] Bei Programmstart: DB-Integritätsprüfung (SQLite PRAGMA integrity_check)
+- [x] Bei Korruption: Automatischer Versuch mit **letztem erfolgreichen Backup**
+- [x] Fortschrittsanzeige: "Datenbank wird wiederhergestellt..."
+- [x] **Erfolg:** Normaler Programmstart mit Info-Meldung
+  ```
+  ℹ️ Datenbank wurde automatisch wiederhergestellt
+  Backup vom: 2025-12-22, 18:45 Uhr
+  ```
+
+**2. Fallback bei Scheitern:**
+- [x] **Wenn automatische Wiederherstellung fehlschlägt:**
+  - Backup-Liste öffnen (Dialog)
+  - User wählt manuell eine Version
+  - Vorschau pro Backup:
+    - **Datum/Uhrzeit** (z.B. "22.12.2025, 18:45 Uhr")
+    - **Dateigröße** (z.B. "4,2 MB")
+    - **DB-Statistiken:**
+      - Anzahl Rechnungen
+      - Anzahl Transaktionen
+      - Anzahl Kunden
+      - Anzahl Lieferanten
+    - **Status:** ✓ Erfolgreich, ⚠️ Partiell, ✗ Fehlgeschlagen
+
+#### **UI: Backup-Auswahl-Dialog**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ 🔄 Wiederherstellung erforderlich                           │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│ ⚠️ Automatische Wiederherstellung fehlgeschlagen            │
+│ Bitte wählen Sie ein Backup zur manuellen Wiederherstellung │
+│                                                              │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │ ○ 22.12.2025, 18:45 Uhr  │  4,2 MB  │  ✓  │ 142 Rg.    │ │
+│ │   └─ 1.284 Transaktionen, 45 Kunden, 12 Lieferanten     │ │
+│ │                                                          │ │
+│ │ ○ 22.12.2025, 12:30 Uhr  │  4,1 MB  │  ✓  │ 138 Rg.    │ │
+│ │   └─ 1.201 Transaktionen, 44 Kunden, 12 Lieferanten     │ │
+│ │                                                          │ │
+│ │ ○ 21.12.2025, 19:15 Uhr  │  4,0 MB  │  ✓  │ 135 Rg.    │ │
+│ │   └─ 1.156 Transaktionen, 43 Kunden, 11 Lieferanten     │ │
+│ └─────────────────────────────────────────────────────────┘ │
+│                                                              │
+│ 📂 Speicherort: ~/.rechnungsfee/backups/                    │
+│                                                              │
+│         [ Vorschau ]  [ Wiederherstellen ]  [ Abbrechen ]   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### **Zusatzfunktionen:**
+
+- [x] **Vorschau-Button:** Zeigt detaillierte Backup-Metadaten
+  - Verschlüsselungsstatus
+  - DB-Hash (zur Verifizierung)
+  - Wiederherstellungszeit-Schätzung
+  - Letzte 5 Buchungen (Preview)
+
+- [x] **Alternative Quelle:**
+  - "Anderes Backup wählen..." → Datei-Dialog
+  - USB-Stick, Netzlaufwerk, anderer Ordner
+
+- [x] **Notfall-Neuanlage:**
+  - Falls keine Backups verfügbar
+  - "Neue Datenbank erstellen" (Daten verloren)
+  - ⚠️ Warnung mit Bestätigung
+
+#### **Technische Details:**
+
+**Integritätsprüfung:**
+```rust
+fn check_db_integrity(db_path: &Path) -> Result<bool, Error> {
+    let conn = Connection::open(db_path)?;
+    let result: String = conn.query_row(
+        "PRAGMA integrity_check",
+        [],
+        |row| row.get(0)
+    )?;
+
+    Ok(result == "ok")
+}
+```
+
+**Wiederherstellungs-Workflow:**
+```rust
+fn restore_database() -> Result<(), Error> {
+    // 1. Integritätsprüfung
+    if !check_db_integrity(&DB_PATH)? {
+        // 2. Automatischer Versuch
+        match try_auto_restore() {
+            Ok(_) => {
+                show_info("DB erfolgreich wiederhergestellt");
+                return Ok(());
+            }
+            Err(e) => {
+                // 3. Fallback: Manuelle Auswahl
+                let selected = show_backup_list()?;
+                restore_from_backup(&selected)?;
+            }
+        }
+    }
+    Ok(())
+}
+
+fn try_auto_restore() -> Result<(), Error> {
+    let latest = get_latest_successful_backup()?;
+    decrypt_and_restore(&latest)?;
+
+    // Verifizierung nach Wiederherstellung
+    if !check_db_integrity(&DB_PATH)? {
+        return Err(Error::RestoreFailed);
+    }
+
+    Ok(())
+}
+```
+
+---
+
+### **Vorteile dieser Lösung:**
+- ✅ **Komfort:** Automatische Wiederherstellung ohne User-Interaktion (Normalfall)
+- ✅ **Sicherheit:** Fallback bei Problemen (robuster Workflow)
+- ✅ **Transparenz:** User sieht Backup-Details bei manueller Auswahl
+- ✅ **Flexibilität:** Alternative Quellen (USB, Netzwerk) möglich
+- ✅ **Datenrettung:** Notfall-Neuanlage verhindert Programmblockade
+- ✅ **Verifizierung:** Integritätsprüfung nach Wiederherstellung
+- ✅ **Informiert:** Info-Meldung bei automatischer Wiederherstellung
+
+---
 
 **Frage 10.7: Auto-Update:**
 - Zwingend oder optional (Einstellung)?
